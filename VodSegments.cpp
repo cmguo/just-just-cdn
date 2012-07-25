@@ -6,7 +6,6 @@
 
 #include <ppbox/common/HttpFetchManager.h>
 
-#include <util/protocol/pptv/Url.h>
 #include <util/protocol/pptv/TimeKey.h>
 #include <util/archive/XmlIArchive.h>
 #include <util/archive/ArchiveBuffer.h>
@@ -39,20 +38,15 @@ namespace ppbox
             , handle_(NULL)
             , open_step_(StepType::not_open)
             , know_seg_count_(false)
-            , bwtype_(-1)
-            , video_(NULL)
         {
         }
 
         VodSegments::~VodSegments()
         {
-            if (video_) {
-                delete video_;
-                video_ = NULL;
-            }
         }
 
         void VodSegments::async_open(
+            OpenMode mode,
             response_type const & resp)
         {
             assert(StepType::not_open == open_step_);
@@ -109,24 +103,25 @@ namespace ppbox
             return url;
         }
 
-        boost::system::error_code VodSegments::get_request(
+        boost::system::error_code VodSegments::segment_url(
             size_t segment, 
-            boost::uint64_t& beg, 
-            boost::uint64_t& end, 
-            std::string& url,
+            framework::string::Url & url,
             boost::system::error_code & ec)
         {
             ec.clear();
-            if (segment < segments_.size()) {
-                framework::string::Url url_t("http://localhost/");
-                url_t.host(server_host_.host());
-                url_t.svc(server_host_.svc());
-                url_t.path("/" + format(segment) + "/" + name_);
-                url_t.param("key", get_key());
-                url = url_t.to_string();
-                LOG_S(framework::logger::Logger::kLevelDebug,"[get_request] cdn url:"<<url
-                    <<" from:"<<beg
-                    <<" to:"<<end);
+            if (segment < drag_info_.segments.size()) {
+                url.protocol("http");
+                url.host(jump_info_.server_host.host());
+                url.svc(jump_info_.server_host.svc());
+                url.path("/" + format(segment) + "/" + name_);
+                url.param("key", get_key());
+
+                LOG_S(framework::logger::Logger::kLevelDebug,"[get_request] cdn url:"<<url.to_string());
+
+                url.param("rid", drag_info_.segments[segment].va_rid);
+                url.param("blocksize", format(drag_info_.segments[segment].block_size));
+                url.param("filelength", format(drag_info_.segments[segment].file_length));
+                url.param("headlength", format(drag_info_.segments[segment].head_length));
             } else {
                 ec = error::item_not_exist;
             }
@@ -138,7 +133,7 @@ namespace ppbox
         {
             SegmentBase::response_type resp;
             resp.swap(resp_);
-            ios_service().post(boost::bind(resp, ec));
+            resp(ec);
         }
 
         void VodSegments::handle_async_open(
@@ -164,11 +159,10 @@ namespace ppbox
                     handle_ = fetch_mgr_.async_fetch(
                         get_jump_url(),
                         dns_vod_jump_server,
-                        boost::bind(&VodSegments::handle_jump, this ,_1, _2));
+                        boost::bind(&VodSegments::handle_jump, this, _1, _2));
                     return;
                 case StepType::jump:
-                    if (segments_.size() > 0 && video_->duration == segments_[0].duration) {
-                        know_seg_count_ = true;
+                    if (jump_info_.firstseg.is_initialized() && jump_info_.video->duration == jump_info_.firstseg->duration) {
                         open_step_ = StepType::finish;
                     } else {
                         open_step_ = StepType::drag;
@@ -176,11 +170,7 @@ namespace ppbox
                             get_drag_url(),
                             dns_vod_drag_server,
                             boost::bind(&VodSegments::handle_drag, this, _1, _2));
-                        return;
                     }
-                    break;
-                case StepType::drag:
-                    open_step_ = StepType::finish;
                     break;
                 default:
                     assert(0);
@@ -199,34 +189,44 @@ namespace ppbox
             std::string buffer = boost::asio::buffer_cast<char const *>(buf.data());
             LOG_S(Logger::kLevelDebug2, "[handle_jump] jump buffer: " << buffer);
 
-            VodJumpInfoNoDrag jump_info;
             if (!ecc) {
                 util::archive::XmlIArchive <> ia(buf);
-                ia >> (VodJumpInfo&)jump_info;
+                ia >> jump_info_;
                 if (!ia) {
-                    util::archive::XmlIArchive<> iar(buf);
-                    iar >> jump_info;
-                    if (!iar) {
-                        ecc = error::bad_file_format;
+                    ecc = error::bad_file_format;
+                } else {
+                    server_time_ = jump_info_.server_time.to_time_t();
+                    local_time_ = Time::now();
+
+                    if (jump_info_.video.is_initialized()) {
+                        drag_info_.video.name = jump_info_.video->name;
+                        drag_info_.video.type = jump_info_.video->type;
+                        drag_info_.video.bitrate = jump_info_.video->bitrate;
+                        drag_info_.video.filesize = jump_info_.video->filesize;
+                        drag_info_.video.duration = jump_info_.video->duration;
+                        drag_info_.video.width = jump_info_.video->width;
+                        drag_info_.video.height = jump_info_.video->height;
                     }
-                }
-            }//else
+                    if (jump_info_.firstseg.is_initialized()) {
+                        VodSegment seg;
+                        seg.head_length = jump_info_.firstseg->head_length;
+                        seg.file_length = jump_info_.firstseg->file_length;
+                        seg.duration = jump_info_.firstseg->duration;
+                        seg.va_rid = jump_info_.firstseg->va_rid;
+                        seg.duration_offset = jump_info_.firstseg->duration_offset;
+                        seg.duration_offset_us = jump_info_.firstseg->duration_offset_us;
+                        seg.block_size = jump_info_.firstseg->block_size;
+                        seg.block_num = jump_info_.firstseg->block_num;
 
-            if (!ecc)
-            {
-                set_info_by_video(jump_info.video);
-                server_host_ = jump_info.server_host;
-                bwtype_ = jump_info.BWType;
-                server_time_ = jump_info.server_time.to_time_t();
-                local_time_ = Time::now();
+                        drag_info_.segments.push_back(seg);
+                        know_seg_count_ = true;
+                    }
 
-                if (jump_info.block_size != 0) {
-                    segments_.push_back(jump_info.firstseg);
                 }
+              
             }
 
             fetch_mgr_.close(handle_);
-
             handle_async_open(ecc);
         }
 
@@ -237,40 +237,13 @@ namespace ppbox
             boost::system::error_code  ecc = ec;
             std::string buffer = boost::asio::buffer_cast<char const *>(buf.data());
             LOG_S(Logger::kLevelDebug2, "[handle_drag] drag buffer: " << buffer);
-
-
-            VodDragInfoNew drag_info;
             if (!ecc) {
                 util::archive::XmlIArchive <> ia(buf);
-                ia >> drag_info;
+                ia >> drag_info_;
                 if (!ia) {
-                    util::archive::XmlIArchive <> iar(buf);
-                    VodDragInfo drag_info_new;
-                    iar >> drag_info_new;
-                    if (!iar) {
-                        ecc = error::bad_file_format;
-                    } else {
-                        drag_info = drag_info_new;
-                    }
-                }
-            }
-
-            if (!ecc)
-            {
-                set_info_by_video(drag_info.video);
-                know_seg_count_ = true;
-                std::vector<VodSegmentNew> & segmentsTmp = drag_info.segments;
-                size_t segment_size = segments_.size();
-                for (size_t i = 0;  i < segmentsTmp.size(); ++i) {
-                    if (i == 0 && segments_.size() > 0)
-                        continue;
-                    if (i < segment_size) {
-                        boost::uint64_t filesize = segments_[i].file_length;
-                        segments_[i] = segmentsTmp[i];
-                        assert(filesize == segmentsTmp[i].file_length);
-                    } else {
-                        segments_.push_back(segmentsTmp[i]);
-                    }
+                    ecc = error::bad_file_format;
+                } else {
+                    know_seg_count_ = true;
                 }
             }
 
@@ -278,16 +251,6 @@ namespace ppbox
             handle_async_open(ecc);
         }
 
-
-        void VodSegments::set_info_by_video(
-            VodVideo & video)
-        {
-            if (NULL == video_) {
-                video_ = new VodVideo(video);
-            } else {
-                *video_ = video;
-            }
-        }
 
         std::string VodSegments::get_key() const
         {
@@ -298,60 +261,34 @@ namespace ppbox
         size_t VodSegments::segment_count()
         {
             size_t ret = size_t(-1);
-            if (know_seg_count_) {
-                ret = segments_.size();
-            }
+            ret = drag_info_.segments.size();
             return ret;
         }
 
-        boost::uint64_t VodSegments::segment_head_size(
-            size_t segment)
+        void VodSegments::segment_info(
+            size_t segment, 
+            common::SegmentInfo & info)
         {
-            boost::uint64_t ret = boost::uint64_t(-1);
-            if (segments_.size() > segment) {
-                return segments_[segment].head_length;
+            if (drag_info_.segments.size() > segment) {
+                info.head_size = drag_info_.segments[segment].head_length;
+                info.size = drag_info_.segments[segment].file_length;
+                info.time = drag_info_.segments[segment].duration;
+            } else {
+                info.head_size = boost::uint64_t(-1);
+                info.size = boost::uint64_t(-1);
+                info.time = boost::uint64_t(-1);
             }
-            return ret;
-        }
-
-        boost::uint64_t VodSegments::segment_body_size(
-            size_t segment)
-        {
-            boost::uint64_t ret = boost::uint64_t(-1);
-            if (segments_.size() > segment) {
-                return (segments_[segment].file_length - segments_[segment].head_length);
-            }
-            return ret;
-        }
-
-        boost::uint64_t VodSegments::segment_size(
-            size_t segment)
-        {
-            boost::uint64_t ret = boost::uint64_t(-1);
-            if (segments_.size() > segment ) {
-                ret = segments_[segment].file_length;
-            }
-            return ret;
-        }
-
-        boost::uint32_t VodSegments::segment_time(size_t segment)
-        {
-            boost::uint32_t ret = boost::uint32_t(-1);
-            if (segments_.size() > segment ) {
-                ret = segments_[segment].duration;
-            }
-            return ret;
-        }
+        } 
 
         boost::system::error_code VodSegments::get_duration(
-            DurationInfo & info,
+            common::DurationInfo & info,
             boost::system::error_code & ec)
         {
             ec.clear();
-            if (NULL != video_) {
-                info.total = video_->duration;
+            if (0 != drag_info_.video.duration) {
+                info.total = drag_info_.video.duration;
                 info.begin = 0;
-                info.end = video_->duration;
+                info.end = drag_info_.video.duration;
                 info.redundancy = 0;
                 info.interval = 0;
             } else {
@@ -367,7 +304,7 @@ namespace ppbox
                 newSegment.duration = boost::uint32_t(-1);
                 newSegment.file_length = boost::uint64_t(-1);
                 newSegment.head_length = boost::uint64_t(-1);
-                segments_.push_back(newSegment);
+                drag_info_.segments.push_back(newSegment);
             } else if (segment_count() > segment) {
             } else {
                 assert(false);
@@ -376,54 +313,48 @@ namespace ppbox
 
         void VodSegments::update_segment_duration(size_t segment, boost::uint32_t time)
         {
-            if (segments_.size() > segment ) {
-                segments_[segment].duration = time;
+            if (drag_info_.segments.size() > segment ) {
+                drag_info_.segments[segment].duration = time;
             }
         }
 
         void VodSegments::update_segment_file_size(size_t segment, boost::uint64_t fsize)
         {
-            if (segments_.size() > segment) {
-                if (!know_seg_count_ 
-                    && segments_[segment].file_length == boost::uint64_t(-1)) {
-                        segments_[segment].file_length = fsize;
+            if (drag_info_.segments.size() > segment) {
+                if (!know_seg_count_ && drag_info_.segments[segment].file_length == boost::uint64_t(-1)) {
+                        drag_info_.segments[segment].file_length = fsize;
                 }
             }
 
             segment++;
-            if (!know_seg_count_ && segments_.size() == segment) {
+            if (!know_seg_count_ && drag_info_.segments.size() == segment) {
                 // add a segment
                 VodSegmentNew vod_seg;
                 vod_seg.duration = boost::uint32_t(-1);
                 vod_seg.file_length = boost::uint64_t(-1);
                 vod_seg.head_length = boost::uint64_t(-1);
-                segments_.push_back(vod_seg);
+                drag_info_.segments.push_back(vod_seg);
             }
         }
 
         void VodSegments::update_segment_head_size(size_t segment, boost::uint64_t hsize)
         {
-            if (segments_.size() > segment) {
+            if (drag_info_.segments.size() > segment) {
                 if (!know_seg_count_ 
-                    && segments_[segment].head_length == boost::uint64_t(-1)) {
-                        segments_[segment].head_length = hsize;
+                    && drag_info_.segments[segment].head_length == boost::uint64_t(-1)) {
+                        drag_info_.segments[segment].head_length = hsize;
                 }
             }
 
             segment++;
-            if (!know_seg_count_ && segments_.size() == segment) {
+            if (!know_seg_count_ && drag_info_.segments.size() == segment) {
                 // add a segment
                 VodSegmentNew vod_seg;
                 vod_seg.duration = boost::uint32_t(-1);
                 vod_seg.file_length = boost::uint64_t(-1);
                 vod_seg.head_length = boost::uint64_t(-1);
-                segments_.push_back(vod_seg);
+                drag_info_.segments.push_back(vod_seg);
             }
-        }
-
-        bool VodSegments::is_know_seg() const
-        {
-            return know_seg_count_;
         }
 
         void VodSegments::set_url(std::string const &url)
@@ -443,7 +374,7 @@ namespace ppbox
 
             std::string strBwtype = request_url.param("bwtype");
             if(!strBwtype.empty()) {
-                bwtype_ = framework::string::parse<boost::int32_t>(strBwtype);
+                jump_info_.BWType = framework::string::parse<boost::int32_t>(strBwtype);
             }
 
             if (playlink.size() > 4 && playlink.substr(playlink.size() - 4) == ".mp4") {

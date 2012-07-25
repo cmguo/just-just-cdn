@@ -3,11 +3,16 @@
 #ifndef _PPBOX_CDN_LIVE2_SEGMENT_H_
 #define _PPBOX_CDN_LIVE2_SEGMENT_H_
 
-#include "ppbox/cdn/SegmentBase.h"
 #include "ppbox/cdn/LiveInfo.h"
 
-#include <framework/timer/TickCounter.h>
 #include <ppbox/common/HttpFetchManager.h>
+#include <ppbox/common/SegmentBase.h>
+#include <ppbox/common/Serialize.h>
+
+#include <util/serialization/stl/vector.h>
+
+#include <framework/timer/TickCounter.h>
+
 
 namespace ppbox
 {
@@ -40,7 +45,7 @@ namespace ppbox
         };
 
         class Live2Segment
-            : public SegmentBase
+            : public common::SegmentBase
         {
         public:
             Live2Segment(
@@ -49,59 +54,55 @@ namespace ppbox
             ~Live2Segment();
 
             virtual void async_open(
+                OpenMode mode,
                 response_type const & resp);
 
-            virtual void set_reset_time(
-                const char * url, 
-                boost::uint32_t reset_play_time);
+            void cancel(
+                boost::system::error_code & ec) ;
 
-            void cancel(boost::system::error_code & ec) ;
-            void close(boost::system::error_code & ec);
+            void close(
+                boost::system::error_code & ec);
+
             bool is_open() ;
 
             size_t segment_count();
 
-            bool next_segment(size_t segment, boost::uint32_t& out_time);
+            bool next_segment(
+                size_t segment, 
+                boost::uint32_t& out_time);
 
             size_t segment_index(boost::uint64_t time);
 
-            void set_url(std::string const &url);
+            void set_url(
+                std::string const &url);
 
-            boost::system::error_code get_request(
+            boost::system::error_code segment_url(
                 size_t segment, 
-                boost::uint64_t& beg, 
-                boost::uint64_t& end, 
-                std::string& url,
+                framework::string::Url& url,
                 boost::system::error_code & ec);
 
-            boost::uint64_t segment_head_size(
-                size_t segment);
-
-            boost::uint64_t segment_body_size(
-                size_t segment);
-
-            boost::uint64_t segment_size(
-                size_t segment);
-
-            boost::uint32_t segment_time(
-                size_t segment);
+            void segment_info(
+                size_t segment, 
+                common::SegmentInfo & info);
 
             boost::system::error_code get_duration(
-                DurationInfo & info,
+                common::DurationInfo & info,
                 boost::system::error_code & ec);
 
-            void update_segment(size_t segment);
+            void update_segment(
+                size_t segment);
 
-            void update_segment_file_size(size_t segment, boost::uint64_t fsize);
+            void update_segment_file_size(
+                size_t segment,
+                boost::uint64_t fsize);
 
-            void update_segment_duration(size_t segment, boost::uint32_t time);
+            void update_segment_duration(
+                size_t segment,
+                boost::uint32_t time);
 
-            void update_segment_head_size(size_t segment, boost::uint64_t hsize);
-
-            bool is_know_seg() const
-            {
-                return  false;
-            }
+            void update_segment_head_size(
+                size_t segment,
+                boost::uint64_t hsize);
 
         private:
             void handle_async_open(

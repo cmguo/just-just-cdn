@@ -21,13 +21,13 @@ FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("Live2Segment", 0);
 #  define PPBOX_DNS_LIVE2_JUMP "(tcp)(v4)live.dt.synacast.com:80"
 #endif
 
-#define P2P_HEAD_LENGTH 1400
-
 namespace ppbox
 {
     namespace cdn
     {
         static const  framework::network::NetName dns_live2_jump_server(PPBOX_DNS_LIVE2_JUMP);
+
+        PPBOX_REGISTER_SEGMENT(pplive2, Live2Segment);
 
         static const boost::uint32_t CACHE_T = 1800;
 
@@ -63,6 +63,7 @@ namespace ppbox
         }
 
         void Live2Segment::async_open(
+            OpenMode mode,
             response_type const & resp)
         {
             assert(StepType::not_open == open_step_);
@@ -152,7 +153,8 @@ namespace ppbox
             file_time_ = begin_time_;
         }
 
-        size_t Live2Segment::segment_index(boost::uint64_t time)
+        size_t Live2Segment::segment_index(
+            boost::uint64_t time)
         {
             return time/1000/interval_;
         }
@@ -180,12 +182,14 @@ namespace ppbox
         }
 
 
-        void Live2Segment::cancel(boost::system::error_code & ec) 
+        void Live2Segment::cancel(
+            boost::system::error_code & ec) 
         {
             fetch_mgr_.cancel(handle_);
         }
 
-        void Live2Segment::close(boost::system::error_code & ec)
+        void Live2Segment::close(
+            boost::system::error_code & ec)
         {
             fetch_mgr_.close(handle_);
         }
@@ -201,13 +205,9 @@ namespace ppbox
             }
         }
 
-        void Live2Segment::set_reset_time(
-            const char * url, 
-            boost::uint32_t reset_play_time)
-        {
-        }
-
-        bool Live2Segment::next_segment(size_t segment, boost::uint32_t& out_time)
+        bool Live2Segment::next_segment(
+            size_t segment, 
+            boost::uint32_t& out_time)
         {
             size_t segment_count = CACHE_T / interval_;
             boost::uint32_t iDownload = ((segment > segment_count)?(segment - segment_count):0)*interval_;
@@ -228,7 +228,23 @@ namespace ppbox
             return size_t(-1);
         }
 
-        void Live2Segment::set_url(std::string const &url)
+        void Live2Segment::segment_info(
+            size_t segment, 
+            common::SegmentInfo & info)
+        {
+            if (segment < segments_.size()) {
+                info.head_size = segments_[segment].head_leng;
+                info.size = segments_[segment].file_size;
+                info.time = segments_[segment].duration;
+            } else {
+                info.head_size = boost::uint64_t(-1);
+                info.size = boost::uint64_t(-1);
+                info.time = boost::uint64_t(-1);
+            }
+        }
+
+        void Live2Segment::set_url(
+            std::string const &url)
         {
 
             std::string::size_type slash = url.find('|');
@@ -288,26 +304,33 @@ namespace ppbox
 
         }
 
-        boost::system::error_code Live2Segment::get_request(
+        boost::system::error_code Live2Segment::segment_url(
             size_t segment, 
-            boost::uint64_t& beg, 
-            boost::uint64_t& end, 
-            std::string& url,
+            framework::string::Url& url,
             boost::system::error_code & ec)
         {
             ec.clear();
 
             file_time_ = begin_time_ + (segment * interval_);
 
-            beg = P2P_HEAD_LENGTH;
-            if (end != (boost::uint64_t)-1) 
-            {
-                end += P2P_HEAD_LENGTH;
-            }
+            std::string url_str ="http://" + jump_info_.server_host.host_svc() + "/live/" + stream_id_ + "/" + format(file_time_) + ".block";
+            LOG_S(framework::logger::Logger::kLevelDebug,"[get_request] live2 cdn url:" << url_str);
 
-            url ="http://" + jump_info_.server_host.host_svc() + "/live/" + stream_id_ + "/" + format(file_time_) + ".block";
-            LOG_S(framework::logger::Logger::kLevelDebug,"[get_request] live2 cdn url:"<<url);
+            url_str += "&channelid=";
+            url_str += jump_info_.channelGUID;
+            url_str += framework::string::join(rid_.begin(), rid_.end(), "@", "&rid=");
+            url_str += framework::string::join(rate_.begin(), rate_.end(), "@", "&datarate=");
+            url_str += "&replay=1";
+            url_str += "&start=";
+            url_str += framework::string::format(file_time_);
+            url_str += "&interval=";
+            url_str += framework::string::format(interval_);
+            url_str += "&BWType=";
+            url_str += framework::string::format(bwtype_);
+            url_str += "&SourceBase=0&uniqueid=";
+            url_str += framework::string::format(seq_);
 
+            url.from_string(url_str);
             return ec;
         }
 
@@ -319,32 +342,8 @@ namespace ppbox
             resp(ec);
         }
 
-        boost::uint64_t Live2Segment::segment_head_size(
-            size_t segment)
-        {
-            return segments_[segment].head_leng;
-        }
-
-        boost::uint64_t Live2Segment::segment_body_size(
-            size_t segment)
-        {
-            return segments_[segment].file_size - segments_[segment].head_leng;
-        }
-
-        boost::uint64_t Live2Segment::segment_size(
-            size_t segment)
-        {
-            return segments_[segment].file_size;
-        }
-
-        boost::uint32_t Live2Segment::segment_time(
-            size_t segment)
-        {
-            return segments_[segment].duration;
-        }
-
         boost::system::error_code Live2Segment::get_duration(
-            DurationInfo & info,
+            common::DurationInfo & info,
             boost::system::error_code & ec)
         {
             ec.clear();

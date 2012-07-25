@@ -3,19 +3,20 @@
 #ifndef _PPBOX_CDN_SEGMENT_VOD_H_
 #define _PPBOX_CDN_SEGMENT_VOD_H_
 
-#include "ppbox/cdn/SegmentBase.h"
 #include "ppbox/cdn/VodInfo.h"
 #include "ppbox/cdn/LiveInfo.h"
 
+#include <ppbox/common/SegmentBase.h>
 #include <ppbox/common/HttpFetchManager.h>
 
+#include <util/protocol/pptv/Url.h>
 
 namespace ppbox
 {
     namespace cdn
     {
         class VodSegments
-            : public SegmentBase
+            : public common::SegmentBase
         {
         public:
             VodSegments(
@@ -23,66 +24,61 @@ namespace ppbox
 
             ~VodSegments();
 
-            virtual std::string get_class_name()
-            {
-                return "VodSegments";
-            }
-
-            virtual void set_reset_time(
-                const char * url, 
-                boost::uint32_t reset_play_time)
-            {
-            }
-
             virtual void async_open(
+                OpenMode mode,
                 response_type const & resp);
 
-            virtual boost::system::error_code get_request(
+            virtual boost::system::error_code segment_url(
                 size_t segment, 
-                boost::uint64_t& beg, 
-                boost::uint64_t& end, 
-                std::string& url,
+                framework::string::Url & url,
                 boost::system::error_code & ec);
 
-            virtual void cancel(boost::system::error_code & ec);
-            virtual void close(boost::system::error_code & ec);
+            virtual void cancel(
+                boost::system::error_code & ec);
+
+            virtual void close(
+                boost::system::error_code & ec);
+
             virtual bool is_open();
 
-            virtual framework::string::Url get_jump_url();
-            virtual framework::string::Url get_drag_url();
 
             virtual size_t segment_count();
 
-            virtual boost::uint64_t segment_head_size(
-                size_t segment);
-
-            virtual boost::uint64_t segment_body_size(
-                size_t segment);
-
-            virtual boost::uint64_t segment_size(
-                size_t segment);
-
-            virtual boost::uint32_t segment_time(
-                size_t segment);
+            virtual void segment_info(
+                size_t segment, 
+                common::SegmentInfo & info);
 
             virtual boost::system::error_code get_duration(
-                DurationInfo & info,
+                common::DurationInfo & info,
                 boost::system::error_code & ec);
 
-            virtual void update_segment(size_t segment);
+            virtual void update_segment(
+                size_t segment);
 
-            virtual void update_segment_file_size(size_t segment, boost::uint64_t fsize);
+            virtual void update_segment_file_size(
+                size_t segment, boost::uint64_t fsize);
 
-            virtual void update_segment_duration(size_t segment, boost::uint32_t time);
+            virtual void update_segment_duration(
+                size_t segment,
+                boost::uint32_t time);
 
-            virtual void update_segment_head_size(size_t segment, boost::uint64_t hsize);
+            virtual void update_segment_head_size(
+                size_t segment, 
+                boost::uint64_t hsize);
 
-            virtual bool is_know_seg() const;
+            virtual void set_url(
+                std::string const &url);
 
-            virtual void set_url(std::string const &url);
+            bool next_segment(
+                size_t segment,
+                boost::uint32_t & out_time){return true;}
 
-            virtual boost::system::error_code reset(size_t& segment);
+            virtual boost::system::error_code reset(
+                size_t& segment);
+
         private:
+            framework::string::Url get_jump_url();
+            framework::string::Url get_drag_url();
 
             std::string get_key() const;
 
@@ -100,8 +96,6 @@ namespace ppbox
             void response(
                 boost::system::error_code const & ec);
 
-            void set_info_by_video(
-                VodVideo & video);
             void add_segment(
                 VodSegmentNew & segment);
 
@@ -117,22 +111,17 @@ namespace ppbox
                 };
             };
         protected:
-            std::string name_;//视频文件经过decode后的名字
-            framework::network::NetName server_host_;
-            boost::int32_t bwtype_;
-            std::vector<VodSegmentNew> segments_;
+            VodJumpInfo jump_info_;
+            VodDragInfo drag_info_;
+            std::string name_;
 
         private:
             ppbox::common::HttpFetchManager& fetch_mgr_;
             ppbox::common::FetchHandle handle_;
             StepType::Enum open_step_;
             SegmentBase::response_type resp_;
-            VodVideo * video_;
             bool know_seg_count_;
-
-            framework::network::NetName proxy_addr_;
-
-            time_t server_time_;
+            time_t server_time_;//用于计算key值
             Time local_time_;
 
         };//VodSegmemt

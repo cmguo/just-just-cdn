@@ -45,6 +45,11 @@ namespace ppbox
             {
             }
 
+            size_t size()
+            {
+                return segments_.size();
+            }
+
             void add_segment(size_t segment)
             {
                 if (segments_.size() >= MAX_SEGMENT_SIZS)
