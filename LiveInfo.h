@@ -45,7 +45,7 @@ namespace ppbox
             {
             }
 
-            size_t size()
+            size_t count() const
             {
                 return segments_.size();
             }
@@ -89,11 +89,10 @@ namespace ppbox
 
             }
 
-            SegmentInfo& operator [](size_t segment)
+            SegmentInfo operator[](size_t segment) const
             {
                 if (segments_.size() < 1 || segment < (*segments_.begin()).segment || segment > segments_.back().segment)
                 {
-                    default_.clear();
                     return default_;
                 }
                 return *(segments_.begin() + (segment - (*segments_.begin()).segment));

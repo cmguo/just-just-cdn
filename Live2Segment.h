@@ -4,9 +4,9 @@
 #define _PPBOX_CDN_LIVE2_SEGMENT_H_
 
 #include "ppbox/cdn/LiveInfo.h"
+#include "ppbox/cdn/PptvSegments.h"
+#include "ppbox/cdn/HttpFetch.h"
 
-#include <ppbox/common/HttpFetchManager.h>
-#include <ppbox/common/SegmentBase.h>
 #include <ppbox/common/Serialize.h>
 
 #include <util/serialization/stl/vector.h>
@@ -45,7 +45,7 @@ namespace ppbox
         };
 
         class Live2Segment
-            : public common::SegmentBase
+            : public PptvSegments
         {
         public:
             Live2Segment(
@@ -65,16 +65,14 @@ namespace ppbox
 
             bool is_open() ;
 
-            size_t segment_count();
+            size_t segment_count() const;
 
             bool next_segment(
                 size_t segment, 
                 boost::uint32_t& out_time);
 
-            size_t segment_index(boost::uint64_t time);
-
-            void set_url(
-                std::string const &url);
+            size_t segment_index(
+                boost::uint64_t time);
 
             boost::system::error_code segment_url(
                 size_t segment, 
@@ -83,32 +81,23 @@ namespace ppbox
 
             void segment_info(
                 size_t segment, 
-                common::SegmentInfo & info);
+                common::SegmentInfo & info) const;
 
             boost::system::error_code get_duration(
                 common::DurationInfo & info,
                 boost::system::error_code & ec);
 
-            void update_segment(
-                size_t segment);
+            void set_url(
+                framework::string::Url const & url);
 
-            void update_segment_file_size(
-                size_t segment,
-                boost::uint64_t fsize);
-
-            void update_segment_duration(
-                size_t segment,
-                boost::uint32_t time);
-
-            void update_segment_head_size(
-                size_t segment,
-                boost::uint64_t hsize);
+        public:
+            std::string get_name()
+            {
+                return name_;
+            }
 
         private:
             void handle_async_open(
-                boost::system::error_code const & ec);
-
-            void response(
                 boost::system::error_code const & ec);
 
             framework::string::Url get_jump_url() const;
@@ -142,7 +131,6 @@ namespace ppbox
             framework::network::NetName server_host_;
             LiveSegmentsInfo segments_;
             std::string key_;
-            std::string url_;
             std::string channel_;
             std::string stream_id_;
 
@@ -166,10 +154,7 @@ namespace ppbox
 
 
         private:
-            ppbox::common::HttpFetchManager& fetch_mgr_;
-            ppbox::common::FetchHandle handle_;
             StepType::Enum open_step_;
-            SegmentBase::response_type resp_;
 
 
 

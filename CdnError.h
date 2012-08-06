@@ -1,7 +1,7 @@
 // CdnError.h
 
-#ifndef _PPBOX_CDN_ERROR_H_
-#define _PPBOX_CDN_ERROR_H_
+#ifndef _PPBOX_CDN_CDN_ERROR_H_
+#define _PPBOX_CDN_CDN_ERROR_H_
 
 namespace ppbox
 {
@@ -20,6 +20,11 @@ namespace ppbox
                 not_support,
                 not_open,
                 bad_url,
+                start_failed, 
+                bad_xml_format,
+                write_mp4_head_error,
+                bad_ft_param
+
             };
 
             namespace detail {
@@ -56,6 +61,14 @@ namespace ppbox
                             return "cdn: not open";
                         if (value == error::bad_url)
                             return "cdn: bad url";
+                        if (value == start_failed)
+                            return "Vod start faield";
+                        if (value == bad_xml_format)
+                            return "bad xml format";
+                        if (value == write_mp4_head_error)
+                            return "save mp4 head failed";
+                        if (value == bad_ft_param)
+                            return "ft param is worning";
                         return "cdn: unknown error";
                     }
                 };
@@ -98,4 +111,4 @@ namespace boost
     }
 }
 
-#endif // _PPBOX_CDN_ERROR_H_
+#endif // _PPBOX_CDN_CDN_ERROR_H_

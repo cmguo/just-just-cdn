@@ -3,12 +3,9 @@
 #ifndef PPBOX_CDN_VOD2_SEGMENTS_H_
 #define PPBOX_CDN_VOD2_SEGMENTS_H_
 
-#include "ppbox/cdn/VodInfo.h"
-
-#include <ppbox/common/SegmentBase.h>
-#include <ppbox/common/HttpFetchManager.h>
-
-#include <ppbox/vod/HttpFetch.h>
+#include "ppbox/cdn/Vod2Info.h"
+#include "ppbox/cdn/PptvSegments.h"
+#include "ppbox/cdn/HttpFetch.h"
 
 #include <boost/asio/streambuf.hpp>
 
@@ -34,7 +31,7 @@ namespace ppbox
     {
 
         class Vod2Segments
-            : public common::SegmentBase
+            : public PptvSegments
         {
         public:
             Vod2Segments(
@@ -52,44 +49,24 @@ namespace ppbox
                 framework::string::Url & url,
                 boost::system::error_code & ec);
 
-            bool is_open();
-
             void cancel(
                 boost::system::error_code & ec);
 
             void close(
                 boost::system::error_code & ec);
 
-            size_t segment_count();
+            size_t segment_count() const;
 
             void segment_info(
                 size_t segment, 
-                common::SegmentInfo & info);
+                common::SegmentInfo & info) const;
 
             boost::system::error_code get_duration(
                 common::DurationInfo & info,
                 boost::system::error_code & ec);
 
-            void update_segment(size_t segment);
-
-            void update_segment_file_size(size_t segment, boost::uint64_t fsize);
-
-            void update_segment_duration(size_t segment, boost::uint32_t time);
-
-            void update_segment_head_size(size_t segment, boost::uint64_t hsize);
-
-            void set_url(std::string const &url);
-
-            boost::system::error_code reset(size_t& segment);
-
-            bool next_segment(
-                size_t segment,
-                boost::uint32_t &out_time){return true;}
-
-            bool is_open(
-                bool need_check_seek ,
-                boost::system::error_code & ec);
-
+            void set_url(
+                framework::string::Url const &url);
 
         private:
 
@@ -104,11 +81,7 @@ namespace ppbox
             void handle_async_open(
                 boost::system::error_code const & ec);
 
-            void response(
-                boost::system::error_code const & ec);
-
-            bool parse(const std::string name);
-
+            bool parse();
 
         private:
             struct StepType
@@ -122,24 +95,11 @@ namespace ppbox
             };
 
         private:
-            ppbox::cdn::VodPlayInfo vod_play_info_;
+            VodPlayInfo vod_play_info_;
 
             std::string name_;
-
-            ppbox::common::HttpFetchManager& fetch_mgr_;
-            ppbox::common::FetchHandle handle_;
+            Time local_time_;//用于计算key值
             StepType::Enum open_step_;
-            SegmentBase::response_type resp_;
-
-            framework::network::NetName server_host_;
-            boost::int32_t bwtype_;
-            boost::int32_t ft_;
-            std::string rid_;;
-            std::string vvid_;
-            std::string type_;
-            std::string platform_;
-            time_t server_time_;
-            Time local_time_;
         };
 
 

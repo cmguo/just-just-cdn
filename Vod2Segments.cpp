@@ -4,7 +4,7 @@
 #include "ppbox/cdn/Vod2Segments.h"
 #include "ppbox/cdn/CdnError.h"
 
-#include <ppbox/common/HttpFetchManager.h>
+#include <ppbox/cdn/HttpFetch.h>
 
 #include <util/protocol/pptv/Url.h>
 #include <util/protocol/pptv/TimeKey.h>
@@ -12,7 +12,10 @@
 #include <util/archive/ArchiveBuffer.h>
 #include <util/buffers/BufferCopy.h>
 
+#include <framework/string/Slice.h>
+#include <framework/string/Url.h>
 #include <framework/string/Parse.h>
+using namespace framework::string;
 #include <framework/logger/LoggerStreamRecord.h>
 using namespace framework::logger;
 
@@ -45,12 +48,8 @@ namespace ppbox
 
         Vod2Segments::Vod2Segments(
             boost::asio::io_service & io_svc)
-            : SegmentBase(io_svc)
-            , fetch_mgr_(util::daemon::use_module<ppbox::common::HttpFetchManager>(global_daemon()))
-            , handle_(NULL)
+            : PptvSegments(io_svc)
             , open_step_(StepType::not_open)
-            , ft_(-1)
-            , bwtype_(-1)
         {
         }
 
@@ -64,9 +63,10 @@ namespace ppbox
         {
             assert(StepType::not_open == open_step_);
             boost::system::error_code ec;
-            resp_ = resp;
 
-            if (parse(name_)) {
+            PptvSegments::set_response(resp);
+
+            if (parse()) {
                 if (OpenMode::fast == mode) {
                     response(ec);//及时回调
                     return;
@@ -90,6 +90,8 @@ namespace ppbox
         {
             if (ec) {
                 LOG_S(Logger::kLevelAlarm, "play: failure");
+                PptvSegments::last_error_ = ec;
+                PptvSegments::open_logs_end(get_fetch().http_stat(), 0, ec);
                 response(ec);
                 return;
             }
@@ -98,7 +100,7 @@ namespace ppbox
             case StepType::play:
                 {
                     LOG_S(Logger::kLevelEvent, "play: start");
-                    fetch_mgr_.async_fetch(
+                    PptvSegments::get_fetch().async_fetch(
                         get_play_url(),
                         dns_vod_play_server,
                         boost::bind(&Vod2Segments::handle_play, this, _1, _2));
@@ -111,6 +113,8 @@ namespace ppbox
             default:
                 return;
             }
+
+            PptvSegments::last_error_ = ec;
 
             response(ec);
         }
@@ -145,13 +149,15 @@ namespace ppbox
                     LOG_S(Logger::kLevelError, "parse play failed");
                     handle_async_open(ec);
                 } else {
+                    local_time_ = Time::now();
                     vod_play_info_ = play_info_old;
                 }
-            }
-            else {
+            } else {
                 LOG_S(Logger::kLevelEvent, "play: success");
             }
 
+            PptvSegments::server_host_ = vod_play_info_.dtinfo.sh.to_string();
+            PptvSegments::open_logs_end(get_fetch().http_stat(), 0, ec);
 
             boost::int32_t max_bitrate = 0;
             std::vector<Vod2Video>::iterator temp_ter, iter = vod_play_info_.channel.file.begin();
@@ -162,22 +168,13 @@ namespace ppbox
                 }
                 iter++;
             }
-            vod_play_info_.video.ft = temp_ter->ft;
-            vod_play_info_.video.rid = temp_ter->rid;
-            vod_play_info_.video.bitrate = temp_ter->bitrate;
-            vod_play_info_.video.filesize = temp_ter->filesize;
-            vod_play_info_.video.duration = temp_ter->duration;
-            vod_play_info_.video.width = temp_ter->width;
-            vod_play_info_.video.height = temp_ter->height;
-
-
+            vod_play_info_.video = *temp_ter;
 
             std::vector<Vod2SegmentNew>::iterator itr = vod_play_info_.drag.begin();
             while(itr != vod_play_info_.drag.end()) {
                 if (itr->ft == temp_ter->ft) {
                     vod_play_info_.ft = itr->ft;
-                    vod_play_info_.segment.ft = itr->ft;
-                    vod_play_info_.segment.segments = itr->segments;
+                    vod_play_info_.segment = *itr;
                     break;
                 } else {
                     itr ++;
@@ -188,23 +185,13 @@ namespace ppbox
             while (it != vod_play_info_.dt.end()) 
             {
                 if (it->ft == temp_ter->ft) {
-                    vod_play_info_.dtinfo.ft = it->ft;
-                    vod_play_info_.dtinfo.bwt = it ->bwt;
-                    vod_play_info_.dtinfo.id = it ->id;
-                    vod_play_info_.dtinfo.sh = it ->sh;
-                    vod_play_info_.dtinfo.bh = it ->bh;
-                    vod_play_info_.dtinfo.st = it ->st;
+                    vod_play_info_.dtinfo = *it;
                     break;
                 } else {
                     it++;
                 }
             }
             vod_play_info_.is_ready = true;
-
-            ft_ = vod_play_info_.video.ft;
-            bwtype_ = vod_play_info_.dtinfo.bwt;
-            server_host_ = vod_play_info_.dtinfo.sh;
-            rid_ = vod_play_info_.dtinfo.id;
 
             open_step_ = StepType::finish;
             handle_async_open(ec);
@@ -213,42 +200,21 @@ namespace ppbox
 
         void Vod2Segments::cancel(boost::system::error_code & ec)
         {
-            fetch_mgr_.cancel(handle_);
+            PptvSegments::get_fetch().cancel();
         }
 
         void Vod2Segments::close(boost::system::error_code & ec)
         {
-            fetch_mgr_.close(handle_);
+            PptvSegments::get_fetch().close();
         }
 
-        bool Vod2Segments::is_open()
-        {
-            switch (open_step_) 
-            {
-            case StepType::finish:
-                break;
-            case StepType::play:
-                {
-                    if (vod_play_info_.is_ready) {
-                        open_step_ = StepType::finish;
-                        break;
-                    } 
-                }
-            default:
-                return false;
-            }
-
-            return true;
-        }
-
-        bool Vod2Segments::parse(const std::string name)
+        bool Vod2Segments::parse()
         {//验证串第一段信息是否完整，完整先播第一段，否则就先请求play
-            framework::string::Url request_url(name_);
             //name
-            std::string tmp_param = request_url.param("f");
+            std::string tmp_param = url_.param("f");
             if(tmp_param.empty())
             {
-                tmp_param = request_url.param("ft");
+                tmp_param = jdp_url_.param("ft");
                 if(tmp_param.empty())
                 {
                     LOG_S(Logger::kLevelDebug, "parse ft or f failed");
@@ -256,10 +222,9 @@ namespace ppbox
                 }
             }
             parse2(tmp_param.c_str(), vod_play_info_.ft);
-            ft_ = vod_play_info_.ft;
 
             //总时长
-            tmp_param = request_url.param("duration");
+            tmp_param = url_.param("duration");
             if(tmp_param.empty())
             {
                 LOG_S(Logger::kLevelDebug, "parse duration failed");
@@ -270,49 +235,44 @@ namespace ppbox
             vod_play_info_.video.duration = (boost::uint32_t)(fTotalDur*1000.0f);
 
             //rid
-            tmp_param = request_url.param("name");
+            tmp_param = url_.param("name");
             if(tmp_param.empty())
             {
                 LOG_S(Logger::kLevelDebug, "parse name failed");
                 return false;
             }
             vod_play_info_.video.rid = tmp_param;
-            rid_ = tmp_param;
 
             //server host
-            tmp_param = request_url.param("svrhost");
+            tmp_param = url_.param("svrhost");
             if(tmp_param.empty())
             {
                 LOG_S(Logger::kLevelDebug, "parse svrhost failed");
                 return false;
             }
             framework::network::NetName svrhost(tmp_param.c_str());
-            server_host_ = svrhost;
+            vod_play_info_.dtinfo.sh = svrhost;
 
             //server time
-            tmp_param = request_url.param("svrtime");
+            tmp_param = url_.param("svrtime");
             if(tmp_param.empty())
             {
                 LOG_S(Logger::kLevelDebug, "parse svrtime failed");
                 return false;
             }
-            boost::uint64_t time_utc = 0;
-            parse2(tmp_param.c_str(), time_utc);
-            server_time_ = time_utc;
+            vod_play_info_.dtinfo.st.from_string(tmp_param);
 
             //bwtype
-            tmp_param = request_url.param("bwtype");
+            tmp_param = url_.param("BWType");
             if(tmp_param.empty())
             {
                 LOG_S(Logger::kLevelDebug, "parse bwtype failed");
                 return false;
             }
-            boost::int32_t bwtype= 0;
-            parse2(tmp_param.c_str(), bwtype);
-            bwtype_ = bwtype;
+            parse2(tmp_param.c_str(), vod_play_info_.dtinfo.bwt);
 
             //drag
-            tmp_param = request_url.param("drag");
+            tmp_param = url_.param("drag");
             if(tmp_param.empty())
             {
                 LOG_S(Logger::kLevelDebug, "parse drag failed");
@@ -357,38 +317,41 @@ namespace ppbox
             framework::string::Url & url,
             boost::system::error_code & ec)
         {
+            /* 从playlink拷贝构造
+             * protocol改成"http"
+             * host:svc设置为jump返回的host:svc
+             * path
+             * param，删除playlink里面的
+             */
             ec.clear();
             if (segment < vod_play_info_.drag[0].segments.size()) {
-                framework::string::Url cdn_url("http://localhost/");
-                cdn_url.host(server_host_.host());
-                cdn_url.svc(server_host_.svc());
-                cdn_url.path("/" + format(segment) + "/" + name_);
-                cdn_url.param("key", get_key());
-                cdn_url.param("type", type_);
-                cdn_url.param("vvid", vvid_);
-                cdn_url.param("platform", platform_);
-                LOG_S(framework::logger::Logger::kLevelDebug, "cdn url: " << cdn_url.to_string());
+                url = PptvSegments::cdn_url_;
+                url.host(vod_play_info_.dtinfo.sh.host());
+                url.svc(vod_play_info_.dtinfo.sh.svc());
+                url.path("/" + format(segment) + PptvSegments::cdn_url_.path());
+                url.param("key", get_key());
+                LOG_S(framework::logger::Logger::kLevelDebug, "cdn url: " << url.to_string());
+
+                framework::string::Url cdn_jump_param(url_.param("cdn.jump"));
+                if (cdn_jump_param.param("bwtype").empty()) {
+                    cdn_jump_param.param("bwtype", format(vod_play_info_.dtinfo.bwt));
+                    url.param("cdn.jump", cdn_jump_param.to_string());
+                } 
             } else {
                 ec = error::item_not_exist;
             }
             return ec;
         }
 
-        void Vod2Segments::response(
-            boost::system::error_code const & ec)
-        {
-            SegmentBase::response_type resp;
-            resp.swap(resp_);
-            resp(ec);
-        }
 
         std::string Vod2Segments::get_key() const
         {
-            return util::protocol::pptv::gen_key_from_time(server_time_ + (Time::now() - local_time_).total_seconds());
+            return util::protocol::pptv::gen_key_from_time(
+                vod_play_info_.dtinfo.st.to_time_t() + (Time::now() - local_time_).total_seconds());
         }
 
 
-        size_t Vod2Segments::segment_count()
+        size_t Vod2Segments::segment_count() const
         {
             size_t ret = size_t(-1);
             ret = vod_play_info_.segment.segments.size();
@@ -397,7 +360,7 @@ namespace ppbox
 
         void Vod2Segments::segment_info(
             size_t segment, 
-            common::SegmentInfo & info)
+            common::SegmentInfo & info) const
         {
             if (segment < vod_play_info_.segment.segments.size()) {
                 info.head_size = vod_play_info_.segment.segments[segment].head_length;
@@ -427,131 +390,30 @@ namespace ppbox
             return ec;
         }
 
-        void Vod2Segments::update_segment(size_t segment)
-        {
-            if (segment_count() == segment ) {
-                Vod2Segment vod2_seg;
-                vod2_seg.duration = boost::uint32_t(-1);
-                vod2_seg.file_length = boost::uint64_t(-1);
-                vod2_seg.head_length = boost::uint64_t(-1);
-                vod_play_info_.segment.segments.push_back(vod2_seg);
-            } else if (segment_count() > segment) {
-            } else {
-                assert(false);
-            }
-        }
-
-        void Vod2Segments::update_segment_duration(size_t segment, boost::uint32_t time)
-        {
-            if (vod_play_info_.segment.segments.size() > segment ) {
-                vod_play_info_.segment.segments[segment].duration = time;
-            }
-        }
-
-        void Vod2Segments::update_segment_file_size(size_t segment, boost::uint64_t fsize)
-        {
-            if (vod_play_info_.segment.segments.size() > segment) {
-                if ( vod_play_info_.segment.segments[segment].file_length == boost::uint64_t(-1)) {
-                    vod_play_info_.segment.segments[segment].file_length = fsize;
-                }
-            }
-
-            segment++;
-            if (vod_play_info_.segment.segments.size() == segment) {
-                // add a segment
-                Vod2Segment vod2_seg;
-                vod2_seg.duration = boost::uint32_t(-1);
-                vod2_seg.file_length = boost::uint64_t(-1);
-                vod2_seg.head_length = boost::uint64_t(-1);
-                vod_play_info_.segment.segments.push_back(vod2_seg);
-            }
-        }
-
-        void Vod2Segments::update_segment_head_size(size_t segment, boost::uint64_t hsize)
-        {
-            if (vod_play_info_.segment.segments.size() > segment) {
-                if (vod_play_info_.segment.segments[segment].head_length == boost::uint64_t(-1)) {
-                        vod_play_info_.segment.segments[segment].head_length = hsize;
-                }
-            }
-
-            segment++;
-            if (vod_play_info_.segment.segments.size() == segment) {
-                // add a segment
-                Vod2Segment vod2_seg;
-                vod2_seg.duration = boost::uint32_t(-1);
-                vod2_seg.file_length = boost::uint64_t(-1);
-                vod2_seg.head_length = boost::uint64_t(-1);
-                vod_play_info_.segment.segments.push_back(vod2_seg);
-            }
-        }
-
         framework::string::Url Vod2Segments::get_play_url()
         {
-            framework::string::Url url("http://localhost/");
+            framework::string::Url url = PptvSegments::jdp_url_;
             url.host(dns_vod_play_server.host());
             url.svc(dns_vod_play_server.svc());
+            url.param("id",url.path().substr(1));
             url.path("/boxplay.api");
             url.param("auth","55b7c50dc1adfc3bcabe2d9b2015e35c");
-            url.param("id",name_);
-            if(ft_ != (-1))
+            if(vod_play_info_.video.ft != (-1))
             {
-                url.param("f", format(ft_));
+                url.param("f", format(vod_play_info_.video.ft));
             }
-            url.param("type", type_);
-            url.param("vvid", vvid_);
-            url.param("platform", platform_);
 
             LOG_S(framework::logger::Logger::kLevelDebug,"[get_request] play url:"<<url.to_string());
 
             return url;
         }
 
-        void Vod2Segments::set_url(std::string const &url)
+        void Vod2Segments::set_url(
+            framework::string::Url const & url)
         {
-            SegmentBase::set_url(url);
-
-            boost::system::error_code ec;
-            std::string::size_type slash = url.find('|');
-            if (slash == std::string::npos) {
-                return;
-            } 
-            std::string key = url.substr(0, slash);
-            std::string playlink = url.substr(slash + 1);
-
-            framework::string::Url request_url(playlink);
-            playlink = request_url.path().substr(1);
-
-            std::string strBwtype = request_url.param("bwtype");
-            if(!strBwtype.empty()) {
-                bwtype_ = framework::string::parse<boost::int32_t>(strBwtype);
-            }
-            platform_ = request_url.param("platform");
-            if(platform_.empty())
-            {
-                platform_ = PPBOX_VOD_PLATFORM;
-            }
-
-            type_ = request_url.param("type");
-            if(type_.empty())
-            {
-                type_ = PPBOX_VOD_TYPE;
-            }
-            vvid_ = request_url.param("vvid");
-            if(vvid_.empty())
-            {
-                size_t vvid = rand();
-                vvid_ = format(vvid);
-            }
-            name_ = playlink;
+            PptvSegments::set_url(url);
         }
 
-
-        boost::system::error_code Vod2Segments::reset(size_t & segment)
-        {
-            segment = 0;
-            return boost::system::error_code();
-        }
 
     }//cdn
 }//ppbox

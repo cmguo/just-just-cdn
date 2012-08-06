@@ -4,14 +4,16 @@
 #include "ppbox/cdn/CdnError.h"
 #include "ppbox/cdn/Live2Segment.h"
 
-#include <ppbox/common/HttpFetchManager.h>
-
 #include <util/protocol/pptv/Url.h>
 #include <util/protocol/pptv/TimeKey.h>
 #include <util/protocol/pptv/Base64.h>
 #include <util/archive/XmlIArchive.h>
 #include <util/archive/ArchiveBuffer.h>
 
+#include <framework/string/Slice.h>
+#include <framework/string/Parse.h>
+#include <framework/string/Format.h>
+using namespace framework::string;
 #include <framework/logger/LoggerStreamRecord.h>
 using namespace framework::logger;
 
@@ -39,9 +41,7 @@ namespace ppbox
 
         Live2Segment::Live2Segment(
             boost::asio::io_service & io_svc)
-            : SegmentBase(io_svc)
-            , fetch_mgr_(util::daemon::use_module<ppbox::common::HttpFetchManager>(global_daemon()))
-            , handle_(NULL)
+            : PptvSegments(io_svc)
             , open_step_(StepType::not_open)
             , time_(0)
             , live_port_(0)
@@ -73,8 +73,8 @@ namespace ppbox
             {
                 ec = error::bad_url;
             }
-            resp_ = resp;
 
+            PptvSegments::set_response(resp);
             handle_async_open(ec);
         }
 
@@ -87,9 +87,12 @@ namespace ppbox
                 }
                 if (ec != boost::asio::error::would_block) {
                     if (StepType::jump == open_step_) {
-                        LOG_S(Logger::kLevelAlarm, "jump : failure");
+                        LOG_S(Logger::kLevelAlarm, "jump : failure"); 
+                        PptvSegments::open_logs_end(get_fetch().http_stat(), 0, ec);
+                        LOG_S(Logger::kLevelDebug, "jump failure (" << open_logs_[0].total_elapse << " milliseconds)");
                     }
                 }
+                PptvSegments::last_error_ = ec;
                 response(ec);
                 return;
             }
@@ -98,7 +101,7 @@ namespace ppbox
         case StepType::not_open:
             open_step_ = StepType::jump;
             LOG_S(Logger::kLevelEvent, "jump: start");
-            handle_ = fetch_mgr_.async_fetch(
+            PptvSegments::get_fetch().async_fetch(
                 get_jump_url(),
                 dns_live2_jump_server,
                 boost::bind(&Live2Segment::handle_jump, this ,_1 , _2));
@@ -112,6 +115,8 @@ namespace ppbox
             assert(0);
             return;
             }
+
+            PptvSegments::last_error_ = ec;
 
             response(ec);
             return;
@@ -136,6 +141,8 @@ namespace ppbox
                     set_info_by_jump(jump_info);
                 }
             }
+            PptvSegments::server_host_ = jump_info_.server_host.to_string();
+            PptvSegments::open_logs_end(get_fetch().http_stat(), 0, ec);
             handle_async_open(ecc);
         }
 
@@ -161,7 +168,7 @@ namespace ppbox
 
         framework::string::Url Live2Segment::get_jump_url() const
         {
-            framework::string::Url url("http://localhost/");
+            framework::string::Url url = PptvSegments::jdp_url_;
             url.host(dns_live2_jump_server.host());
             url.svc(dns_live2_jump_server.svc());
             url.path("/live2/" + stream_id_);
@@ -182,29 +189,6 @@ namespace ppbox
         }
 
 
-        void Live2Segment::cancel(
-            boost::system::error_code & ec) 
-        {
-            fetch_mgr_.cancel(handle_);
-        }
-
-        void Live2Segment::close(
-            boost::system::error_code & ec)
-        {
-            fetch_mgr_.close(handle_);
-        }
-
-        bool Live2Segment::is_open()
-        {
-            switch (open_step_) {
-        case StepType::jump:
-        case StepType::finish:
-            return true;
-        default:
-            return false;
-            }
-        }
-
         bool Live2Segment::next_segment(
             size_t segment, 
             boost::uint32_t& out_time)
@@ -223,16 +207,16 @@ namespace ppbox
             return true;
         }
 
-        size_t Live2Segment::segment_count() 
+        size_t Live2Segment::segment_count() const
         {
             return size_t(-1);
         }
 
         void Live2Segment::segment_info(
             size_t segment, 
-            common::SegmentInfo & info)
+            common::SegmentInfo & info) const
         {
-            if (segment < segments_.size()) {
+            if (segment < segments_.count()) {
                 info.head_size = segments_[segment].head_leng;
                 info.size = segments_[segment].file_size;
                 info.time = segments_[segment].duration;
@@ -244,106 +228,83 @@ namespace ppbox
         }
 
         void Live2Segment::set_url(
-            std::string const &url)
+            framework::string::Url const & url)
         {
-
-            std::string::size_type slash = url.find('|');
-            if (slash == std::string::npos) {
-                return;
-            }
-
-            key_ = url.substr(0, slash);
-            std::string playlink = url.substr(slash + 1);
-
-            playlink = framework::string::Url::decode(playlink);
-            framework::string::Url request_url(playlink);
-            playlink = request_url.path().substr(1);
-
-            std::string strSeek = request_url.param("seek");
-            if(!strSeek.empty())
-            {
-                seek_time_ = framework::string::parse<boost::uint32_t>(strSeek);
-            }
-            std::string strBWType = request_url.param("bwtype");
-            if(!strBWType.empty())
-            {
-                bwtype_ = framework::string::parse<boost::int32_t>(strBWType);
-            }
-
+            PptvSegments::set_url(url);
+//             std::string strSeek = url.param("seek");
+//             if(!strSeek.empty()) {
+//                 seek_time_ = framework::string::parse<boost::uint32_t>(strSeek);
+//             }
+            std::string playlink = url.path().substr(1);
             if (playlink.find('-') != std::string::npos) {
                 // "[StreamID]-[Interval]-[datareate]
-                url_ = playlink;
                 std::vector<std::string> strs;
-                slice<std::string>(playlink, std::inserter(strs, strs.end()), "-");
+                framework::string::slice<std::string>(playlink, std::inserter(strs, strs.end()), "-");
                 if (strs.size() >= 3) {
                     name_ = "Stream:" + strs[0];
                     rid_.push_back(strs[0]);
                     stream_id_ = rid_[0];
-                    parse2(strs[1], interval_);
+                    framework::string::parse2(strs[1], interval_);
                     boost::uint32_t rate = 0;
-                    parse2(strs[2], rate);
+                    framework::string::parse2(strs[2], rate);
                     rate_.push_back(rate);
                 } else {
                     std::cout<<"Wrong URL Param"<<std::endl;
                 }
                 return;
             }
-            url_ = util::protocol::pptv::base64_decode(playlink, key_);
-            if (!url_.empty()) {
-                map_find(url_, "name", name_, "&");
-                map_find(url_, "channel", channel_, "&");
-                map_find(url_, "interval", interval_, "&");
+            std::string url_str = util::protocol::pptv::base64_decode(playlink, "kioe257ds");
+            if (!url_str.empty()) {
+                framework::string::map_find(url_str, "name", name_, "&");
+                framework::string::map_find(url_str, "channel", channel_, "&");
+                framework::string::map_find(url_str, "interval", interval_, "&");
                 std::string sid, datarate;
-                map_find(url_, "sid", sid, "&");
-                slice<std::string>(sid, std::inserter(rid_, rid_.end()), "@");
-                if (!rid_.empty())
+                framework::string::map_find(url_str, "sid", sid, "&");
+                framework::string::slice<std::string>(sid, std::inserter(rid_, rid_.end()), "@");
+                if (!rid_.empty()) {
                     stream_id_ = rid_[0];
-                map_find(url_, "datarate", datarate, "&");
-                slice<boost::uint32_t>(datarate, std::inserter(rate_, rate_.end()), "@");
+                }
+                framework::string::map_find(url_str, "datarate", datarate, "&");
+                framework::string::slice<boost::uint32_t>(datarate, std::inserter(rate_, rate_.end()), "@");
             }
 
         }
 
         boost::system::error_code Live2Segment::segment_url(
             size_t segment, 
-            framework::string::Url& url,
+            framework::string::Url & url,
             boost::system::error_code & ec)
         {
             ec.clear();
-
             file_time_ = begin_time_ + (segment * interval_);
 
-            std::string url_str ="http://" + jump_info_.server_host.host_svc() + "/live/" + stream_id_ + "/" + format(file_time_) + ".block";
-            LOG_S(framework::logger::Logger::kLevelDebug,"[get_request] live2 cdn url:" << url_str);
+            url = url_; //这里使用原始传入的播放url
+            url.host(jump_info_.server_host.host());
+            url.svc(jump_info_.server_host.svc());
+            url.path("/live/" + stream_id_ + "/" + format(file_time_) + ".block");
+            LOG_S(framework::logger::Logger::kLevelDebug,"[get_request] cdn url:" << url.to_string());
 
-            url_str += "&channelid=";
-            url_str += jump_info_.channelGUID;
+            url.param("replay", "1");
+            url.param("source", "0");
+            url.param("name", name_);
+            url.param("channel", channel_);
+            url.param("interval", framework::string::format(interval_));
+            url.param("start", framework::string::format(file_time_));
+            url.param("uniqueid", framework::string::format(seq_));
+            framework::string::Url url_temp(url_.param("cdn.jump"));
+            url.param("BWType", url_temp.param("bwtype"));
+
+            std::string url_str = url.to_string();
             url_str += framework::string::join(rid_.begin(), rid_.end(), "@", "&rid=");
             url_str += framework::string::join(rate_.begin(), rate_.end(), "@", "&datarate=");
-            url_str += "&replay=1";
-            url_str += "&start=";
-            url_str += framework::string::format(file_time_);
-            url_str += "&interval=";
-            url_str += framework::string::format(interval_);
-            url_str += "&BWType=";
-            url_str += framework::string::format(bwtype_);
-            url_str += "&SourceBase=0&uniqueid=";
-            url_str += framework::string::format(seq_);
 
             url.from_string(url_str);
+
             return ec;
         }
 
-        void Live2Segment::response(
-            boost::system::error_code const & ec)
-        {
-            SegmentBase::response_type resp;
-            resp.swap(resp_);
-            resp(ec);
-        }
-
         boost::system::error_code Live2Segment::get_duration(
-            common::DurationInfo & info,
+            ppbox::common::DurationInfo & info,
             boost::system::error_code & ec)
         {
             ec.clear();
@@ -352,28 +313,10 @@ namespace ppbox
             info.end = 0;
             info.redundancy = 0;
             info.interval = 0;
+
             return ec;
         }
 
-        void Live2Segment::update_segment(size_t segment)
-        {
-            segments_.add_segment(segment);
-        }
-
-        void Live2Segment::update_segment_file_size(size_t segment, boost::uint64_t fsize)
-        {
-            segments_[segment].file_size = fsize;
-        }
-
-        void Live2Segment::update_segment_duration(size_t segment, boost::uint32_t time)
-        {
-            segments_[segment].duration = 5;
-        }
-
-        void Live2Segment::update_segment_head_size(size_t segment, boost::uint64_t hsize)
-        {
-            segments_[segment].head_leng = hsize;
-        }
 
     }//cdn
 }//ppbox
