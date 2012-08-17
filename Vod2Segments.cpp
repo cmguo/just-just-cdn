@@ -100,10 +100,11 @@ namespace ppbox
             case StepType::play:
                 {
                     LOG_S(Logger::kLevelEvent, "play: start");
-                    get_fetch().async_fetch(
+                    async_fetch(
                         get_play_url(),
                         dns_vod_play_server,
-                        boost::bind(&Vod2Segments::handle_play, this, _1, _2));
+                        vod_play_info_, 
+                        boost::bind(&Vod2Segments::handle_async_open, this, _1));
                     return;
                 }
             case StepType::finish:
@@ -117,94 +118,6 @@ namespace ppbox
             last_error_ = ec;
 
             response(ec);
-        }
-
-        void Vod2Segments::handle_play(
-            boost::system::error_code const & ec, 
-            boost::asio::streambuf & buf)
-        {
-            if (ec) {
-                vod_play_info_.ec = ec;
-                vod_play_info_.is_ready = false;
-                handle_async_open(ec);
-                return;
-            }
-
-            std::string buffer = boost::asio::buffer_cast<char const *>(buf.data());
-            LOG_STR(Logger::kLevelDebug2, buffer.c_str());
-
-            boost::asio::streambuf buf2;
-            util::buffers::buffer_copy(buf2.prepare(buf.size()), buf.data());
-            buf2.commit(buf.size());
-
-            util::archive::XmlIArchive<> ia(buf2);
-            ia >> vod_play_info_;
-            if (!ia) {
-                util::archive::XmlIArchive<> ia2(buf);
-                ppbox::cdn::VodPlayInfoDrag play_info_old;
-                ia2 >>play_info_old;
-                if(!ia2) {
-                    vod_play_info_.ec = error::bad_file_format;
-                    LOG_S(Logger::kLevelError, "parse play failed");
-                    handle_async_open(ec);
-                } else {
-                    local_time_ = Time::now();
-                    vod_play_info_ = play_info_old;
-                }
-            } else {
-                LOG_S(Logger::kLevelEvent, "play: success");
-            }
-
-            server_host_ = vod_play_info_.dtinfo.sh.to_string();
-            open_logs_end(0, ec);
-
-            boost::int32_t max_bitrate = 0;
-            std::vector<Vod2Video>::iterator temp_ter, iter = vod_play_info_.channel.file.begin();
-            while (iter != vod_play_info_.channel.file.end()) {
-                if (iter->bitrate > max_bitrate) {
-                    max_bitrate = iter->bitrate;
-                    temp_ter = iter;
-                }
-                iter++;
-            }
-            vod_play_info_.video = *temp_ter;
-
-            std::vector<Vod2SegmentNew>::iterator itr = vod_play_info_.drag.begin();
-            while(itr != vod_play_info_.drag.end()) {
-                if (itr->ft == temp_ter->ft) {
-                    vod_play_info_.ft = itr->ft;
-                    vod_play_info_.segment = *itr;
-                    break;
-                } else {
-                    itr ++;
-                }
-            }
-
-            std::vector<Vod2DtInfo>::iterator it = vod_play_info_.dt.begin();
-            while (it != vod_play_info_.dt.end()) 
-            {
-                if (it->ft == temp_ter->ft) {
-                    vod_play_info_.dtinfo = *it;
-                    break;
-                } else {
-                    it++;
-                }
-            }
-            vod_play_info_.is_ready = true;
-
-            open_step_ = StepType::finish;
-            handle_async_open(ec);
-        }
-
-
-        void Vod2Segments::cancel(boost::system::error_code & ec)
-        {
-            get_fetch().cancel();
-        }
-
-        void Vod2Segments::close(boost::system::error_code & ec)
-        {
-            get_fetch().close();
         }
 
         bool Vod2Segments::parse()

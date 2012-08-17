@@ -150,17 +150,19 @@ namespace ppbox
             switch(open_step_) {
                 case StepType::not_open:
                     open_step_ = StepType::jump;
-                    get_fetch().async_fetch(
+                    async_fetch(
                         get_jump_url(),
                         dns_vod_jump_server,
-                        boost::bind(&VodSegments::handle_jump, this, _1, _2));
+                        jump_info_, 
+                        boost::bind(&VodSegments::handle_async_open, this, _1));
                     return;
 
                 case StepType::drag:
-                    get_fetch().async_fetch(
+                    async_fetch(
                         get_drag_url(),
                         dns_vod_drag_server,
-                        boost::bind(&VodSegments::handle_drag, this, _1, _2));
+                        drag_info_, 
+                        boost::bind(&VodSegments::handle_async_open, this, _1));
                     return;
 
                 case StepType::finish:
@@ -178,76 +180,11 @@ namespace ppbox
             return;
         }
 
-        void VodSegments::handle_jump(
-            boost::system::error_code const & ec, 
-            boost::asio::streambuf &buf)
-        {
-            boost::system::error_code  ecc = ec;
-            std::string buffer = boost::asio::buffer_cast<char const *>(buf.data());
-            LOG_S(Logger::kLevelDebug2, "[handle_jump] jump buffer: " << buffer);
-
-            if (!ecc) {
-                util::archive::XmlIArchive <> ia(buf);
-                ia >> jump_info_;
-                if (!ia) {
-                    ecc = error::bad_file_format;
-                } else {
-                    local_time_ = Time::now();
-
-                    if (jump_info_.video.is_initialized()) {
-                        drag_info_.video = jump_info_.video.get();
-                    }
-                    if (jump_info_.firstseg.is_initialized()) {
-                        drag_info_.segments.push_back(jump_info_.firstseg.get());
-                        know_seg_count_ = true;
-                    }
-                }
-                open_step_ = StepType::drag;
-                if (jump_info_.firstseg.is_initialized() && jump_info_.video->duration == jump_info_.firstseg->duration) {
-                    open_step_ = StepType::finish;
-                }
-                
-            }
-            server_host_ = jump_info_.server_host.to_string();
-            open_logs_end(0, ecc);
-            get_fetch().close();
-
-            if (mode_ == OpenMode::fast ) {
-                response(ecc);
-            } else {
-                handle_async_open(ecc);
-            }
-        }
-
-        void VodSegments::handle_drag(
-            boost::system::error_code const & ec, 
-            boost::asio::streambuf &buf)
-        {
-            boost::system::error_code  ecc = ec;
-            std::string buffer = boost::asio::buffer_cast<char const *>(buf.data());
-            LOG_S(Logger::kLevelDebug2, "[handle_drag] drag buffer: " << buffer);
-            if (!ecc) {
-                util::archive::XmlIArchive <> ia(buf);
-                ia >> drag_info_;
-                if (!ia) {
-                    ecc = error::bad_file_format;
-                } else {
-                    know_seg_count_ = true;
-                }
-                open_step_ = StepType::finish;
-            }
-            open_logs_end(get_fetch().http_stat(), 1, ecc);
-            get_fetch().close();
-
-            handle_async_open(ecc);
-        }
-
         std::string VodSegments::get_key() const
         {
             return util::protocol::pptv::gen_key_from_time(
                 jump_info_.server_time.to_time_t() + (Time::now() - local_time_).total_seconds());
         }
-
 
         size_t VodSegments::segment_count() const
         {

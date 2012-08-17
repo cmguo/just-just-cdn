@@ -20,8 +20,7 @@ namespace ppbox
         {
         public:
             typedef boost::function<void (
-                boost::system::error_code const &,
-                boost::asio::streambuf &)
+                boost::system::error_code const &)
             > response_type;
 
             HttpFetch(
@@ -33,6 +32,11 @@ namespace ppbox
                 framework::string::Url const & url 
                 ,framework::network::NetName const & server_host
                 ,response_type const & resp);
+
+            boost::asio::streambuf & data()
+            {
+                return http_.response_data();
+            }
 
             ppbox::cdn::HttpStatistics const & http_stat();
 

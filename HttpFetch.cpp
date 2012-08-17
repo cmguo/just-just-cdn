@@ -96,7 +96,7 @@ namespace ppbox
         {
             response_type resp;
             resp.swap(resp_);
-            resp(ec, http_.response().data());
+            resp(ec);
         }
         
     } // namespace cdn

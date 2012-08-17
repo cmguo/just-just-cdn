@@ -117,15 +117,11 @@ namespace ppbox
             int index, 
             boost::system::error_code const & ec)
         {
-            HttpStatistics const & http_stat = fetch_.http_stat(), 
-            if (&http_stat != &open_logs_[index]) {
-                open_logs_[index] = http_stat;
-            }
+            HttpStatistics const & http_stat = fetch_.http_stat();
+            open_logs_[index] = http_stat;
             open_logs_[index].total_elapse = open_logs_[index].elapse();
             open_logs_[index].last_last_error = ec;
         }
-
-
 
     }//cdn
 }//ppbox

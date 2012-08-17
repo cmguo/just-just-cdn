@@ -9,6 +9,9 @@
 
 #include <framework/timer/TickCounter.h>
 
+#include <boost/bind.hpp>
+#include <boost/ref.hpp>
+
 namespace ppbox
 {
     namespace cdn
@@ -57,13 +60,18 @@ namespace ppbox
             }
 
         protected:
-            typedef response_type fetch_response_type;
+            template <typename T>
+            void async_fetch(
+                framework::string::Url const & url, 
+                framework::network::NetName const & server_host, 
+                T & t, 
+                HttpFetch::response_type const & resp);
 
             template <typename T>
-            void fetch(
-                framework::string::Url const & url, 
+            void handle_fetch(
+                boost::system::error_code const & ec, 
                 T & t, 
-                fetch_response_type const & resp);
+                HttpFetch::response_type const & resp);
 
             void response(
                 boost::system::error_code const & ec);
@@ -94,12 +102,34 @@ namespace ppbox
         };
 
         template <typename T>
-        void PptvSegments::fetch(
+        void PptvSegments::async_fetch(
             framework::string::Url const & url, 
+            framework::network::NetName const & server_host, 
             T & t, 
-            fetch_response_type const & resp)
+            HttpFetch::response_type const & resp)
         {
-            
+            fetch_.async_fetch(url, server_host, 
+                boost::bind(&PptvSegments::handle_fetch<T>, this, _1, boost::ref(t), resp));
+        }
+
+        template <typename T>
+        void PptvSegments::handle_fetch(
+            boost::system::error_code const & ec, 
+            T & t, 
+            HttpFetch::response_type const & resp)
+        {
+            if (ec) {
+                resp(ec);
+                return;
+            }
+
+            util::archive::XmlIArchive<> ia(fetch_.data());
+            ia >> t;
+            if (!ia) {
+                resp(error::bad_file_format);
+                return;
+            }
+            resp(ec);
         }
 
     }//cdn

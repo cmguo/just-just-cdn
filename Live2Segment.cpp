@@ -101,10 +101,11 @@ namespace ppbox
         case StepType::not_open:
             open_step_ = StepType::jump;
             LOG_S(Logger::kLevelEvent, "jump: start");
-            get_fetch().async_fetch(
+            async_fetch(
                 get_jump_url(),
                 dns_live2_jump_server,
-                boost::bind(&Live2Segment::handle_jump, this ,_1 , _2));
+                jump_info_, 
+                boost::bind(&Live2Segment::handle_async_open, this ,_1));
             return;
 
         case StepType::finish:
@@ -121,35 +122,6 @@ namespace ppbox
             return;
         }
 
-
-        void Live2Segment::handle_jump(
-            boost::system::error_code const & ec,
-            boost::asio::streambuf & buf)
-        {
-            Live2JumpInfo  jump_info;
-            boost::system::error_code ecc = ec;
-            if (!ecc) {
-                std::string buffer = boost::asio::buffer_cast<char const *>(buf.data());
-                LOG_S(Logger::kLevelDebug2, "[handle_jump] jump buffer: " << buffer);
-
-                util::archive::XmlIArchive<> ia(buf);
-                ia >> jump_info;
-                if (!ia) {
-                    ecc = error::bad_file_format;
-                } else {
-                    set_info_by_jump(jump_info);
-                }
-                open_step_ = StepType::finish;
-            }
-            server_host_ = jump_info_.server_host.to_string();
-            open_logs_end(0, ec);
-
-            if (mode_ = OpenMode::fast) {
-                response(ecc);
-                return;
-            }
-            handle_async_open(ecc);
-        }
 
         void Live2Segment::set_info_by_jump(
             Live2JumpInfo & jump_info)
