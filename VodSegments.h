@@ -79,6 +79,7 @@ namespace ppbox
 
         private:
             StepType::Enum open_step_;
+            OpenMode mode_;
             bool know_seg_count_;
             Time local_time_;//用于计算key值
 

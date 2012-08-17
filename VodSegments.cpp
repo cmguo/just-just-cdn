@@ -53,9 +53,10 @@ namespace ppbox
             OpenMode mode,
             response_type const & resp)
         {
-            assert(StepType::not_open == open_step_);
+//             assert(StepType::not_open == open_step_);
 
-            open_logs_.resize(2);
+            open_logs_.resize(2);//设置日志信息个数
+            tc_.start();//开始记录打开时间
 
             boost::system::error_code ec;
             if (jdp_url_.path().empty())
@@ -63,8 +64,8 @@ namespace ppbox
                 ec = error::bad_url;
             }
 
-            PptvSegments::set_response(resp);
-
+            set_response(resp);
+            mode_ = mode;
             handle_async_open(ec);
         }
 
@@ -132,16 +133,17 @@ namespace ppbox
                 }
                 if (StepType::jump == open_step_) {
                     LOG_S(Logger::kLevelAlarm, "jump : failure");
-                    PptvSegments::open_logs_end(get_fetch().http_stat(), 0, ec);
+                    open_logs_end(0, ec);
                     LOG_S(Logger::kLevelDebug, "jump failure (" << open_logs_[0].total_elapse << " milliseconds)");
                 }
                 if (StepType::drag == open_step_) {
                     LOG_S(Logger::kLevelAlarm, "drag : failure");
-                    PptvSegments::open_logs_end(get_fetch().http_stat(), 1, ec);
+                    open_logs_end(1, ec);
                     LOG_S(Logger::kLevelDebug, "drag failure (" << open_logs_[2].total_elapse << " milliseconds)");
                 }
-                PptvSegments::response(ec);
-                PptvSegments::last_error_ = ec;
+                response(ec);
+                last_error_ = ec;
+                open_total_time_ = tc_.elapsed();
                 return;
             }
 
@@ -153,24 +155,25 @@ namespace ppbox
                         dns_vod_jump_server,
                         boost::bind(&VodSegments::handle_jump, this, _1, _2));
                     return;
-                case StepType::jump:
-                    if (jump_info_.firstseg.is_initialized() && jump_info_.video->duration == jump_info_.firstseg->duration) {
-                        open_step_ = StepType::finish;
-                    } else {
-                        open_step_ = StepType::drag;
-                        get_fetch().async_fetch(
-                            get_drag_url(),
-                            dns_vod_drag_server,
-                            boost::bind(&VodSegments::handle_drag, this, _1, _2));
-                    }
+
+                case StepType::drag:
+                    get_fetch().async_fetch(
+                        get_drag_url(),
+                        dns_vod_drag_server,
+                        boost::bind(&VodSegments::handle_drag, this, _1, _2));
+                    return;
+
+                case StepType::finish:
                     break;
+
                 default:
                     assert(0);
                     return;
             }
 
-            PptvSegments::response(ec);
-            PptvSegments::last_error_ = ec;
+            response(ec);
+            last_error_ = ec;
+            open_total_time_ = tc_.elapsed();
 
             return;
         }
@@ -199,12 +202,21 @@ namespace ppbox
                         know_seg_count_ = true;
                     }
                 }
-              
+                open_step_ = StepType::drag;
+                if (jump_info_.firstseg.is_initialized() && jump_info_.video->duration == jump_info_.firstseg->duration) {
+                    open_step_ = StepType::finish;
+                }
+                
             }
-            PptvSegments::server_host_ = jump_info_.server_host.to_string();
-            PptvSegments::open_logs_end(get_fetch().http_stat(), 0, ecc);
+            server_host_ = jump_info_.server_host.to_string();
+            open_logs_end(0, ecc);
             get_fetch().close();
-            handle_async_open(ecc);
+
+            if (mode_ == OpenMode::fast ) {
+                response(ecc);
+            } else {
+                handle_async_open(ecc);
+            }
         }
 
         void VodSegments::handle_drag(
@@ -222,13 +234,13 @@ namespace ppbox
                 } else {
                     know_seg_count_ = true;
                 }
+                open_step_ = StepType::finish;
             }
-            PptvSegments::open_logs_end(get_fetch().http_stat(), 1, ecc);
-
+            open_logs_end(get_fetch().http_stat(), 1, ecc);
             get_fetch().close();
+
             handle_async_open(ecc);
         }
-
 
         std::string VodSegments::get_key() const
         {
@@ -279,7 +291,7 @@ namespace ppbox
         void VodSegments::set_url(
             framework::string::Url const & url)
         {
-            PptvSegments::set_url(url);
+            set_url(url);
         }
 
 

@@ -2,9 +2,11 @@
 
 #include "ppbox/cdn/Common.h"
 #include "ppbox/cdn/Cdn.h"
-#include "ppbox/cdn/Vod2Segments.h"
 #include "ppbox/cdn/VodSegments.h"
+#include "ppbox/cdn/Vod2Segments.h"
 #include "ppbox/cdn/Live2Segment.h"
+
+#include <framework/logger/LoggerStreamRecord.h>
 
 namespace ppbox
 {

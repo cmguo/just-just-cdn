@@ -30,23 +30,6 @@ namespace ppbox
 
             void close();
 
-        protected:
-            void response(
-                boost::system::error_code const & ec);
-
-            void set_response(
-                SegmentBase::response_type const & resp);
-
-            HttpFetch & get_fetch()
-            {
-                return fetch_;
-            }
-
-            void open_logs_end(
-                HttpStatistics const & http_stat, 
-                int index, 
-                boost::system::error_code const & ec);
-
         public:
             std::vector<HttpStatistics> const & open_logs() const
             {
@@ -74,6 +57,25 @@ namespace ppbox
             }
 
         protected:
+            typedef response_type fetch_response_type;
+
+            template <typename T>
+            void fetch(
+                framework::string::Url const & url, 
+                T & t, 
+                fetch_response_type const & resp);
+
+            void response(
+                boost::system::error_code const & ec);
+
+            void set_response(
+                SegmentBase::response_type const & resp);
+
+            void open_logs_end(
+                int index, 
+                boost::system::error_code const & ec);
+
+        protected:
             std::vector<HttpStatistics> open_logs_; // ²»³¬¹ý3¸ö
             framework::string::Url jdp_url_;//jump_drag_play_url
             framework::string::Url cdn_url_;
@@ -89,9 +91,16 @@ namespace ppbox
         private:
             HttpFetch fetch_;
             SegmentBase::response_type resp_;
-
-       
         };
+
+        template <typename T>
+        void PptvSegments::fetch(
+            framework::string::Url const & url, 
+            T & t, 
+            fetch_response_type const & resp)
+        {
+            
+        }
 
     }//cdn
 }//ppbox
