@@ -195,7 +195,7 @@ namespace ppbox
 
         void VodSegments::segment_info(
             size_t segment,
-            common::SegmentInfo & info) const
+            ppbox::data::SegmentInfo & info) const
         {
             if (drag_info_.segments.size() > segment) {
                 info.head_size = drag_info_.segments[segment].head_length;
@@ -209,7 +209,7 @@ namespace ppbox
         } 
 
         boost::system::error_code VodSegments::get_duration(
-            common::DurationInfo & info,
+            ppbox::data::DurationInfo & info,
             boost::system::error_code & ec)
         {
             ec.clear();

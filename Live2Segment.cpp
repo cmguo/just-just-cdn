@@ -170,7 +170,7 @@ namespace ppbox
 
         void Live2Segment::segment_info(
             size_t segment, 
-            common::SegmentInfo & info) const
+            ppbox::data::SegmentInfo & info) const
         {
             if (segment < segments_.count()) {
                 info.head_size = segments_[segment].head_leng;
@@ -259,7 +259,7 @@ namespace ppbox
         }
 
         boost::system::error_code Live2Segment::get_duration(
-            ppbox::common::DurationInfo & info,
+            ppbox::data::DurationInfo & info,
             boost::system::error_code & ec)
         {
             ec.clear();

@@ -33,10 +33,10 @@ namespace ppbox
 
             virtual void segment_info(
                 size_t segment, 
-                common::SegmentInfo & info) const;
+                ppbox::data::SegmentInfo & info) const;
 
             virtual boost::system::error_code get_duration(
-                common::DurationInfo & info,
+                ppbox::data::DurationInfo & info,
                 boost::system::error_code & ec);
 
            virtual void set_url(

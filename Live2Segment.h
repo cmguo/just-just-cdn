@@ -77,10 +77,10 @@ namespace ppbox
 
             void segment_info(
                 size_t segment, 
-                common::SegmentInfo & info) const;
+                ppbox::data::SegmentInfo & info) const;
 
             boost::system::error_code get_duration(
-                common::DurationInfo & info,
+                ppbox::data::DurationInfo & info,
                 boost::system::error_code & ec);
 
             void set_url(

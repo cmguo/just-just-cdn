@@ -1,11 +1,12 @@
-//PptvSegments.h
+// PptvSegments.h
+
 #ifndef _PPBOX_CDN_PPTV_SEGMENT_H_
 #define _PPBOX_CDN_PPTV_SEGMENT_H_
 
 #include "ppbox/cdn/HttpFetch.h"
 #include "ppbox/cdn/HttpStatistics.h"
 
-#include <ppbox/common/SegmentBase.h>
+#include <ppbox/data/SegmentBase.h>
 
 #include <framework/timer/TickCounter.h>
 
@@ -18,7 +19,7 @@ namespace ppbox
     {
 
         class PptvSegments
-            : public common::SegmentBase
+            : public ppbox::data::SegmentBase
         {
         public:
             PptvSegments(
@@ -132,9 +133,7 @@ namespace ppbox
             resp(ec);
         }
 
-    }//cdn
-}//ppbox
-
-
+    } // cdn
+} // ppbox
 
 #endif

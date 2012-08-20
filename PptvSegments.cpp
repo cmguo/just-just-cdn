@@ -1,7 +1,10 @@
-//PptvSegments.cpp
+// PptvSegments.cpp
+
 #include "ppbox/cdn/Common.h"
 #include "ppbox/cdn/CdnError.h"
 #include "ppbox/cdn/PptvSegments.h"
+
+#include <util/protocol/pptv/Url.h>
 
 #include <framework/string/Url.h>
 #include <framework/string/Format.h>
@@ -9,9 +12,6 @@
 using namespace framework::string;
 #include <framework/logger/LoggerStreamRecord.h>
 using namespace framework::logger;
-
-#include <util/daemon/Daemon.h>
-#include <util/protocol/pptv/Url.h>
 
 FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("PptvSegments", 0);
 
@@ -22,7 +22,7 @@ namespace ppbox
 
         PptvSegments::PptvSegments(
             boost::asio::io_service & io_svc)
-            : common::SegmentBase(io_svc)
+            : ppbox::data::SegmentBase(io_svc)
             , open_total_time_(0)
             , fetch_(io_svc)
         {
@@ -54,7 +54,7 @@ namespace ppbox
                 temp_url.param("cdn.jump", cdn_jump_param.to_string());
             } 
 
-            common::SegmentBase::set_url(temp_url);
+            ppbox::data::SegmentBase::set_url(temp_url);
 
             boost::system::error_code ec;
             std::string playlink = url.path().substr(1);
