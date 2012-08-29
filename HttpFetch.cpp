@@ -4,7 +4,7 @@
 #include "ppbox/cdn/HttpFetch.h"
 
 #include <util/protocol/http/HttpRequest.h>
-#include <framework/logger/LoggerStreamRecord.h>
+#include <framework/logger/StreamRecord.h>
 using namespace framework::logger;
 
 FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("HttpFetch", 0);
@@ -43,7 +43,7 @@ namespace ppbox
 
             std::ostringstream oss;
             request_head.get_content(oss);
-            LOG_STR(framework::logger::Logger::kLevelDebug1, oss.str().c_str());
+            LOG_STR(framework::logger::Trace, oss.str().c_str());
 
             http_stat_.begin_try();
             http_.async_fetch(request_head,
@@ -77,14 +77,14 @@ namespace ppbox
             if (!ec) {
             } else {
                 if (!canceled_ && (++try_times_ == 1 || util::protocol::HttpClient::recoverable(ec))) {
-                    LOG_S(Logger::kLevelDebug, "[handle_fetch] ec: " << ec.message());
+                    LOG_DEBUG("[handle_fetch] ec: " << ec.message());
                     http_stat_.begin_try();
                     http_.request_head().host.reset(server_host_.host_svc());
                     http_.async_fetch(http_.request_head(),
                         boost::bind(&HttpFetch::handle_fetch, this, _1));
                     return;
                 }
-                LOG_S(Logger::kLevelAlarm, "[handle_fetch] ec: " << ec.message());
+                LOG_WARN("[handle_fetch] ec: " << ec.message());
             }
             //returned_ = 1;
             response(ec);

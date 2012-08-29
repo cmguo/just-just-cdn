@@ -6,7 +6,7 @@
 #include "ppbox/cdn/Vod2Segments.h"
 #include "ppbox/cdn/Live2Segment.h"
 
-#include <framework/logger/LoggerStreamRecord.h>
+#include <framework/logger/StreamRecord.h>
 
 namespace ppbox
 {

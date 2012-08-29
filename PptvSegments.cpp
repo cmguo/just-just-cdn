@@ -10,7 +10,7 @@
 #include <framework/string/Format.h>
 #include <framework/string/StringToken.h>
 using namespace framework::string;
-#include <framework/logger/LoggerStreamRecord.h>
+#include <framework/logger/StreamRecord.h>
 using namespace framework::logger;
 
 FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("PptvSegments", 0);

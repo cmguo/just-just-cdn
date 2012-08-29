@@ -16,7 +16,7 @@
 #include <framework/string/Url.h>
 #include <framework/string/Parse.h>
 using namespace framework::string;
-#include <framework/logger/LoggerStreamRecord.h>
+#include <framework/logger/StreamRecord.h>
 using namespace framework::logger;
 
 FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("Vod2Segment", 0);
@@ -89,7 +89,7 @@ namespace ppbox
             boost::system::error_code const & ec)
         {
             if (ec) {
-                LOG_S(Logger::kLevelAlarm, "play: failure");
+                LOG_WARN("play: failure");
                 last_error_ = ec;
                 open_logs_end(0, ec);
                 response(ec);
@@ -99,7 +99,7 @@ namespace ppbox
             switch (open_step_) {
             case StepType::play:
                 {
-                    LOG_S(Logger::kLevelEvent, "play: start");
+                    LOG_INFO("play: start");
                     async_fetch(
                         get_play_url(),
                         dns_vod_play_server,
@@ -129,7 +129,7 @@ namespace ppbox
                 tmp_param = jdp_url_.param("ft");
                 if(tmp_param.empty())
                 {
-                    LOG_S(Logger::kLevelDebug, "parse ft or f failed");
+                    LOG_DEBUG("parse ft or f failed");
                     return false;
                 }
             }
@@ -139,7 +139,7 @@ namespace ppbox
             tmp_param = url_.param("duration");
             if(tmp_param.empty())
             {
-                LOG_S(Logger::kLevelDebug, "parse duration failed");
+                LOG_DEBUG("parse duration failed");
                 return false;
             }
             float fTotalDur = 0.0;
@@ -150,7 +150,7 @@ namespace ppbox
             tmp_param = url_.param("name");
             if(tmp_param.empty())
             {
-                LOG_S(Logger::kLevelDebug, "parse name failed");
+                LOG_DEBUG("parse name failed");
                 return false;
             }
             vod_play_info_.video.rid = tmp_param;
@@ -159,7 +159,7 @@ namespace ppbox
             tmp_param = url_.param("svrhost");
             if(tmp_param.empty())
             {
-                LOG_S(Logger::kLevelDebug, "parse svrhost failed");
+                LOG_DEBUG("parse svrhost failed");
                 return false;
             }
             framework::network::NetName svrhost(tmp_param.c_str());
@@ -169,7 +169,7 @@ namespace ppbox
             tmp_param = url_.param("svrtime");
             if(tmp_param.empty())
             {
-                LOG_S(Logger::kLevelDebug, "parse svrtime failed");
+                LOG_DEBUG("parse svrtime failed");
                 return false;
             }
             vod_play_info_.dtinfo.st.from_string(tmp_param);
@@ -178,7 +178,7 @@ namespace ppbox
             tmp_param = url_.param("BWType");
             if(tmp_param.empty())
             {
-                LOG_S(Logger::kLevelDebug, "parse bwtype failed");
+                LOG_DEBUG("parse bwtype failed");
                 return false;
             }
             parse2(tmp_param.c_str(), vod_play_info_.dtinfo.bwt);
@@ -187,14 +187,14 @@ namespace ppbox
             tmp_param = url_.param("drag");
             if(tmp_param.empty())
             {
-                LOG_S(Logger::kLevelDebug, "parse drag failed");
+                LOG_DEBUG("parse drag failed");
                 return false;
             }
             std::vector<std::string> strs;
             slice<std::string>(tmp_param, std::inserter(strs, strs.end()), "|");
             if(strs.size() != 3)
             {
-                LOG_S(Logger::kLevelDebug, "parse drag info failed");
+                LOG_DEBUG("parse drag info failed");
                 return false;
             }
 
@@ -236,7 +236,7 @@ namespace ppbox
                 url.svc(vod_play_info_.dtinfo.sh.svc());
                 url.path("/" + format(segment) + cdn_url_.path());
                 url.param("key", get_key());
-                LOG_S(framework::logger::Logger::kLevelDebug, "cdn url: " << url.to_string());
+                LOG_DEBUG( "cdn url: " << url.to_string());
 
                 framework::string::Url cdn_jump_param(url_.param("cdn.jump"));
                 if (cdn_jump_param.param("bwtype").empty()) {
@@ -309,7 +309,7 @@ namespace ppbox
                 url.param("f", format(vod_play_info_.video.ft));
             }
 
-            LOG_S(framework::logger::Logger::kLevelDebug,"[get_request] play url:"<<url.to_string());
+            LOG_DEBUG("[get_request] play url:"<<url.to_string());
 
             return url;
         }

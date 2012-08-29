@@ -13,7 +13,7 @@
 #include <framework/string/Url.h>
 #include <framework/string/Format.h>
 using namespace framework::string;
-#include <framework/logger/LoggerStreamRecord.h>
+#include <framework/logger/StreamRecord.h>
 using namespace framework::logger;
 
 
@@ -103,7 +103,7 @@ namespace ppbox
                 url.svc(jump_info_.server_host.svc());
                 url.path("/" + format(segment) + url.path());
                 url.param("key", get_key());
-                LOG_S(framework::logger::Logger::kLevelDebug,"[get_request] cdn url:"<<url.to_string());
+                LOG_DEBUG("[get_request] cdn url:"<<url.to_string());
 
                 framework::string::Url cdn_jump_param(url_.param("cdn.jump"));
                 if (cdn_jump_param.param("bwtype").empty()) {
@@ -129,17 +129,17 @@ namespace ppbox
         {
             if (ec) {
                 if (StepType::not_open == open_step_) {
-                    LOG_S(Logger::kLevelAlarm, "parse url:failure");
+                    LOG_WARN("parse url:failure");
                 }
                 if (StepType::jump == open_step_) {
-                    LOG_S(Logger::kLevelAlarm, "jump : failure");
+                    LOG_WARN("jump : failure");
                     open_logs_end(0, ec);
-                    LOG_S(Logger::kLevelDebug, "jump failure (" << open_logs_[0].total_elapse << " milliseconds)");
+                    LOG_DEBUG("jump failure (" << open_logs_[0].total_elapse << " milliseconds)");
                 }
                 if (StepType::drag == open_step_) {
-                    LOG_S(Logger::kLevelAlarm, "drag : failure");
+                    LOG_WARN("drag : failure");
                     open_logs_end(1, ec);
-                    LOG_S(Logger::kLevelDebug, "drag failure (" << open_logs_[2].total_elapse << " milliseconds)");
+                    LOG_DEBUG("drag failure (" << open_logs_[2].total_elapse << " milliseconds)");
                 }
                 response(ec);
                 last_error_ = ec;

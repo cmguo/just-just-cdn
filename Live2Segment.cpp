@@ -14,7 +14,7 @@
 #include <framework/string/Parse.h>
 #include <framework/string/Format.h>
 using namespace framework::string;
-#include <framework/logger/LoggerStreamRecord.h>
+#include <framework/logger/StreamRecord.h>
 using namespace framework::logger;
 
 FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("Live2Segment", 0);
@@ -83,13 +83,13 @@ namespace ppbox
         {
             if (ec) {
                 if (StepType::not_open == open_step_) {
-                    LOG_S(Logger::kLevelAlarm, "parse url:failure");
+                    LOG_WARN("parse url:failure");
                 }
                 if (ec != boost::asio::error::would_block) {
                     if (StepType::jump == open_step_) {
-                        LOG_S(Logger::kLevelAlarm, "jump : failure"); 
+                        LOG_WARN("jump : failure"); 
                         open_logs_end(0, ec);
-                        LOG_S(Logger::kLevelDebug, "jump failure (" << open_logs_[0].total_elapse << " milliseconds)");
+                        LOG_DEBUG("jump failure (" << open_logs_[0].total_elapse << " milliseconds)");
                     }
                 }
                 last_error_ = ec;
@@ -100,7 +100,7 @@ namespace ppbox
             switch(open_step_) {
         case StepType::not_open:
             open_step_ = StepType::jump;
-            LOG_S(Logger::kLevelEvent, "jump: start");
+            LOG_INFO("jump: start");
             async_fetch(
                 get_jump_url(),
                 dns_live2_jump_server,
@@ -237,7 +237,7 @@ namespace ppbox
             url.host(jump_info_.server_host.host());
             url.svc(jump_info_.server_host.svc());
             url.path("/live/" + stream_id_ + "/" + format(file_time) + ".block");
-            LOG_S(framework::logger::Logger::kLevelDebug,"[get_request] cdn url:" << url.to_string());
+            LOG_DEBUG("[get_request] cdn url:" << url.to_string());
 
             url.param("replay", "1");
             url.param("source", "0");
