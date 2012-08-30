@@ -5,6 +5,7 @@
 
 #include <util/protocol/http/HttpRequest.h>
 #include <framework/logger/StreamRecord.h>
+#include <framework/logger/StringRecord.h>
 using namespace framework::logger;
 
 FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("HttpFetch", 0);
@@ -43,7 +44,7 @@ namespace ppbox
 
             std::ostringstream oss;
             request_head.get_content(oss);
-            LOG_STR(framework::logger::Trace, oss.str().c_str());
+            LOG_STR(Trace, ("[async_fetch] request_head", oss.str()));
 
             http_stat_.begin_try();
             http_.async_fetch(request_head,
