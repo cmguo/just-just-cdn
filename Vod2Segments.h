@@ -98,7 +98,7 @@ namespace ppbox
             VodPlayInfo vod_play_info_;
 
             std::string name_;
-            Time local_time_;//用于计算key值
+            framework::timer::Time local_time_;//用于计算key值
             StepType::Enum open_step_;
         };
 

@@ -157,7 +157,7 @@ namespace ppbox
                         boost::bind(&VodSegments::handle_async_open, this, _1));
                     return;
 
-                case StepType::drag:
+                case StepType::jump:
                     async_fetch(
                         get_drag_url(),
                         dns_vod_drag_server,
@@ -165,7 +165,7 @@ namespace ppbox
                         boost::bind(&VodSegments::handle_async_open, this, _1));
                     return;
 
-                case StepType::finish:
+                case StepType::drag:
                     break;
 
                 default:

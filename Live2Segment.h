@@ -131,7 +131,7 @@ namespace ppbox
             std::string stream_id_;
 
             Live2JumpInfo jump_info_;
-            Time local_time_;
+            framework::timer::Time local_time_;
             time_t server_time_;
             time_t begin_time_;
             time_t value_time_;

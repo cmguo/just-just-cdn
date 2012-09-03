@@ -158,7 +158,7 @@ namespace ppbox
                     & SERIALIZATION_NVP(id)
                     & SERIALIZATION_NVP(BWType)
                     & SERIALIZATION_NVP(video)
-                    & util::serialization::make_nvp("block_size", block_size)
+                    & util::serialization::make_nvp("blocksize", block_size)
                     & SERIALIZATION_NVP(firstseg);
 
                 if (firstseg.is_initialized()) {
@@ -167,7 +167,6 @@ namespace ppbox
                     firstseg->duration_offset_us = (boost::uint64_t)duration_offset * 1000;
                     duration_offset += firstseg->duration;
                 }
-
             }
         };
 
