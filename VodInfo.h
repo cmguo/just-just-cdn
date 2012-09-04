@@ -20,16 +20,18 @@ namespace ppbox
         {
             boost::uint64_t head_length;
             boost::uint64_t file_length;
-            boost::uint32_t duration;   // 分段时长（毫秒）
+            boost::uint64_t offset;
+            boost::uint32_t duration;
             std::string va_rid;
-            boost::uint32_t duration_offset;    // 相对起始的时长起点，（毫秒）
-            boost::uint64_t duration_offset_us; // 同上，（微秒）
+            boost::uint32_t duration_offset;
+            boost::uint64_t duration_offset_us;
             boost::uint64_t block_size;
             boost::uint32_t block_num;
 
             VodSegment()
                 : head_length(0)
                 , file_length(0)
+                , offset(0)
                 , duration(0)
                 , duration_offset(0)
                 , duration_offset_us(0)
@@ -45,7 +47,8 @@ namespace ppbox
             Archive & ar)
             {
                 float duration = (float)this->duration / 1000.0f;
-                ar & util::serialization::make_nvp("headlength", head_length)
+                ar & util::serialization::make_nvp("offset", offset)
+                    & util::serialization::make_nvp("headlength", head_length)
                     & util::serialization::make_nvp("filesize", file_length)
                     & util::serialization::make_nvp("duration", duration)
                     & util::serialization::make_nvp("varid", va_rid);

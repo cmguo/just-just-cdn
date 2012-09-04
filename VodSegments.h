@@ -39,12 +39,19 @@ namespace ppbox
                 ppbox::data::DurationInfo & info,
                 boost::system::error_code & ec);
 
+            virtual boost::system::error_code get_video(
+                ppbox::data::VideoInfo & info,
+                boost::system::error_code & ec);
+
            virtual void set_url(
                 framework::string::Url const &url);
 
         private:
             framework::string::Url get_jump_url();
+
             framework::string::Url get_drag_url();
+
+            framework::string::Url get_cdn_url();
 
             std::string get_key() const;
 
@@ -80,6 +87,7 @@ namespace ppbox
             StepType::Enum open_step_;
             OpenMode mode_;
             bool know_seg_count_;
+            std::string platform_;
             framework::timer::Time local_time_;//用于计算key值
 
         };//VodSegmemt

@@ -15,9 +15,10 @@
 #include <framework/string/Slice.h>
 #include <framework/string/Url.h>
 #include <framework/string/Parse.h>
-using namespace framework::string;
 #include <framework/logger/StreamRecord.h>
+using namespace framework::string;
 using namespace framework::logger;
+using namespace boost::system;
 
 FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("Vod2Segment", 0);
 
@@ -86,7 +87,7 @@ namespace ppbox
         }
 
         void Vod2Segments::handle_async_open(
-            boost::system::error_code const & ec)
+            error_code const & ec)
         {
             if (ec) {
                 LOG_WARN("play: failure");
@@ -224,10 +225,10 @@ namespace ppbox
             return true;
         }
 
-        boost::system::error_code Vod2Segments::segment_url(
+        error_code Vod2Segments::segment_url(
             size_t segment, 
             framework::string::Url & url,
-            boost::system::error_code & ec)
+            error_code & ec)
         {
             ec.clear();
             if (segment < vod_play_info_.drag[0].segments.size()) {
@@ -279,7 +280,7 @@ namespace ppbox
             }
         }
 
-        boost::system::error_code Vod2Segments::get_duration(
+        error_code Vod2Segments::get_duration(
             ppbox::data::DurationInfo & info,
             boost::system::error_code & ec)
         {
@@ -293,6 +294,14 @@ namespace ppbox
             } else {
                 ec = error::not_open;
             }
+            return ec;
+        }
+
+        error_code Vod2Segments::get_video(
+            ppbox::data::VideoInfo & info,
+            error_code & ec)
+        {
+            ec.clear();
             return ec;
         }
 

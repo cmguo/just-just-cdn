@@ -83,6 +83,10 @@ namespace ppbox
                 ppbox::data::DurationInfo & info,
                 boost::system::error_code & ec);
 
+            virtual boost::system::error_code get_video(
+                ppbox::data::VideoInfo & info,
+                boost::system::error_code & ec);
+
             void set_url(
                 framework::string::Url const & url);
 

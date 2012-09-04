@@ -13,9 +13,10 @@
 #include <framework/string/Slice.h>
 #include <framework/string/Parse.h>
 #include <framework/string/Format.h>
-using namespace framework::string;
 #include <framework/logger/StreamRecord.h>
+using namespace framework::string;
 using namespace framework::logger;
+using namespace boost::system;
 
 FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("Live2Segment", 0);
 
@@ -79,7 +80,7 @@ namespace ppbox
         }
 
         void Live2Segment::handle_async_open(
-            boost::system::error_code const & ec)
+            error_code const & ec)
         {
             if (ec) {
                 if (StepType::not_open == open_step_) {
@@ -150,16 +151,13 @@ namespace ppbox
             return url;
         }
 
-        boost::system::error_code Live2Segment::reset(
+        error_code Live2Segment::reset(
             size_t & segment)
         {
             time_t file_time = server_time_ + (Time::now()-local_time_).total_seconds() - jump_info_.delay_play_time - seek_time_;
             file_time = file_time / interval_ * interval_;
-
             segment = (file_time - begin_time_) / interval_;
-
             segments_.add_segment(segment);
-
             return  boost::system::error_code();
         }
 
@@ -226,10 +224,10 @@ namespace ppbox
 
         }
 
-        boost::system::error_code Live2Segment::segment_url(
+        error_code Live2Segment::segment_url(
             size_t segment, 
             framework::string::Url & url,
-            boost::system::error_code & ec)
+            error_code & ec)
         {
             ec.clear();
             time_t file_time = begin_time_ + (segment * interval_);
@@ -258,9 +256,9 @@ namespace ppbox
             return ec;
         }
 
-        boost::system::error_code Live2Segment::get_duration(
+        error_code Live2Segment::get_duration(
             ppbox::data::DurationInfo & info,
-            boost::system::error_code & ec)
+            error_code & ec)
         {
             ec.clear();
             info.total = 0;
@@ -269,6 +267,14 @@ namespace ppbox
             info.redundancy = 0;
             info.interval = 0;
 
+            return ec;
+        }
+
+        error_code Live2Segment::get_video(
+            ppbox::data::VideoInfo & info,
+            error_code & ec)
+        {
+            ec.clear();
             return ec;
         }
 

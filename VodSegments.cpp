@@ -12,9 +12,10 @@
 #include <framework/string/StringToken.h>
 #include <framework/string/Url.h>
 #include <framework/string/Format.h>
-using namespace framework::string;
 #include <framework/logger/StreamRecord.h>
+using namespace framework::string;
 using namespace framework::logger;
+using namespace boost::system;
 
 
 FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("VodSegments", 0);
@@ -42,6 +43,7 @@ namespace ppbox
             : PptvSegments(io_svc)
             , open_step_(StepType::not_open)
             , know_seg_count_(false)
+            , platform_(std::string("android")) // TODO:hard code, android
         {
         }
 
@@ -87,6 +89,23 @@ namespace ppbox
             url.svc(dns_vod_drag_server.svc());
             std::string name = url.path();
             url.path(std::string("/") + name + "0drag");
+
+            return url;
+        }
+
+        framework::string::Url VodSegments::get_cdn_url()
+        {
+            framework::string::Url url("http://localhost/");
+            framework::network::NetName host_tmp = jump_info_.server_host;
+
+            host_tmp.port(80);
+            url.host(host_tmp.host());
+            url.svc(host_tmp.svc());
+            url.path("/" + url_.path() );
+            url.param("type", platform_);
+            url.param("w", "1");
+            url.param("z", "1");
+            url.param("key", get_key());
 
             return url;
         }
@@ -139,7 +158,7 @@ namespace ppbox
                 if (StepType::drag == open_step_) {
                     LOG_WARN("drag : failure");
                     open_logs_end(1, ec);
-                    LOG_DEBUG("drag failure (" << open_logs_[2].total_elapse << " milliseconds)");
+                    LOG_DEBUG("drag failure (" << open_logs_[1].total_elapse << " milliseconds)");
                 }
                 response(ec);
                 last_error_ = ec;
@@ -201,6 +220,7 @@ namespace ppbox
             if (drag_info_.segments.size() > segment) {
                 info.head_size = drag_info_.segments[segment].head_length;
                 info.size = drag_info_.segments[segment].file_length;
+                info.ofs = drag_info_.segments[segment].offset;
                 info.time = drag_info_.segments[segment].duration;
             } else {
                 info.head_size = boost::uint64_t(-1);
@@ -226,6 +246,26 @@ namespace ppbox
             return ec;
         }
 
+        error_code VodSegments::get_video(
+            ppbox::data::VideoInfo & info,
+            error_code & ec)
+        {
+            ec.clear();
+             if (0 != drag_info_.video.duration) {
+                 info.name = drag_info_.video.name;
+                 info.type = drag_info_.video.type;
+                 info.bitrate = drag_info_.video.bitrate;
+                 info.duration = drag_info_.video.duration;
+                 info.filesize = drag_info_.video.filesize;
+                 info.height = drag_info_.video.height;
+                 info.width  = drag_info_.video.width;
+                 info.url = get_cdn_url();
+             } else {
+                 ec = error::not_open;
+             }
+             return ec;
+        }
+
         void VodSegments::set_url(
             framework::string::Url const & url)
         {
@@ -233,7 +273,6 @@ namespace ppbox
         }
 
 
-    }//cdn
-}//ppbox
+    } //cdn
+} //ppbox
 
-//VodSegments.cpp
