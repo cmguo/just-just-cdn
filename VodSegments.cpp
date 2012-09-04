@@ -73,9 +73,9 @@ namespace ppbox
         {
             framework::string::Url url = jdp_url_;
             url.host(dns_vod_jump_server.host());
-            url.svc(dns_vod_jump_server.host_svc());
+            url.svc(dns_vod_jump_server.svc());
             std::string name = url.path();
-            url.path(name + "dt");
+            url.path(std::string("/") + name + "dt");
 
             return url;
         }
@@ -84,9 +84,9 @@ namespace ppbox
         {
             framework::string::Url url = jdp_url_;
             url.host(dns_vod_drag_server.host());
-            url.svc(dns_vod_drag_server.host_svc());
+            url.svc(dns_vod_drag_server.svc());
             std::string name = url.path();
-            url.path( name + "0drag");
+            url.path(std::string("/") + name + "0drag");
 
             return url;
         }
@@ -101,9 +101,9 @@ namespace ppbox
                 url = cdn_url_;
                 url.host(jump_info_.server_host.host());
                 url.svc(jump_info_.server_host.svc());
-                url.path("/" + format(segment) + url.path());
+                url.path("/" + format(segment) + std::string("/") + url.path());
                 url.param("key", get_key());
-                LOG_DEBUG("[get_request] cdn url:"<<url.to_string());
+                LOG_DEBUG("[get_request] cdn url:"<< url.to_string());
 
                 framework::string::Url cdn_jump_param(url_.param("cdn.jump"));
                 if (cdn_jump_param.param("bwtype").empty()) {
@@ -158,6 +158,7 @@ namespace ppbox
                     return;
 
                 case StepType::jump:
+                    open_step_ = StepType::drag;
                     async_fetch(
                         get_drag_url(),
                         dns_vod_drag_server,
@@ -228,7 +229,7 @@ namespace ppbox
         void VodSegments::set_url(
             framework::string::Url const & url)
         {
-            set_url(url);
+            PptvSegments::set_url(url);
         }
 
 
