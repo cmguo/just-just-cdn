@@ -1,63 +1,55 @@
-// PptvSegments.h
+// PptvMedia.h
 
 #ifndef _PPBOX_CDN_PPTV_SEGMENT_H_
 #define _PPBOX_CDN_PPTV_SEGMENT_H_
 
+#include "ppbox/cdn/PptvMeidaInfo.h"
 #include "ppbox/cdn/HttpFetch.h"
 #include "ppbox/cdn/HttpStatistics.h"
 
-#include <ppbox/data/SegmentBase.h>
-
-#include <framework/timer/TickCounter.h>
-
-#include <boost/bind.hpp>
-#include <boost/ref.hpp>
+#include <ppbox/data/MediaBase.h>
 
 namespace ppbox
 {
     namespace cdn
     {
 
-        class PptvSegments
-            : public ppbox::data::SegmentBase
+        class PptvMedia
+            : public ppbox::data::MediaBase
         {
         public:
-            PptvSegments(
+            PptvMedia(
                 boost::asio::io_service & io_svc);
 
-            ~PptvSegments();
-
-            void set_url(
-                framework::string::Url const &url);
-
-            void cancel();
-
-            void close();
+            ~PptvMedia();
 
         public:
+            virtual void set_url(
+                framework::string::Url const &url);
+
+            virtual void cancel();
+
+            virtual void close();
+
+        public:
+            virtual boost::system::error_code get_info(
+                ppbox::data::MediaInfo & info,
+                boost::system::error_code & ec);
+
+        public:
+            Video const & video() const
+            {
+                return *video_;
+            }
+
+            Jump const & jump() const
+            {
+                return *jump_;
+            }
+
             std::vector<HttpStatistics> const & open_logs() const
             {
                 return open_logs_;
-            }
-
-            framework::string::Url const & get_url() const 
-            {
-                return cdn_url_;
-            }
-
-            boost::system::error_code const & last_error() const
-            {
-                return last_error_;
-            }
-
-            std::string server_host() const
-            {
-                return server_host_;
-            }
-
-            boost::uint32_t open_total_time() const
-            {
-                return open_total_time_;
             }
 
         protected:
@@ -74,51 +66,71 @@ namespace ppbox
                 T & t, 
                 HttpFetch::response_type const & resp);
 
+        protected:
             void response(
                 boost::system::error_code const & ec);
 
             void set_response(
-                SegmentBase::response_type const & resp);
+                MediaBase::response_type const & resp);
 
-            void open_logs_end(
-                int index, 
-                boost::system::error_code const & ec);
+        protected:
+            std::string get_key() const;
+
+        protected:
+            void set_jump(
+                Jump & seg);
+
+            void set_video(
+                Video & seg);
+
+            void set_user_host(
+                std::string const & user_host);
+
+        private:
+            static bool parse_jump_param(
+                Jump & jump, 
+                std::string const & param);
+
+            static bool parse_video_param(
+                Video & video, 
+                std::string const & param);
+
+        protected:
+            Jump * jump_;
+            Video * video_;
+
+            Jump parsed_jump_;
+            Video parsed_video_;
+            std::string user_host_;
+            framework::timer::Time local_time_; // 用于计算key值
 
         protected:
             std::vector<HttpStatistics> open_logs_; // 不超过3个
-            framework::string::Url jdp_url_;//jump_drag_play_url
-            framework::string::Url cdn_url_;
-
-        protected:
-            boost::system::error_code last_error_;
-            std::string server_host_;
-            boost::uint32_t open_total_time_;
-
-        protected:
-            framework::timer::TickCounter tc_;
 
         private:
             HttpFetch fetch_;
-            SegmentBase::response_type resp_;
+            MediaBase::response_type resp_;
         };
 
         template <typename T>
-        void PptvSegments::async_fetch(
+        void PptvMedia::async_fetch(
             framework::string::Url const & url, 
             framework::network::NetName const & server_host, 
             T & t, 
             HttpFetch::response_type const & resp)
         {
             fetch_.async_fetch(url, server_host, 
-                boost::bind(&PptvSegments::handle_fetch<T>, this, _1, boost::ref(t), resp));
+                boost::bind(&PptvMedia::handle_fetch<T>, this, _1, boost::ref(t), resp));
         }
 
         template <typename T>
-        void PptvSegments::handle_fetch(
+        void PptvMedia::handle_fetch(
             boost::system::error_code const & ec, 
             T & t, 
             HttpFetch::response_type const & resp)
         {
+            open_logs_.push_back(fetch_.http_stat());
+
             if (ec) {
                 resp(ec);
                 return;
@@ -127,6 +139,7 @@ namespace ppbox
             util::archive::XmlIArchive<> ia(fetch_.data());
             ia >> t;
             if (!ia) {
+                open_logs_.back().last_last_error = error::bad_file_format;
                 resp(error::bad_file_format);
                 return;
             }

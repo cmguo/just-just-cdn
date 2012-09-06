@@ -2,6 +2,9 @@
 
 #include "ppbox/cdn/Common.h"
 #include "ppbox/cdn/Cdn.h"
+#include "ppbox/cdn/PptvVod.h"
+#include "ppbox/cdn/PptvVod2.h"
+#include "ppbox/cdn/PptvLive2.h"
 
 #include <framework/logger/StreamRecord.h>
 
@@ -11,10 +14,6 @@ namespace ppbox
     {
 
         FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("Cdn", 0)
-
-        //PPBOX_REGISTER_SEGMENT(ppvod, VodSegments);
-        //PPBOX_REGISTER_SEGMENT(ppvod2, Vod2Segments);
-        //PPBOX_REGISTER_SEGMENT(pplive2, Live2Segment);
 
         Cdn::Cdn(
             util::daemon::Daemon & daemon)
