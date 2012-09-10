@@ -39,7 +39,6 @@ namespace ppbox
             framework::string::Url const & url)
         {
             PptvVod::set_url(url);
-            parse_url();
         }
 
         void PptvVod2::async_open(
@@ -48,6 +47,7 @@ namespace ppbox
             assert(StepType::not_open == open_step_);
             set_response(resp);
             boost::system::error_code ec;
+            parse_url(ec);
             handle_async_open(ec);
         }
 
@@ -64,19 +64,23 @@ namespace ppbox
             case StepType::not_open:
                 {
                     LOG_INFO("play: start");
+                    framework::string::Url url;
                     async_fetch(
-                        get_play_url(),
+                        get_play_url(url),
                         dns_vod_play_server,
                         vod_play_info_, 
                         boost::bind(&PptvVod2::handle_async_open, this, _1));
-                    return;
+                    break;
                 }
             case StepType::play:
                 {
+                    deside_ft();
                     std::vector<Vod2Video> & files = vod_play_info_.channel.file;
                     for (size_t i = 0; i < files.size(); ++i) {
                         if (files[i].ft == ft_) {
-                            set_video(files[i]);
+                            files[i].name = vod_play_info_.channel.nm;
+                            files[i].duration = vod_play_info_.channel.dur;
+                            set_video(files[i]); // don't use temp variable as param for set_video
                             break;
                         }
                     }
@@ -92,22 +96,26 @@ namespace ppbox
                             break;
                         }
                     }
-                   break;
+                    response(ec);
+                    break;
                 }
             default:
-                return;
+                assert(0);
+                break;
             }
-            response(ec);
         }
 
-        void PptvVod2::parse_url()
+        void PptvVod2::parse_url(
+            boost::system::error_code & ec)
         {
             parse2(url_.param("ft"), ft_);
+            ec.clear();
         }
 
-        framework::string::Url PptvVod2::get_play_url()
+        framework::string::Url & PptvVod2::get_play_url(
+            framework::string::Url & url)
         {
-            framework::string::Url url = url_;
+            url = url_;
             url.host(dns_vod_play_server.host());
             url.svc(dns_vod_play_server.svc());
             url.path("/boxplay.api");

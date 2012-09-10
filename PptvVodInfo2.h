@@ -57,13 +57,10 @@ namespace ppbox
         struct Vod2Video
             : public Video
         {
-            std::string rid;
-            boost::uint32_t bitrate;    // 平均码流率
             boost::int32_t ft;
 
             Vod2Video()
-                : bitrate(0)
-                , ft(0)
+                : ft(0)
             {
             }
 
@@ -82,7 +79,8 @@ namespace ppbox
         struct Vod2Channel
         {
             //point
-            boost::uint32_t duration;   // 影片时长（微秒）
+            std::string nm;
+            boost::uint32_t dur;   // 影片时长（微秒）
             std::vector<Vod2Video> file;
 
             Vod2Channel()
@@ -95,7 +93,8 @@ namespace ppbox
             void serialize(
             Archive & ar)
             {
-                ar & SERIALIZATION_NVP(duration);
+                ar & SERIALIZATION_NVP(nm);
+                ar & SERIALIZATION_NVP(dur);
                 ar & SERIALIZATION_NVP(file);
             }
 

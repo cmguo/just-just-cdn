@@ -4,6 +4,11 @@
 #include "ppbox/cdn/CdnError.h"
 #include "ppbox/cdn/PptvVod1.h"
 
+#include <ppbox/certify/Certifier.h>
+
+#include <util/protocol/pptv/Url.h>
+using namespace util::protocol;
+
 #include <framework/string/Format.h>
 using namespace framework::string;
 #include <framework/logger/StreamRecord.h>
@@ -43,28 +48,52 @@ namespace ppbox
             response_type const & resp)
         {
             set_response(resp);
+
             boost::system::error_code ec;
+            std::string path = url_.path().substr(1);
+            std::string key = "kioe257ds";
+            if (path.size() > 4 && path.substr(path.size() - 4) == ".mp4") {
+                if (path.find('%') == std::string::npos) { // ÖÐÎÄÃûencode
+                    path = Url::encode(path, ".");
+                }
+            } else {
+                std::string key;
+                cert_.certify_url(url_, key, ec);
+                if (!ec) {
+                    path = pptv::url_decode(path, key);
+                    StringToken st(path, "||");
+                    boost::system::error_code ec;
+                    if (!st.next_token(ec)) {
+                        path = st.remain();
+                    } else {
+                        ec = error::bad_url;
+                    }
+                }
+            }
+
+            url_.path("/" + path);
             handle_async_open(ec);
         }
 
-        framework::string::Url PptvVod1::get_jump_url()
+        framework::string::Url & PptvVod1::get_jump_url(
+            framework::string::Url & url)
         {
-            framework::string::Url url = url_;
+            url = url_;
             url.host(dns_vod_jump.host());
             url.svc(dns_vod_jump.svc());
-            std::string name = url.path();
-            url.path(std::string("/") + name + "dt");
+            url.path(url.path() + "dt");
 
             return url;
         }
 
-        framework::string::Url PptvVod1::get_drag_url()
+        framework::string::Url & PptvVod1::get_drag_url(
+            framework::string::Url & url)
         {
-            framework::string::Url url = url_;
+            url = url_;
             url.host(dns_vod_drag.host());
             url.svc(dns_vod_drag.svc());
             std::string name = url.path();
-            url.path(std::string("/") + name + "0drag");
+            url.path(url.path() + "0drag");
 
             return url;
         }
@@ -73,9 +102,6 @@ namespace ppbox
             boost::system::error_code const & ec)
         {
             if (ec) {
-                if (StepType::not_open == open_step_) {
-                    LOG_WARN("parse url:failure");
-                }
                 if (StepType::jump == open_step_) {
                     LOG_WARN("jump : failure");
                     LOG_DEBUG("jump failure (" << open_logs_[0].total_elapse << " milliseconds)");
@@ -88,11 +114,13 @@ namespace ppbox
                 return;
             }
 
+            framework::string::Url url;
+
             switch(open_step_) {
                 case StepType::not_open:
                     open_step_ = StepType::jump;
                     async_fetch(
-                        get_jump_url(),
+                        get_jump_url(url),
                         dns_vod_jump,
                         jump_info_, 
                         boost::bind(&PptvVod1::handle_async_open, this, _1));
@@ -103,7 +131,7 @@ namespace ppbox
                         set_video(jump_info_.video.get());
                     open_step_ = StepType::drag;
                     async_fetch(
-                        get_drag_url(),
+                        get_drag_url(url),
                         dns_vod_drag,
                         drag_info_, 
                         boost::bind(&PptvVod1::handle_async_open, this, _1));

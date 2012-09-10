@@ -5,6 +5,8 @@
 #include "ppbox/cdn/CdnError.h"
 
 #include <ppbox/common/DynamicString.h>
+#include <ppbox/certify/Certifier.h>
+#include <ppbox/dac/Dac.h>
 
 #include <util/protocol/pptv/TimeKey.h> // for gen_key_from_time
 
@@ -37,6 +39,8 @@ namespace ppbox
         PptvMedia::PptvMedia(
             boost::asio::io_service & io_svc)
             : ppbox::data::MediaBase(io_svc)
+            , cert_(util::daemon::use_module<ppbox::certify::Certifier>(io_svc))
+            , dac_(util::daemon::use_module<ppbox::dac::Dac>(io_svc))
             , fetch_(io_svc)
         {
         }

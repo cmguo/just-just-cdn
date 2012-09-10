@@ -21,16 +21,18 @@ namespace ppbox
             ~PptvVod1();
 
         public:
-            virtual void set_url(
-                framework::string::Url const &url);
-
             virtual void async_open(
                 response_type const & resp);
 
         private:
-            framework::string::Url get_jump_url();
+            void parse_url(
+                framework::string::Url const & url);
 
-            framework::string::Url get_drag_url();
+            framework::string::Url & get_jump_url(
+                framework::string::Url & url);
+
+            framework::string::Url & get_drag_url(
+                framework::string::Url & url);
 
             void handle_async_open(
                 boost::system::error_code const & ec);

@@ -11,6 +11,16 @@
 
 namespace ppbox
 {
+    namespace certify
+    {
+        class Certifier;
+    }
+
+    namespace dac
+    {
+        class Dac;
+    }
+
     namespace cdn
     {
 
@@ -94,6 +104,10 @@ namespace ppbox
             static bool parse_video_param(
                 Video & video, 
                 std::string const & param);
+
+        protected:
+            ppbox::certify::Certifier & cert_;
+            ppbox::dac::Dac & dac_;
 
         protected:
             Jump * jump_;

@@ -28,9 +28,11 @@ namespace ppbox
                 response_type const & resp);
 
         private:
-            void parse_url();
+            void parse_url(
+                boost::system::error_code & ec);
 
-            framework::string::Url get_play_url();
+            framework::string::Url & get_play_url(
+                framework::string::Url & url);
 
             void handle_async_open(
                 boost::system::error_code const & ec);
