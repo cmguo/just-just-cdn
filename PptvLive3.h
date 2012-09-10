@@ -1,24 +1,24 @@
-// PptvLive2.h
+// PptvLive3.h
 
-#ifndef _PPBOX_CDN_PPTV_LIVE2_H_
-#define _PPBOX_CDN_PPTV_LIVE2_H_
+#ifndef _PPBOX_CDN_PPTV_LIVE3_H_
+#define _PPBOX_CDN_PPTV_LIVE3_H_
 
 #include "ppbox/cdn/PptvLive.h"
-#include "ppbox/cdn/PptvLiveInfo2.h"
+#include "ppbox/cdn/PptvLiveInfo3.h"
 
 namespace ppbox
 {
     namespace cdn
     {
 
-        class PptvLive2
+        class PptvLive3
             : public PptvLive
         {
         public:
-            PptvLive2(
+            PptvLive3(
                 boost::asio::io_service & io_svc);
 
-            ~PptvLive2();
+            ~PptvLive3();
 
         public:
             virtual void async_open(
@@ -28,7 +28,7 @@ namespace ppbox
             void handle_async_open(
                 boost::system::error_code const & ec);
 
-            framework::string::Url & get_jump_url(
+            framework::string::Url & get_play_url(
                 framework::string::Url & url) const;
 
         private:
@@ -37,20 +37,19 @@ namespace ppbox
                 enum Enum
                 {
                     not_open, 
-                    jumping, 
+                    playing, 
                     finish, 
                 };
             };
 
         private:
             StepType::Enum open_step_;
-            Live2JumpInfo jump_info_;
-            LiveSegment seg_;
+            LivePlayInfo play_info_;
         };
 
-        PPBOX_REGISTER_MEDIA(pplive2, PptvLive2);
+        PPBOX_REGISTER_MEDIA(pplive3, PptvLive3);
 
     } // namespace cdn
 } // namespace ppbox
 
-#endif // _PPBOX_CDN_PPTV_LIVE2_H_
+#endif // _PPBOX_CDN_PPTV_LIVE3_H_

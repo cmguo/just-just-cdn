@@ -1,7 +1,7 @@
 // PptvLiveInfo2.h
 
-#ifndef _PPBOX_CDN_LIVE2_INFO_H_
-#define _PPBOX_CDN_LIVE2_INFO_H_
+#ifndef _PPBOX_CDN_PPTV_LIVE_INFO2_H_
+#define _PPBOX_CDN_PPTV_LIVE_INFO2_H_
 
 #include "ppbox/cdn/PptvLiveInfo.h"
 
@@ -32,4 +32,4 @@ namespace ppbox
     } // namespace cdn
 } // namespace ppbox
 
-#endif//_PPBOX_CDN_LIVE2_INFO_H_
+#endif//_PPBOX_CDN_PPTV_LIVE_INFO2_H_

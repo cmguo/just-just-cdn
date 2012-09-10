@@ -26,7 +26,6 @@ namespace ppbox
             void serialize(
             Archive & ar)
             {
-                ar.version(3);
                 ar & SERIALIZATION_NVP(ft)
                     & segments;
             }
@@ -48,7 +47,6 @@ namespace ppbox
             void serialize(
                 Archive & ar)
             {
-                ar.version(3);
                 ar & SERIALIZATION_NVP(ft);
                 Jump::serialize(ar);
             }
@@ -70,7 +68,6 @@ namespace ppbox
             void serialize(
                 Archive & ar)
             {
-                ar.version(3);
                 ar  & SERIALIZATION_NVP(ft);
                 Video::serialize(ar);
             }
@@ -100,14 +97,14 @@ namespace ppbox
 
         };
 
-        struct Vod2PlayInfo
+        struct VodPlayInfo
         {
             Vod2Channel channel;
             std::vector<Vod2Jump> jumps;
             std::vector<Vod2Drag> drags;
-            framework::network::NetName uh;
+            std::string uh;
 
-            Vod2PlayInfo()
+            VodPlayInfo()
             {
             }
 
@@ -117,6 +114,7 @@ namespace ppbox
             void serialize(
                 Archive & ar)
             {
+                ar.version(vod_play);
                 ar & SERIALIZATION_NVP(channel)
                     & util::serialization::make_nvp("dt", ar.abnormal_collection(jumps))
                     & util::serialization::make_nvp("drag", ar.abnormal_collection(drags))

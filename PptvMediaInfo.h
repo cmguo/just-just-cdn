@@ -1,4 +1,4 @@
-// PptvMeidaInfo.h
+// PptvMediaInfo.h
 
 #ifndef _PPBOX_CDN_CDN_INFO_H_
 #define _PPBOX_CDN_CDN_INFO_H_

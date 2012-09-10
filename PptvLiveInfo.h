@@ -3,7 +3,7 @@
 #ifndef _PPBOX_CDN_LIVE_INFO_H_
 #define _PPBOX_CDN_LIVE_INFO_H_
 
-#include "ppbox/cdn/PptvMeidaInfo.h"
+#include "ppbox/cdn/PptvMediaInfo.h"
 
 namespace ppbox
 {
@@ -12,8 +12,22 @@ namespace ppbox
 
         struct LiveSegment
         {
-            boost::uint16_t delay;
             boost::uint16_t interval;
+
+            LiveSegment()
+                : interval(0)
+            {
+            }
+
+            template <
+                typename Archive
+            >
+            void serialize(
+                Archive & ar)
+            {
+                assert(ar.version() == live_2_play);
+                ar  & SERIALIZATION_NVP(interval);
+            }
         };
 
     } // namespace cdn

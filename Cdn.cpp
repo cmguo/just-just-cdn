@@ -2,9 +2,7 @@
 
 #include "ppbox/cdn/Common.h"
 #include "ppbox/cdn/Cdn.h"
-#include "ppbox/cdn/PptvVod.h"
-#include "ppbox/cdn/PptvVod2.h"
-#include "ppbox/cdn/PptvLive2.h"
+#include "ppbox/cdn/PptvMediaTypes.h"
 
 #include <framework/logger/StreamRecord.h>
 

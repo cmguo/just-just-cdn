@@ -4,6 +4,7 @@
 #include "ppbox/cdn/CdnError.h"
 #include "ppbox/cdn/PptvVod1.h"
 
+#include <ppbox/common/DomainName.h>
 #include <ppbox/certify/Certifier.h>
 
 #include <util/protocol/pptv/Url.h>
@@ -16,12 +17,12 @@ using namespace framework::logger;
 
 FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("PptvVod1", 0);
 
-#ifndef DNS_VOD_JUMP
-#define DNS_VOD_JUMP "(tcp)(v4)jump.150hi.com:80"
+#ifndef PPBOX_DNS_VOD_JUMP
+#  define PPBOX_DNS_VOD_JUMP "(tcp)(v4)jump.150hi.com:80"
 #endif
 
-#ifndef DNS_VOD_DRAG
-#define DNS_VOD_DRAG "(tcp)(v4)drag.150hi.com:80"
+#ifndef PPBOX_DNS_VOD_DRAG
+#  define PPBOX_DNS_VOD_DRAG "(tcp)(v4)drag.150hi.com:80"
 #endif
 
 namespace ppbox
@@ -29,8 +30,8 @@ namespace ppbox
     namespace cdn
     {
 
-        static const framework::network::NetName dns_vod_jump(DNS_VOD_JUMP);
-        static const framework::network::NetName dns_vod_drag(DNS_VOD_DRAG);
+        DEFINE_DOMAIN_NAME(dns_vod_jump, PPBOX_DNS_VOD_JUMP);
+        DEFINE_DOMAIN_NAME(dns_vod_drag, PPBOX_DNS_VOD_DRAG);
 
         PptvVod1::PptvVod1(
             boost::asio::io_service & io_svc)
@@ -126,7 +127,8 @@ namespace ppbox
                         boost::bind(&PptvVod1::handle_async_open, this, _1));
                     break;
                 case StepType::jump:
-                    set_jump(jump_info_.jump);
+                    set_user_host(jump_info_.user_host);
+                    set_jump(jump_info_);
                     if (jump_info_.video.is_initialized())
                         set_video(jump_info_.video.get());
                     open_step_ = StepType::drag;

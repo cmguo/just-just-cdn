@@ -63,7 +63,6 @@ namespace ppbox
             PptvMedia::get_info(info, ec);
             if (!ec) {
                 info.is_live = true;
-                info.delay = segment_.delay;
             }
             return ec;
         }

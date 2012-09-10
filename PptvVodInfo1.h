@@ -1,7 +1,7 @@
 // PptvVodInfo1.h
 
-#ifndef _PPBOX_CDN_VOD1_INFO_H_
-#define _PPBOX_CDN_VOD1_INFO_H_
+#ifndef _PPBOX_CDN_PPTV_VOD_INFO1_H_
+#define _PPBOX_CDN_PPTV_VOD_INFO1_H_
 
 #include "ppbox/cdn/PptvVodInfo.h"
 
@@ -13,13 +13,13 @@ namespace ppbox
     {
 
         struct VodJumpInfo
+            : public Jump
         {
             VodJumpInfo()
             {
             }
 
-            Jump jump;
-            framework::network::NetName user_host;
+            std::string user_host;
             boost::optional<Video> video;
             boost::optional<VodSegment> firstseg;
 
@@ -29,9 +29,9 @@ namespace ppbox
             void serialize( 
             Archive & ar)
             {
-                ar.version(1);
-                ar & jump
-                    & SERIALIZATION_NVP(user_host);
+                ar.version(vod);
+                Jump::serialize(ar);
+                ar & SERIALIZATION_NVP(user_host);
 
                 ar & SERIALIZATION_NVP(video);
                 if (video.is_initialized()) {
@@ -53,8 +53,8 @@ namespace ppbox
                 Archive & ar)
             {
                 ar & SERIALIZATION_NVP(video);
-                ar & util::serialization::make_nvp("segments", util::serialization::make_optional(segments, 1));
-                    & util::serialization::make_nvp("ss", util::serialization::make_optional(segments, 2));
+                ar & util::serialization::make_nvp("segments", util::serialization::make_optional(segments, vod));
+                    & util::serialization::make_nvp("ss", util::serialization::make_optional(segments, vod_quick));
             }
 
         };
@@ -62,4 +62,4 @@ namespace ppbox
     } // namespace cdn
 } // namespace ppbox
 
-#endif // _PPBOX_CDN_VOD1_INFO_H_
+#endif // _PPBOX_CDN_PPTV_VOD_INFO1_H_

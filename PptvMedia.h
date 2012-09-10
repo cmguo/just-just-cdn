@@ -3,7 +3,7 @@
 #ifndef _PPBOX_CDN_PPTV_SEGMENT_H_
 #define _PPBOX_CDN_PPTV_SEGMENT_H_
 
-#include "ppbox/cdn/PptvMeidaInfo.h"
+#include "ppbox/cdn/PptvMediaInfo.h"
 #include "ppbox/cdn/HttpFetch.h"
 #include "ppbox/cdn/HttpStatistics.h"
 

@@ -4,6 +4,8 @@
 #include "ppbox/cdn/PptvVod2.h"
 #include "ppbox/cdn/CdnError.h"
 
+#include <ppbox/common/DomainName.h>
+
 #include <framework/string/Parse.h>
 #include <framework/logger/StreamRecord.h>
 using namespace framework::string;
@@ -13,7 +15,7 @@ using namespace boost::system;
 FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("Vod2Segment", 0);
 
 #ifndef PPBOX_DNS_VOD_PLAY
-#define PPBOX_DNS_VOD_PLAY "(tcp)(v4)epg.api.pptv.com:80"
+#  define PPBOX_DNS_VOD_PLAY "(tcp)(v4)epg.api.pptv.com:80"
 #endif
 
 namespace ppbox
@@ -21,7 +23,7 @@ namespace ppbox
     namespace cdn
     {
 
-        static const framework::network::NetName dns_vod_play_server(PPBOX_DNS_VOD_PLAY);
+        DEFINE_DOMAIN_NAME(dns_vod_play, PPBOX_DNS_VOD_PLAY);
 
         PptvVod2::PptvVod2(
             boost::asio::io_service & io_svc)
@@ -67,32 +69,33 @@ namespace ppbox
                     framework::string::Url url;
                     async_fetch(
                         get_play_url(url),
-                        dns_vod_play_server,
-                        vod_play_info_, 
+                        dns_vod_play,
+                        play_info_, 
                         boost::bind(&PptvVod2::handle_async_open, this, _1));
                     break;
                 }
             case StepType::play:
                 {
+                    set_user_host(play_info_.uh);
                     deside_ft();
-                    std::vector<Vod2Video> & files = vod_play_info_.channel.file;
+                    std::vector<Vod2Video> & files = play_info_.channel.file;
                     for (size_t i = 0; i < files.size(); ++i) {
                         if (files[i].ft == ft_) {
-                            files[i].name = vod_play_info_.channel.nm;
-                            files[i].duration = vod_play_info_.channel.dur;
+                            files[i].name = play_info_.channel.nm;
+                            files[i].duration = play_info_.channel.dur;
                             set_video(files[i]); // don't use temp variable as param for set_video
                             break;
                         }
                     }
-                    for (size_t i = 0; i < vod_play_info_.jumps.size(); ++i) {
-                        if (vod_play_info_.jumps[i].ft == ft_) {
-                            set_jump(vod_play_info_.jumps[i]);
+                    for (size_t i = 0; i < play_info_.jumps.size(); ++i) {
+                        if (play_info_.jumps[i].ft == ft_) {
+                            set_jump(play_info_.jumps[i]);
                             break;
                         }
                     }
-                    for (size_t i = 0; i < vod_play_info_.drags.size(); ++i) {
-                        if (vod_play_info_.drags[i].ft == ft_) {
-                            set_segments(vod_play_info_.drags[i].segments);
+                    for (size_t i = 0; i < play_info_.drags.size(); ++i) {
+                        if (play_info_.drags[i].ft == ft_) {
+                            set_segments(play_info_.drags[i].segments);
                             break;
                         }
                     }
@@ -116,8 +119,8 @@ namespace ppbox
             framework::string::Url & url)
         {
             url = url_;
-            url.host(dns_vod_play_server.host());
-            url.svc(dns_vod_play_server.svc());
+            url.host(dns_vod_play.host());
+            url.svc(dns_vod_play.svc());
             url.path("/boxplay.api");
             url.param("id",url_.path().substr(1));
             url.param("auth","55b7c50dc1adfc3bcabe2d9b2015e35c");
@@ -130,7 +133,7 @@ namespace ppbox
 
         void PptvVod2::deside_ft()
         {
-            std::vector<Vod2Video> & files = vod_play_info_.channel.file;
+            std::vector<Vod2Video> & files = play_info_.channel.file;
             for (size_t i = 0; i < files.size(); ++i) {
                 if (files[i].ft >= ft_) {
                     ft_ = files[i].ft;

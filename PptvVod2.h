@@ -1,7 +1,7 @@
 // PptvVod2.h
 
-#ifndef PPBOX_CDN_VOD2_SEGMENTS_H_
-#define PPBOX_CDN_VOD2_SEGMENTS_H_
+#ifndef PPBOX_CDN_PPTV_VOD2_H_
+#define PPBOX_CDN_PPTV_VOD2_H_
 
 #include "ppbox/cdn/PptvVodInfo2.h"
 #include "ppbox/cdn/PptvVod.h"
@@ -51,7 +51,7 @@ namespace ppbox
             };
 
         private:
-            Vod2PlayInfo vod_play_info_;
+            VodPlayInfo play_info_;
             StepType::Enum open_step_;
             size_t ft_;
         };
@@ -61,7 +61,4 @@ namespace ppbox
     } // namespace cdn
 } // namespace ppbox
 
-#endif // PPBOX_CDN_VOD2_SEGMENTS_H_
-
-
-
+#endif // PPBOX_CDN_PPTV_VOD2_H_
