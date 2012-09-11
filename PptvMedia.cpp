@@ -40,7 +40,7 @@ namespace ppbox
             boost::asio::io_service & io_svc)
             : ppbox::data::MediaBase(io_svc)
             , cert_(util::daemon::use_module<ppbox::certify::Certifier>(io_svc))
-            , dac_(util::daemon::use_module<ppbox::dac::Dac>(io_svc))
+            , dac_(util::daemon::use_module<ppbox::dac::DacModule>(io_svc))
             , fetch_(io_svc)
         {
         }

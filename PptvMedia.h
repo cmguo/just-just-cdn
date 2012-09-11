@@ -18,7 +18,7 @@ namespace ppbox
 
     namespace dac
     {
-        class Dac;
+        class DacModule;
     }
 
     namespace cdn
@@ -117,7 +117,7 @@ namespace ppbox
 
         protected:
             ppbox::certify::Certifier & cert_;
-            ppbox::dac::Dac & dac_;
+            ppbox::dac::DacModule & dac_;
 
         protected:
             Jump * jump_;
