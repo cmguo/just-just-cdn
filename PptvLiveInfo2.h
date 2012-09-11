@@ -20,7 +20,7 @@ namespace ppbox
                 typename Archive
             >
             void serialize(
-            Archive & ar)
+                Archive & ar)
             {
                 ar.version(live_2);
                 ar & jump

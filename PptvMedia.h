@@ -57,6 +57,16 @@ namespace ppbox
                 return *jump_;
             }
 
+            std::string const & user_host() const
+            {
+                return user_host_;
+            }
+
+            std::string const & p2p_params() const
+            {
+                return p2p_params_;
+            }
+
             std::vector<HttpStatistics> const & open_logs() const
             {
                 return open_logs_;
@@ -116,6 +126,7 @@ namespace ppbox
             Jump parsed_jump_;
             Video parsed_video_;
             std::string user_host_;
+            std::string p2p_params_;
             framework::timer::Time local_time_; // 用于计算key值
 
         protected:

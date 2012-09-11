@@ -27,7 +27,7 @@ namespace ppbox
                 typename Archive
             >
             void serialize( 
-            Archive & ar)
+                Archive & ar)
             {
                 ar.version(vod);
                 Jump::serialize(ar);
@@ -35,7 +35,7 @@ namespace ppbox
 
                 ar & SERIALIZATION_NVP(video);
                 if (video.is_initialized()) {
-                    ar.version(2);
+                    ar.version(vod_quick);
                     ar & SERIALIZATION_NVP(firstseg);
                 }
             }

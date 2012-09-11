@@ -73,6 +73,9 @@ namespace ppbox
                 url_.param("cdn.video", ""); // clear
             }
 
+            p2p_params_ = url_.param("p2p");
+            url_.param("p2p", "");
+
             if (url_.param("type").empty()) {
                 url_.param("type", str_cdn_type);
             }
