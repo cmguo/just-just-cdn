@@ -6,7 +6,7 @@
 
 #include <ppbox/common/DynamicString.h>
 #include <ppbox/certify/Certifier.h>
-#include <ppbox/dac/Dac.h>
+#include <ppbox/dac/DacModule.h>
 
 #include <util/protocol/pptv/TimeKey.h> // for gen_key_from_time
 
