@@ -27,6 +27,12 @@ namespace ppbox
         {
         }
 
+        void PptvLive::set_url(
+            framework::string::Url const & url)
+        {
+            PptvMedia::set_url(url);
+        }
+
         size_t PptvLive::segment_count() const
         {
             return size_t(-1);
