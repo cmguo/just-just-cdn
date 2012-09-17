@@ -11,12 +11,14 @@
 
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/streambuf.hpp>
+#include <boost/enable_shared_from_this.hpp>
 
 namespace ppbox
 {
     namespace cdn
     {
         class HttpFetch
+            : public boost::enable_shared_from_this<HttpFetch>
         {
         public:
             typedef boost::function<void (
@@ -29,9 +31,9 @@ namespace ppbox
             ~HttpFetch();
 
             void async_fetch(
-                framework::string::Url const & url 
-                ,framework::network::NetName const & server_host
-                ,response_type const & resp);
+                framework::string::Url const & url, 
+                framework::network::NetName const & server_host, 
+                response_type const & resp);
 
             boost::asio::streambuf & data()
             {
@@ -41,6 +43,8 @@ namespace ppbox
             ppbox::cdn::HttpStatistics const & http_stat();
 
             void cancel();
+
+            void detach(); // cancel but not response
 
             void close();
 
@@ -54,11 +58,10 @@ namespace ppbox
 
         private:
             util::protocol::HttpClient http_;
-
             ppbox::cdn::HttpStatistics http_stat_;
-
             framework::network::NetName server_host_;
 
+            boost::mutex mutex_;
             bool canceled_;
             response_type resp_;
             size_t try_times_;

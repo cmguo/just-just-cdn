@@ -8,6 +8,9 @@
 #include "ppbox/cdn/HttpStatistics.h"
 
 #include <ppbox/data/MediaBase.h>
+#include <ppbox/demux/base/BufferDemuxer.h>
+
+#include <boost/shared_ptr.hpp>
 
 namespace ppbox
 {
@@ -19,6 +22,11 @@ namespace ppbox
     namespace dac
     {
         class DacModule;
+    }
+
+    namespace peer
+    {
+        class PeerSource;
     }
 
     namespace cdn
@@ -93,6 +101,10 @@ namespace ppbox
             void set_response(
                 MediaBase::response_type const & resp);
 
+            bool is_demux() { return demuxer_ != NULL; }
+
+            virtual void async_open2() {};
+
         protected:
             std::string get_key() const;
 
@@ -107,6 +119,10 @@ namespace ppbox
                 std::string const & user_host);
 
         private:
+            void on_event(
+                util::event::Event const & e);
+
+        private:
             static bool parse_jump_param(
                 Jump & jump, 
                 std::string const & param);
@@ -118,6 +134,8 @@ namespace ppbox
         protected:
             ppbox::certify::Certifier & cert_;
             ppbox::dac::DacModule & dac_;
+
+            ppbox::demux::BufferDemuxer * demuxer_;
 
         protected:
             Jump * jump_;
@@ -133,7 +151,7 @@ namespace ppbox
             std::vector<HttpStatistics> open_logs_; // ²»³¬¹ý3¸ö
 
         private:
-            HttpFetch fetch_;
+            boost::shared_ptr<HttpFetch> fetch_;
             MediaBase::response_type resp_;
         };
 
@@ -144,7 +162,7 @@ namespace ppbox
             T & t, 
             HttpFetch::response_type const & resp)
         {
-            fetch_.async_fetch(url, server_host, 
+            fetch_->async_fetch(url, server_host, 
                 boost::bind(&PptvMedia::handle_fetch<T>, this, _1, boost::ref(t), resp));
         }
 
@@ -154,15 +172,16 @@ namespace ppbox
             T & t, 
             HttpFetch::response_type const & resp)
         {
-            open_logs_.push_back(fetch_.http_stat());
+            open_logs_.push_back(fetch_->http_stat());
 
             if (ec) {
                 resp(ec);
                 return;
             }
 
-            util::archive::XmlIArchive<> ia(fetch_.data());
+            util::archive::XmlIArchive<> ia(fetch_->data());
             ia >> t;
+            fetch_->close();
             if (!ia) {
                 open_logs_.back().last_last_error = error::bad_file_format;
                 resp(error::bad_file_format);

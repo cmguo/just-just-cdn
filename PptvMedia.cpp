@@ -7,6 +7,10 @@
 #include <ppbox/common/DynamicString.h>
 #include <ppbox/certify/Certifier.h>
 #include <ppbox/dac/DacModule.h>
+#include <ppbox/dac/DacInfoPlayOpen.h>
+#include <ppbox/dac/DacInfoPlayClose.h>
+#include <ppbox/demux/base/DemuxEvent.h>
+#include <ppbox/demux/base/DemuxStatistic.h>
 
 #include <util/protocol/pptv/TimeKey.h> // for gen_key_from_time
 
@@ -41,14 +45,17 @@ namespace ppbox
             : ppbox::data::MediaBase(io_svc)
             , cert_(util::daemon::use_module<ppbox::certify::Certifier>(io_svc))
             , dac_(util::daemon::use_module<ppbox::dac::DacModule>(io_svc))
-            , fetch_(io_svc)
+            , fetch_(new HttpFetch(io_svc))
         {
         }
 
         PptvMedia::~PptvMedia()
         {
+            if (demuxer_) {
+                demuxer_->un<ppbox::demux::StatusChangeEvent>(boost::bind(&PptvMedia::on_event, this, _1));
+            }
+            fetch_->detach();
         }
-
 
         void PptvMedia::set_url(
             framework::string::Url const &url)
@@ -91,12 +98,11 @@ namespace ppbox
 
         void PptvMedia::cancel()
         {
-            fetch_.cancel();
+            fetch_->cancel();
         }
 
         void PptvMedia::close()
         {
-            fetch_.close();
         }
 
         boost::system::error_code PptvMedia::get_info(
@@ -114,6 +120,11 @@ namespace ppbox
         void PptvMedia::set_response(
             MediaBase::response_type const & resp)
         {
+            // it is safe to get user stat object now
+            // user_stat_ = DemuxModule::find(this);
+            if (demuxer_) {
+                demuxer_->on<ppbox::demux::StatusChangeEvent>(boost::bind(&PptvMedia::on_event, this, _1));
+            }
             resp_ = resp;
         }
 
@@ -143,6 +154,20 @@ namespace ppbox
             std::string const & user_host)
         {
             user_host_ = user_host;
+        }
+        
+        void PptvMedia::on_event(
+            util::event::Event const & e)
+        {
+            ppbox::demux::StatusChangeEvent const & event = *e.cast<ppbox::demux::StatusChangeEvent>();
+            if (event.stat.state() == ppbox::demux::DemuxStatistic::opened) {
+                ppbox::peer::PeerSource * source_ = NULL; // ((BufferDemuxer *)user_stat_)->source();
+                dac_.submit(ppbox::dac::DacPlayOpenInfo(*this, *source_, event.stat));
+                if (!event.stat.last_error())
+                    async_open2();
+            } else if (event.stat.state() == ppbox::demux::DemuxStatistic::stopped) {
+                dac_.submit(ppbox::dac::DacPlayCloseInfo(*this, event.stat, demuxer_->buffer_stat()));
+            }
         }
 
         bool PptvMedia::parse_jump_param(
@@ -176,5 +201,5 @@ namespace ppbox
                 jump_->server_time.to_time_t() + (Time::now() - local_time_).total_seconds());
         }
 
-    }//cdn
-}//ppbox
+    } // namespace cdn
+} // namespace ppbox

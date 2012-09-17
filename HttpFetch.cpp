@@ -19,7 +19,7 @@ namespace ppbox
         HttpFetch::HttpFetch(
             boost::asio::io_service & io_svc)
             : http_(io_svc)
-            ,canceled_(false)
+            , canceled_(false)
             , try_times_(0)
         {
         }
@@ -48,15 +48,23 @@ namespace ppbox
 
             http_stat_.begin_try();
             http_.async_fetch(request_head,
-                boost::bind(&HttpFetch::handle_fetch, this, _1));
+                boost::bind(&HttpFetch::handle_fetch, shared_from_this(), _1));
         }
-
 
         void HttpFetch::cancel()
         {
             boost::system::error_code ec1;
             http_.cancel_forever(ec1);
             canceled_ = true;
+        }
+
+        void HttpFetch::detach()
+        {
+            boost::mutex::scoped_lock lock(mutex_);
+            if (!resp_.empty()) {
+                cancel();
+                resp_.clear();
+            }
         }
 
         void HttpFetch::close()
@@ -82,22 +90,25 @@ namespace ppbox
                     http_stat_.begin_try();
                     http_.request_head().host.reset(server_host_.host_svc());
                     http_.async_fetch(http_.request_head(),
-                        boost::bind(&HttpFetch::handle_fetch, this, _1));
+                        boost::bind(&HttpFetch::handle_fetch, shared_from_this(), _1));
                     return;
                 }
                 LOG_WARN("[handle_fetch] ec: " << ec.message());
             }
-            //returned_ = 1;
             response(ec);
         }
-
-
+        
         void HttpFetch::response(
             boost::system::error_code const & ec)
         {
+            boost::mutex::scoped_lock lock(mutex_);
             response_type resp;
             resp.swap(resp_);
-            resp(ec);
+            if (!resp.empty()) {
+                resp(ec);
+            } else {
+                close();
+            }
         }
         
     } // namespace cdn

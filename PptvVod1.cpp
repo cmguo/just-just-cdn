@@ -52,13 +52,12 @@ namespace ppbox
 
             boost::system::error_code ec;
             std::string path = url_.path().substr(1);
-            std::string key = "kioe257ds";
             if (path.size() > 4 && path.substr(path.size() - 4) == ".mp4") {
                 if (path.find('%') == std::string::npos) { // ÖÐÎÄÃûencode
                     path = Url::encode(path, ".");
                 }
             } else {
-                std::string key;
+                std::string key = "kioe257ds";
                 cert_.certify_url(url_, key, ec);
                 if (!ec) {
                     path = pptv::url_decode(path, key);
@@ -76,27 +75,10 @@ namespace ppbox
             handle_async_open(ec);
         }
 
-        framework::string::Url & PptvVod1::get_jump_url(
-            framework::string::Url & url)
+        void PptvVod1::async_open2()
         {
-            url = url_;
-            url.host(dns_vod_jump.host());
-            url.svc(dns_vod_jump.svc());
-            url.path(url.path() + "dt");
-
-            return url;
-        }
-
-        framework::string::Url & PptvVod1::get_drag_url(
-            framework::string::Url & url)
-        {
-            url = url_;
-            url.host(dns_vod_drag.host());
-            url.svc(dns_vod_drag.svc());
-            std::string name = url.path();
-            url.path(url.path() + "0drag");
-
-            return url;
+            boost::system::error_code ec;
+            handle_async_open(ec);
         }
 
         void PptvVod1::handle_async_open(
@@ -120,17 +102,27 @@ namespace ppbox
             switch(open_step_) {
                 case StepType::not_open:
                     open_step_ = StepType::jump;
-                    async_fetch(
-                        get_jump_url(url),
-                        dns_vod_jump,
-                        jump_info_, 
-                        boost::bind(&PptvVod1::handle_async_open, this, _1));
+                    if (!jump_) {
+                        async_fetch(
+                            get_jump_url(url),
+                            dns_vod_jump,
+                            jump_info_, 
+                            boost::bind(&PptvVod1::handle_async_open, this, _1));
+                    } else {
+                        handle_async_open(ec);
+                    }
                     break;
                 case StepType::jump:
-                    set_user_host(jump_info_.user_host);
-                    set_jump(jump_info_);
-                    if (jump_info_.video.is_initialized())
-                        set_video(jump_info_.video.get());
+                    if (!jump_) {
+                        set_user_host(jump_info_.user_host);
+                        set_jump(jump_info_);
+                        if (jump_info_.video.is_initialized())
+                            set_video(jump_info_.video.get());
+                    }
+                    if (is_demux()) {
+                        response(ec);
+                        break;;
+                    }
                     open_step_ = StepType::drag;
                     async_fetch(
                         get_drag_url(url),
@@ -147,6 +139,29 @@ namespace ppbox
                     assert(0);
                     break;
             }
+        }
+
+        framework::string::Url & PptvVod1::get_jump_url(
+            framework::string::Url & url)
+        {
+            url = url_;
+            url.host(dns_vod_jump.host());
+            url.svc(dns_vod_jump.svc());
+            url.path(url.path() + "dt");
+
+            return url;
+        }
+
+        framework::string::Url & PptvVod1::get_drag_url(
+            framework::string::Url & url)
+        {
+            url = url_;
+            url.host(dns_vod_drag.host());
+            url.svc(dns_vod_drag.svc());
+            std::string name = url.path();
+            url.path(url.path() + "0drag");
+
+            return url;
         }
 
     } // cdn

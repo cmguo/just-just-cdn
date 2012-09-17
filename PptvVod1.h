@@ -37,6 +37,8 @@ namespace ppbox
             void handle_async_open(
                 boost::system::error_code const & ec);
 
+            virtual void async_open2();
+
         private:
             struct StepType
             {
