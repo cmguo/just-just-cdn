@@ -25,18 +25,24 @@ namespace ppbox
                 response_type const & resp);
 
         private:
-            void handle_async_open(
-                boost::system::error_code const & ec);
+            void parse_url(
+                boost::system::error_code & ec);
 
             framework::string::Url & get_play_url(
                 framework::string::Url & url) const;
+
+            void handle_async_open(
+                boost::system::error_code const & ec);
+
+            void deside_ft(
+                boost::system::error_code & ec);
 
         private:
             struct StepType
             {
                 enum Enum
                 {
-                    not_open, 
+                    closed, 
                     playing, 
                     finish, 
                 };
@@ -45,6 +51,7 @@ namespace ppbox
         private:
             StepType::Enum open_step_;
             LivePlayInfo play_info_;
+            size_t ft_;
         };
 
         PPBOX_REGISTER_MEDIA(pplive3, PptvLive3);

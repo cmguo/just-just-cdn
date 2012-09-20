@@ -36,7 +36,7 @@ namespace ppbox
             {
                 enum Enum
                 {
-                    not_open, 
+                    closed, 
                     jumping, 
                     finish, 
                 };

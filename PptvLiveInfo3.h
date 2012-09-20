@@ -12,18 +12,66 @@ namespace ppbox
     namespace cdn
     {
 
-        struct Live2Channel
+        struct Live3Video
+            : public Video
         {
-            //point
-            std::string nm;
-            size_t jump;
-            size_t delay;
-            LiveSegment seg;
-            std::vector<Video> stream;
+            boost::int32_t ft;
 
-            Live2Channel()
-                : jump(0)
-                , delay(0)
+            Live3Video()
+                : ft(0)
+            {
+            }
+
+            bool operator<(
+                Live3Video const & r)
+            {
+                return ft < r.ft;
+            }
+
+            template <
+                typename Archive
+            >
+            void serialize(
+                Archive & ar)
+            {
+                ar  & SERIALIZATION_NVP(ft);
+                Video::serialize(ar);
+            }
+        };
+
+        struct Live3Stream
+        {
+            size_t delay;
+            size_t jump;
+            LiveSegment seg; // interval
+            std::vector<Live3Video> item;
+
+            Live3Stream()
+                : delay(0)
+                , jump(0)
+            {
+            }
+
+            template <
+                typename Archive
+            >
+            void serialize(
+                Archive & ar)
+            {
+                ar & SERIALIZATION_NVP(delay);
+                ar & SERIALIZATION_NVP(jump);
+                ar & seg;
+                ar & item;
+            }
+
+        };
+
+        struct Live3Channel
+        {
+            std::string nm;
+            Live3Stream stream;
+
+            Live3Channel()
             {
             }
 
@@ -34,9 +82,6 @@ namespace ppbox
             Archive & ar)
             {
                 ar & SERIALIZATION_NVP(nm);
-                ar & SERIALIZATION_NVP(jump);
-                ar & SERIALIZATION_NVP(delay);
-                ar & seg;
                 ar & SERIALIZATION_NVP(stream);
             }
 
@@ -44,7 +89,7 @@ namespace ppbox
 
         struct LivePlayInfo
         {
-            Live2Channel channel;
+            Live3Channel channel;
             Jump jump;
             std::string uh;
 

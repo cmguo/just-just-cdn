@@ -109,11 +109,11 @@ namespace ppbox
             std::string get_key() const;
 
         protected:
-            void set_jump(
-                Jump & seg);
-
             void set_video(
                 Video & seg);
+
+            void set_jump(
+                Jump & seg);
 
             void set_user_host(
                 std::string const & user_host);

@@ -36,7 +36,7 @@ namespace ppbox
         PptvVod1::PptvVod1(
             boost::asio::io_service & io_svc)
             : PptvVod(io_svc)
-            , open_step_(StepType::not_open)
+            , open_step_(StepType::closed)
             , know_seg_count_(false)
         {
         }
@@ -66,7 +66,7 @@ namespace ppbox
                     if (!st.next_token(ec)) {
                         path = st.remain();
                     } else {
-                        ec = error::bad_url;
+                        ec = error::bad_url_format;
                     }
                 }
             }
@@ -85,11 +85,11 @@ namespace ppbox
             boost::system::error_code const & ec)
         {
             if (ec) {
-                if (StepType::jump == open_step_) {
+                if (StepType::jumping == open_step_) {
                     LOG_WARN("jump : failure");
                     LOG_DEBUG("jump failure (" << open_logs_[0].total_elapse << " milliseconds)");
                 }
-                if (StepType::drag == open_step_) {
+                if (StepType::draging == open_step_) {
                     LOG_WARN("drag : failure");
                     LOG_DEBUG("drag failure (" << open_logs_[2].total_elapse << " milliseconds)");
                 }
@@ -100,8 +100,8 @@ namespace ppbox
             framework::string::Url url;
 
             switch(open_step_) {
-                case StepType::not_open:
-                    open_step_ = StepType::jump;
+                case StepType::closed:
+                    open_step_ = StepType::jumping;
                     if (!jump_) {
                         async_fetch(
                             get_jump_url(url),
@@ -112,27 +112,28 @@ namespace ppbox
                         handle_async_open(ec);
                     }
                     break;
-                case StepType::jump:
-                    if (!jump_) {
-                        set_user_host(jump_info_.user_host);
-                        set_jump(jump_info_);
-                        if (jump_info_.video.is_initialized())
-                            set_video(jump_info_.video.get());
-                    }
+                case StepType::jumping:
+                    if (jump_info_.video.is_initialized())
+                        set_video(jump_info_.video.get());
+                    set_jump(jump_info_);
+                    set_user_host(jump_info_.user_host);
                     if (is_demux()) {
+                        open_step_ = StepType::wait2;
                         response(ec);
                         break;;
                     }
-                    open_step_ = StepType::drag;
+                case StepType::wait2:
+                    open_step_ = StepType::draging;
                     async_fetch(
                         get_drag_url(url),
                         dns_vod_drag,
                         drag_info_, 
                         boost::bind(&PptvVod1::handle_async_open, this, _1));
                     break;
-                case StepType::drag:
+                case StepType::draging:
                     set_video(drag_info_.video);
                     set_segments(drag_info_.segments);
+                    open_step_ = StepType::finish;
                     response(ec);
                     break;
                 default:

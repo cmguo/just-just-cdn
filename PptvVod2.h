@@ -21,9 +21,6 @@ namespace ppbox
             ~PptvVod2();
 
         public:
-            void set_url(
-                framework::string::Url const &url);
-
             void async_open(
                 response_type const & resp);
 
@@ -34,25 +31,29 @@ namespace ppbox
             framework::string::Url & get_play_url(
                 framework::string::Url & url);
 
+            void async_open2();
+
             void handle_async_open(
                 boost::system::error_code const & ec);
 
-            void deside_ft();
+            void deside_ft(
+                boost::system::error_code & ec);
 
         private:
             struct StepType
             {
                 enum Enum
                 {
-                    not_open, 
-                    play,
+                    closed, 
+                    playing,
+                    wait2, 
                     finish
                 };
             };
 
         private:
-            VodPlayInfo play_info_;
             StepType::Enum open_step_;
+            VodPlayInfo play_info_;
             size_t ft_;
         };
 

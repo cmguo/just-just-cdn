@@ -28,7 +28,7 @@ namespace ppbox
         PptvVod2::PptvVod2(
             boost::asio::io_service & io_svc)
             : PptvVod(io_svc)
-            , open_step_(StepType::not_open)
+            , open_step_(StepType::closed)
             , ft_((size_t)-1)
         {
         }
@@ -37,19 +37,19 @@ namespace ppbox
         {
         }
 
-        void PptvVod2::set_url(
-            framework::string::Url const & url)
-        {
-            PptvVod::set_url(url);
-        }
-
         void PptvVod2::async_open(
             response_type const & resp)
         {
-            assert(StepType::not_open == open_step_);
+            assert(StepType::closed == open_step_);
             set_response(resp);
             boost::system::error_code ec;
             parse_url(ec);
+            handle_async_open(ec);
+        }
+
+        void PptvVod2::async_open2()
+        {
+            boost::system::error_code ec;
             handle_async_open(ec);
         }
 
@@ -62,49 +62,36 @@ namespace ppbox
                 return;
             }
 
+            framework::string::Url url;
+
             switch (open_step_) {
-            case StepType::not_open:
-                {
+                case StepType::closed:
+                    if (jump_ && is_demux()) {
+                        open_step_ = StepType::wait2;
+                        response(ec);
+                        break;
+                    }
+                case StepType::wait2:
+                    open_step_ = StepType::playing;
                     LOG_INFO("play: start");
-                    framework::string::Url url;
                     async_fetch(
                         get_play_url(url),
                         dns_vod_play,
                         play_info_, 
                         boost::bind(&PptvVod2::handle_async_open, this, _1));
                     break;
-                }
-            case StepType::play:
-                {
-                    set_user_host(play_info_.uh);
-                    deside_ft();
-                    std::vector<Vod2Video> & files = play_info_.channel.file;
-                    for (size_t i = 0; i < files.size(); ++i) {
-                        if (files[i].ft == ft_) {
-                            files[i].name = play_info_.channel.nm;
-                            files[i].duration = play_info_.channel.dur;
-                            set_video(files[i]); // don't use temp variable as param for set_video
-                            break;
-                        }
+                case StepType::playing:
+                    {
+                        boost::system::error_code ec;
+                        deside_ft(ec);
+                        set_user_host(play_info_.uh);
+                        open_step_ = StepType::finish;
+                        response(ec);
+                        break;
                     }
-                    for (size_t i = 0; i < play_info_.jumps.size(); ++i) {
-                        if (play_info_.jumps[i].ft == ft_) {
-                            set_jump(play_info_.jumps[i]);
-                            break;
-                        }
-                    }
-                    for (size_t i = 0; i < play_info_.drags.size(); ++i) {
-                        if (play_info_.drags[i].ft == ft_) {
-                            set_segments(play_info_.drags[i].segments);
-                            break;
-                        }
-                    }
-                    response(ec);
+                default:
+                    assert(0);
                     break;
-                }
-            default:
-                assert(0);
-                break;
             }
         }
 
@@ -124,24 +111,56 @@ namespace ppbox
             url.path("/boxplay.api");
             url.param("id",url_.path().substr(1));
             url.param("auth","55b7c50dc1adfc3bcabe2d9b2015e35c");
-            if (ft_ != (-1)) {
+            if (ft_ != (size_t)-1) {
                 url.param("f", format(ft_));
             }
             LOG_DEBUG("[get_play_url] play url:" << url.to_string());
             return url;
         }
 
-        void PptvVod2::deside_ft()
+        void PptvVod2::deside_ft(
+            boost::system::error_code & ec)
         {
             std::vector<Vod2Video> & files = play_info_.channel.file;
+            if (files.size() == 0) {
+                ec = error::bad_file_format;
+                return;
+            }
+            std::sort(files.begin(), files.end());
+            bool failed = true;
             for (size_t i = 0; i < files.size(); ++i) {
                 if (files[i].ft >= ft_) {
                     ft_ = files[i].ft;
+                    set_video(files[i]); // don't use temp variable as param for set_video
                     break;
                 }
             }
-            if (ft_ == (size_t)-1) {
+            if (failed) {
                 ft_ = files.back().ft;
+                set_video(files.back());
+            }
+            failed = true;
+            for (size_t i = 0; i < play_info_.jumps.size(); ++i) {
+                if (play_info_.jumps[i].ft == ft_) {
+                    set_jump(play_info_.jumps[i]);
+                    failed = false;
+                    break;
+                }
+            }
+            if (failed) {
+                ec = error::bad_ft_param;
+                return;
+            }
+            for (size_t i = 0; i < play_info_.drags.size(); ++i) {
+                    if (play_info_.drags[i].ft == ft_) {
+                    set_segments(play_info_.drags[i].segments);
+                    failed = false;
+                    break;
+                }
+            }
+            if (failed) {
+                ec = error::bad_ft_param;
+                return;
             }
         }
 

@@ -27,7 +27,7 @@ namespace ppbox
         PptvLive3::PptvLive3(
             boost::asio::io_service & io_svc)
             : PptvLive(io_svc)
-            , open_step_(StepType::not_open)
+            , open_step_(StepType::closed)
         {
         }
 
@@ -38,10 +38,11 @@ namespace ppbox
         void PptvLive3::async_open(
             response_type const & resp)
         {
-            assert(StepType::not_open == open_step_);
+            assert(StepType::closed == open_step_);
 
             set_response(resp);
             boost::system::error_code ec;
+            parse_url(ec);
             handle_async_open(ec);
         }
 
@@ -49,7 +50,7 @@ namespace ppbox
             boost::system::error_code const & ec)
         {
             if (ec) {
-                if (StepType::not_open == open_step_) {
+                if (StepType::closed == open_step_) {
                     LOG_WARN("parse url:failure");
                 }
                 if (ec != boost::asio::error::would_block) {
@@ -62,35 +63,39 @@ namespace ppbox
                 return;
             }
 
+            framework::string::Url url;
+
             switch(open_step_) {
-                case StepType::not_open:
+                case StepType::closed:
+                    if (jump_ && video_ && segment_) {
+                        open_step_ = StepType::finish;
+                        response(ec);
+                        break;
+                    }
                     open_step_ = StepType::playing;
                     LOG_INFO("jump: start");
-                    {
-                        framework::string::Url url;
-                        async_fetch(
-                            get_play_url(url),
-                            dns_live2_play,
-                            play_info_, 
-                            boost::bind(&PptvLive3::handle_async_open, this ,_1));
-                    }
+                    async_fetch(
+                        get_play_url(url),
+                        dns_live2_play,
+                        play_info_, 
+                        boost::bind(&PptvLive3::handle_async_open, this ,_1));
                     break;
                 case StepType::playing:
-                    {
-                        set_user_host(play_info_.uh);
-                        Video & video = play_info_.channel.stream[0];
-                        video.duration = play_info_.channel.jump;
-                        video.delay = play_info_.channel.delay;
-                        set_video(video);
-                        set_jump(play_info_.jump);
-                        set_segment(play_info_.channel.seg);
-                    }
+                    set_user_host(play_info_.uh);
+                    open_step_ = StepType::finish;
                     response(ec);
                     break;
                 default:
                     assert(0);
                     break;
             }
+        }
+
+        void PptvLive3::parse_url(
+            boost::system::error_code & ec)
+        {
+            parse2(url_.param("ft"), ft_);
+            ec.clear();
         }
 
         framework::string::Url&  PptvLive3::get_play_url(
@@ -101,6 +106,35 @@ namespace ppbox
             url.svc(dns_live2_play.svc());
             url.path("/live2/" + video_->rid);
             return url;
+        }
+
+        void PptvLive3::deside_ft(
+            boost::system::error_code & ec)
+        {
+            std::vector<Live3Video> & files = play_info_.channel.stream.item;
+            if (files.size() == 0) {
+                ec = error::bad_file_format;
+                return;
+            }
+            std::sort(files.begin(), files.end());
+            bool failed = true;
+            for (size_t i = 0; i < files.size(); ++i) {
+                if (files[i].ft >= ft_) {
+                    ft_ = files[i].ft;
+                    files[i].name = play_info_.channel.nm;
+                    files[i].duration = play_info_.channel.stream.jump;
+                    set_video(files[i]); // don't use temp variable as param for set_video
+                    break;
+                }
+            }
+            if (failed) {
+                ft_ = files.back().ft;
+                files.back().name = play_info_.channel.nm;
+                files.back().duration = play_info_.channel.stream.jump;
+                set_video(files.back());
+            }
+            set_jump(play_info_.jump);
+            set_segment(play_info_.channel.stream.seg);
         }
 
     } // namespace cdn

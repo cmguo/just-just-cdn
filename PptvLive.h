@@ -44,16 +44,26 @@ namespace ppbox
         public:
             LiveSegment const & segment() const
             {
-                return segment_;
+                return *segment_;
             }
 
         protected:
+            void set_video(
+                Video & video);
+
             void set_segment(
-                LiveSegment const & seg);
+                LiveSegment & seg);
+
+        private:
+            static bool parse_segment_param(
+                LiveSegment & segment, 
+                std::string const & param);
 
         protected:
+            LiveSegment * segment_;
+
+            LiveSegment parsed_segment_;
             time_t begin_time_;
-            LiveSegment segment_;
         };
 
     } // namespace cdn

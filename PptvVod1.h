@@ -34,19 +34,21 @@ namespace ppbox
             framework::string::Url & get_drag_url(
                 framework::string::Url & url);
 
+            virtual void async_open2();
+
             void handle_async_open(
                 boost::system::error_code const & ec);
-
-            virtual void async_open2();
 
         private:
             struct StepType
             {
                 enum Enum
                 {
-                    not_open, 
-                    jump, 
-                    drag,
+                    closed, 
+                    jumping, 
+                    wait2,
+                    draging,
+                    finish, 
                 };
             };
 

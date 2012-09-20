@@ -14,8 +14,6 @@ namespace ppbox
     namespace cdn
     {
 
-        static const boost::uint32_t LIVE_CACHE_TIME = 1800; // 秒
-
         PptvLive::PptvLive(
             boost::asio::io_service & io_svc)
             : PptvMedia(io_svc)
@@ -31,6 +29,11 @@ namespace ppbox
             framework::string::Url const & url)
         {
             PptvMedia::set_url(url);
+
+            if (parse_segment_param(parsed_segment_, url_.param("cdn.segment"))) {
+                segment_ = &parsed_segment_;
+            }
+            url_.param("cdn.segment", "");
         }
 
         size_t PptvLive::segment_count() const
@@ -44,7 +47,7 @@ namespace ppbox
             boost::system::error_code & ec)
         {
             ec.clear();
-            time_t file_time = begin_time_ + (segment * segment_.interval);
+            time_t file_time = begin_time_ + (segment * segment_->interval);
             url = url_; //这里使用原始传入的播放url
             url.host(jump_->server_host.host());
             url.svc(jump_->server_host.svc());
@@ -59,7 +62,7 @@ namespace ppbox
         {
             info.head_size = 0;
             info.size = 0;
-            info.duration = segment_.interval;
+            info.duration = segment_->interval;
         }
 
         boost::system::error_code PptvLive::get_info(
@@ -73,14 +76,35 @@ namespace ppbox
             return ec;
         }
 
-        void PptvLive::set_segment(
-            LiveSegment const & seg)
+        void PptvLive::set_video(
+            Video & video)
         {
-            segment_ = seg;
+            if (video.duration == 0)
+                video.duration = video.delay;
 
-            begin_time_ = jump_->server_time.to_time_t() - LIVE_CACHE_TIME;
-            begin_time_ = begin_time_ / segment_.interval * segment_.interval;
+            PptvMedia::set_video(video);
         }
 
-    } // cdn
-} // ppbox
+        void PptvLive::set_segment(
+            LiveSegment & seg)
+        {
+            if (jump_ == NULL)
+                segment_ = &seg;
+
+            if (jump_ && video_) {
+                begin_time_ = jump_->server_time.to_time_t() - video_->duration;
+                begin_time_ = begin_time_ / segment_->interval * segment_->interval;
+            }
+        }
+
+        bool parse_segment_param(
+            LiveSegment & segment, 
+            std::string const & param)
+        {
+            boost::system::error_code ec = 
+                map_find(param, "interval", segment.interval, "&");
+            return !ec;
+        }
+
+    } // namespace cdn
+} // namespace ppbox

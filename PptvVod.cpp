@@ -7,7 +7,9 @@
 #include <framework/string/Url.h>
 #include <framework/string/Format.h>
 #include <framework/logger/StreamRecord.h>
+#include <framework/system/LogicError.h>
 using namespace framework::string;
+using namespace framework::system;
 using namespace framework::logger;
 using namespace boost::system;
 
@@ -48,7 +50,7 @@ namespace ppbox
                 url.param("key", get_key());
                 LOG_DEBUG("[segment_url] url:"<< url.to_string());
             } else {
-                ec = error::item_not_exist;
+                ec = logic_error::item_not_exist;
             }
             return ec;
         }

@@ -12,17 +12,8 @@ namespace ppbox
 
             enum errors
             {
-                jump_error = 1,
-                drag_error,
-                play_error,
+                bad_url_format = 1,
                 bad_file_format,
-                item_not_exist,
-                not_support,
-                not_open,
-                bad_url,
-                start_failed, 
-                bad_xml_format,
-                write_mp4_head_error,
                 bad_ft_param
 
             };
@@ -45,28 +36,10 @@ namespace ppbox
 
                     std::string message(int value) const
                     {
-                        if (value == error::jump_error)
-                            return "cdn: jump failed";
-                        if (value == error::drag_error)
-                            return "cdn: drag failed";
-                        if (value == error::play_error)
-                            return "cdn: play failed";
+                        if (value == error::bad_url_format)
+                            return "cdn: bad url";
                         if (value == error::bad_file_format)
                             return "cdn: bad file format";
-                        if (value == error::item_not_exist)
-                            return "cdn: segment not exist";
-                        if (value == error::not_support)
-                            return "cdn: not support";
-                        if (value == error::not_open)
-                            return "cdn: not open";
-                        if (value == error::bad_url)
-                            return "cdn: bad url";
-                        if (value == start_failed)
-                            return "Vod start faield";
-                        if (value == bad_xml_format)
-                            return "bad xml format";
-                        if (value == write_mp4_head_error)
-                            return "save mp4 head failed";
                         if (value == bad_ft_param)
                             return "ft param is worning";
                         return "cdn: unknown error";

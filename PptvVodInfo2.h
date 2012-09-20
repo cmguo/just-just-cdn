@@ -62,6 +62,12 @@ namespace ppbox
             {
             }
 
+            bool operator<(
+                Vod2Video const & r)
+            {
+                return ft < r.ft;
+            }
+
             template <
                 typename Archive
             >

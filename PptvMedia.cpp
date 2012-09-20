@@ -9,6 +9,7 @@
 #include <ppbox/dac/DacModule.h>
 #include <ppbox/dac/DacInfoPlayOpen.h>
 #include <ppbox/dac/DacInfoPlayClose.h>
+#include <ppbox/demux/DemuxModule.h>
 #include <ppbox/demux/base/DemuxEvent.h>
 #include <ppbox/demux/base/DemuxStatistic.h>
 
@@ -72,13 +73,13 @@ namespace ppbox
 
             if (parse_jump_param(parsed_jump_, url_.param("cdn.jump"))) {
                 jump_ = &parsed_jump_;
-                url_.param("cdn.jump", ""); // clear
             }
+            url_.param("cdn.jump", ""); // clear
 
             if (parse_video_param(parsed_video_, url_.param("cdn.video"))) {
                 video_ = &parsed_video_;
-                url_.param("cdn.video", ""); // clear
             }
+            url_.param("cdn.video", ""); // clear
 
             p2p_params_ = url_.param("p2p");
             url_.param("p2p", "");
@@ -121,7 +122,9 @@ namespace ppbox
             MediaBase::response_type const & resp)
         {
             // it is safe to get user stat object now
-            // user_stat_ = DemuxModule::find(this);
+            ppbox::demux::DemuxModule & demux_module = 
+                util::daemon::use_module<ppbox::demux::DemuxModule>(get_io_service());
+            demuxer_ = demux_module.find(this);
             if (demuxer_) {
                 demuxer_->on<ppbox::demux::StatusChangeEvent>(boost::bind(&PptvMedia::on_event, this, _1));
             }
@@ -133,27 +136,39 @@ namespace ppbox
         {
             MediaBase::response_type resp;
             resp.swap(resp_);
-            resp(ec);
-        }
-
-        void PptvMedia::set_jump(
-            Jump & jump)
-        {
-            if (jump_ == NULL)
-                jump_ = &jump;
+            get_io_service().dispatch(boost::asio::detail::bind_handler(resp, ec));
         }
 
         void PptvMedia::set_video(
             Video & video)
         {
-            if (video_ == NULL)
+            if (video_ == NULL) {
                 video_ = &video;
+                LOG_INFO("[set video] name: " << video_->name);
+                LOG_INFO("[set video] duration: " << video_->duration);
+                if (video_->is_live)
+                    LOG_INFO("[set video] delay: " << video_->delay);
+                LOG_INFO("[set video] rid: " << video_->rid);
+            }
+        }
+
+        void PptvMedia::set_jump(
+            Jump & jump)
+        {
+            if (jump_ == NULL) {
+                jump_ = &jump;
+                LOG_INFO("[set jump] server_host: " << jump_->server_host.host_svc());
+                LOG_INFO("[set jump] server_time: " << jump_->server_time.to_time_t());
+                LOG_INFO("[set jump] bw_type: " << jump_->bw_type);
+                LOG_INFO("[set jump] back_host: " << jump_->back_host.host_svc());
+            }
         }
 
         void PptvMedia::set_user_host(
             std::string const & user_host)
         {
             user_host_ = user_host;
+            LOG_INFO("[set user_host] " << user_host_);
         }
         
         void PptvMedia::on_event(

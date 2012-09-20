@@ -27,7 +27,7 @@ namespace ppbox
         PptvLive2::PptvLive2(
             boost::asio::io_service & io_svc)
             : PptvLive(io_svc)
-            , open_step_(StepType::not_open)
+            , open_step_(StepType::closed)
         {
         }
 
@@ -38,7 +38,7 @@ namespace ppbox
         void PptvLive2::async_open(
             response_type const & resp)
         {
-            assert(StepType::not_open == open_step_);
+            assert(StepType::closed == open_step_);
 
             set_response(resp);
             boost::system::error_code ec;
@@ -51,13 +51,12 @@ namespace ppbox
                     jump_info_.video.name = strs[0];
                     jump_info_.video.rid = strs[0];
                     parse2(strs[2], jump_info_.video.bitrate);
-                    set_video(jump_info_.video);
                     parse2(strs[1], seg_.interval);
                 } else {
-                    ec = error::bad_url;
+                    ec = error::bad_url_format;
                 }
             } else {
-                ec = error::bad_url;
+                ec = error::bad_url_format;
             }
 
             handle_async_open(ec);
@@ -67,7 +66,7 @@ namespace ppbox
             boost::system::error_code const & ec)
         {
             if (ec) {
-                if (StepType::not_open == open_step_) {
+                if (StepType::closed == open_step_) {
                     LOG_WARN("parse url:failure");
                 }
                 if (ec != boost::asio::error::would_block) {
@@ -80,25 +79,29 @@ namespace ppbox
                 return;
             }
 
+            framework::string::Url url;
+
             switch(open_step_) {
-                case StepType::not_open:
+                case StepType::closed:
+                    if (jump_ && video_ && segment_) {
+                        open_step_ = StepType::finish;
+                        response(ec);
+                        break;
+                    }
                     open_step_ = StepType::jumping;
                     LOG_INFO("jump: start");
-                    {
-                        framework::string::Url url;
-                        async_fetch(
-                            get_jump_url(url),
-                            dns_live2_jump,
-                            jump_info_, 
-                            boost::bind(&PptvLive2::handle_async_open, this ,_1));
-                    }
+                    async_fetch(
+                        get_jump_url(url),
+                        dns_live2_jump,
+                        jump_info_, 
+                        boost::bind(&PptvLive2::handle_async_open, this ,_1));
                     break;
                 case StepType::jumping:
-                    {
-                        jump_info_.video.delay = jump_info_.delay_play_time;
-                        set_jump(jump_info_.jump);
-                        set_segment(seg_);
-                    }
+                    jump_info_.video.delay = jump_info_.delay_play_time;
+                    set_video(jump_info_.video);
+                    set_jump(jump_info_.jump);
+                    set_segment(seg_);
+                    open_step_ = StepType::finish;
                     response(ec);
                     break;
                 default:
