@@ -4,14 +4,16 @@
 #include "ppbox/cdn/PptvMedia.h"
 #include "ppbox/cdn/CdnError.h"
 
-#include <ppbox/common/DynamicString.h>
 #include <ppbox/certify/Certifier.h>
 #include <ppbox/dac/DacModule.h>
 #include <ppbox/dac/DacInfoPlayOpen.h>
 #include <ppbox/dac/DacInfoPlayClose.h>
+
 #include <ppbox/demux/DemuxModule.h>
 #include <ppbox/demux/base/DemuxEvent.h>
-#include <ppbox/demux/base/DemuxStatistic.h>
+#include <ppbox/demux/base/BufferDemuxer.h>
+
+#include <ppbox/common/DynamicString.h>
 
 #include <util/protocol/pptv/TimeKey.h> // for gen_key_from_time
 
@@ -21,6 +23,8 @@
 using namespace framework::string;
 #include <framework/logger/StreamRecord.h>
 using namespace framework::logger;
+
+#include <boost/bind.hpp>
 
 #ifndef STR_CDN_TYPE
 #  define STR_CDN_TYPE "ppsdk"
@@ -46,6 +50,9 @@ namespace ppbox
             : ppbox::data::MediaBase(io_svc)
             , cert_(util::daemon::use_module<ppbox::certify::Certifier>(io_svc))
             , dac_(util::daemon::use_module<ppbox::dac::DacModule>(io_svc))
+            , demuxer_(NULL)
+            , video_(NULL)
+            , jump_(NULL)
             , fetch_(new HttpFetch(io_svc))
         {
         }
@@ -121,14 +128,11 @@ namespace ppbox
         void PptvMedia::set_response(
             MediaBase::response_type const & resp)
         {
-            // it is safe to get user stat object now
-            ppbox::demux::DemuxModule & demux_module = 
-                util::daemon::use_module<ppbox::demux::DemuxModule>(get_io_service());
-            demuxer_ = demux_module.find(this);
-            if (demuxer_) {
-                demuxer_->on<ppbox::demux::StatusChangeEvent>(boost::bind(&PptvMedia::on_event, this, _1));
-            }
             resp_ = resp;
+            // it is safe to get user stat object now
+            //if (demuxer_) {
+            //    demuxer_->on<ppbox::demux::StatusChangeEvent>(boost::bind(&PptvMedia::on_event, this, _1));
+            //}
         }
 
         void PptvMedia::response(
@@ -136,7 +140,7 @@ namespace ppbox
         {
             MediaBase::response_type resp;
             resp.swap(resp_);
-            get_io_service().dispatch(boost::asio::detail::bind_handler(resp, ec));
+            resp(ec);
         }
 
         void PptvMedia::set_video(

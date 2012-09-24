@@ -23,6 +23,7 @@ namespace ppbox
         PptvVod::PptvVod(
             boost::asio::io_service & io_svc)
             : PptvMedia(io_svc)
+            , segments_(NULL)
         {
         }
 
@@ -66,7 +67,7 @@ namespace ppbox
             size_t segment,
             ppbox::data::SegmentInfo & info) const
         {
-            if (segments_->size() > segment) {
+            if (segments_ && segments_->size() > segment) {
                 info.head_size = segments_->at(segment).head_length;
                 info.size = segments_->at(segment).file_length;
                 info.offset = segments_->at(segment).offset;
@@ -74,9 +75,10 @@ namespace ppbox
             } else {
                 info.head_size = boost::uint64_t(-1);
                 info.size = boost::uint64_t(-1);
+                info.offset = boost::uint64_t(-1);
                 info.duration = boost::uint64_t(-1);
             }
-        } 
+        }
 
         boost::system::error_code PptvVod::get_info(
             ppbox::data::MediaInfo & info,

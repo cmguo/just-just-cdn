@@ -54,7 +54,7 @@ namespace ppbox
             {
                 ar & SERIALIZATION_NVP(video);
                 ar & util::serialization::make_nvp("segments", util::serialization::make_optional(segments, vod));
-                    & util::serialization::make_nvp("ss", util::serialization::make_optional(segments, vod_quick));
+                ar & util::serialization::make_nvp("ss", util::serialization::make_optional(segments, vod_quick));
             }
 
         };

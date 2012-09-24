@@ -8,12 +8,18 @@
 #include "ppbox/cdn/HttpStatistics.h"
 
 #include <ppbox/data/MediaBase.h>
-#include <ppbox/demux/base/BufferDemuxer.h>
+
+#include <util/event/Event.h>
 
 #include <boost/shared_ptr.hpp>
 
 namespace ppbox
 {
+    namespace demux
+    {
+        class BufferDemuxer;
+    }
+
     namespace certify
     {
         class Certifier;
@@ -119,6 +125,9 @@ namespace ppbox
                 std::string const & user_host);
 
         private:
+            void response2(
+                boost::system::error_code const & ec);
+
             void on_event(
                 util::event::Event const & e);
 
@@ -138,8 +147,8 @@ namespace ppbox
             ppbox::demux::BufferDemuxer * demuxer_;
 
         protected:
-            Jump * jump_;
             Video * video_;
+            Jump * jump_;
 
             Jump parsed_jump_;
             Video parsed_video_;

@@ -17,6 +17,7 @@ namespace ppbox
         PptvLive::PptvLive(
             boost::asio::io_service & io_svc)
             : PptvMedia(io_svc)
+            , segment_(NULL)
             , begin_time_(0)
         {
         }
@@ -97,7 +98,7 @@ namespace ppbox
             }
         }
 
-        bool parse_segment_param(
+        bool PptvLive::parse_segment_param(
             LiveSegment & segment, 
             std::string const & param)
         {
