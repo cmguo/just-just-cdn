@@ -91,7 +91,7 @@ namespace ppbox
                 }
                 if (StepType::draging == open_step_) {
                     LOG_WARN("drag : failure");
-                    LOG_DEBUG("drag failure (" << open_logs_[2].total_elapse << " milliseconds)");
+                    LOG_DEBUG("drag failure (" << open_logs_[1].total_elapse << " milliseconds)");
                 }
                 response(ec);
                 return;
