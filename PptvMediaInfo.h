@@ -68,6 +68,7 @@ namespace ppbox
                         {
                             float duration = (float)this->duration / 1000.0f;
                             ar & SERIALIZATION_NVP(name)
+                                & SERIALIZATION_NVP_NAME("filesize", file_size)
                                 & SERIALIZATION_NVP(bitrate)
                                 & SERIALIZATION_NVP(duration);
                             this->duration = (boost::uint32_t)(duration * 1000.0f);

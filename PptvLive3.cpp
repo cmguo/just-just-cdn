@@ -117,22 +117,20 @@ namespace ppbox
                 return;
             }
             std::sort(files.begin(), files.end());
-            bool failed = true;
+            Live3Video * video = NULL;
             for (size_t i = 0; i < files.size(); ++i) {
                 if (files[i].ft >= ft_) {
-                    ft_ = files[i].ft;
-                    files[i].name = play_info_.channel.nm;
-                    files[i].duration = play_info_.channel.stream.jump;
-                    set_video(files[i]); // don't use temp variable as param for set_video
+                    video = &files[i];
                     break;
                 }
             }
-            if (failed) {
-                ft_ = files.back().ft;
-                files.back().name = play_info_.channel.nm;
-                files.back().duration = play_info_.channel.stream.jump;
-                set_video(files.back());
+            if (video == NULL) {
+                video = &files.back();
             }
+            ft_ = video->ft;
+            video->name = play_info_.channel.nm;
+            video->duration = play_info_.channel.stream.jump;
+            set_video(*video);
             set_jump(play_info_.jump);
             set_segment(play_info_.channel.stream.seg);
         }

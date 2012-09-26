@@ -83,7 +83,8 @@ namespace ppbox
         {
             //point
             std::string nm;
-            boost::uint32_t dur;   // 影片时长（微秒）
+            boost::uint32_t dur;    // 影片时长（微秒）
+            boost::uint32_t ts;     // 影片字节长度
             std::vector<Vod2Video> file;
 
             Vod2Channel()
@@ -98,6 +99,7 @@ namespace ppbox
             {
                 ar & SERIALIZATION_NVP(nm);
                 ar & SERIALIZATION_NVP(dur);
+                ar & SERIALIZATION_NVP(ts);
                 ar & SERIALIZATION_NVP(file);
             }
 

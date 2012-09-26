@@ -110,7 +110,6 @@ namespace ppbox
             url.svc(dns_vod_play.svc());
             url.path("/boxplay.api");
             url.param("id",url_.path().substr(1));
-            url.param("auth","55b7c50dc1adfc3bcabe2d9b2015e35c");
             if (ft_ != (size_t)-1) {
                 url.param("f", format(ft_));
             }
@@ -127,19 +126,23 @@ namespace ppbox
                 return;
             }
             std::sort(files.begin(), files.end());
-            bool failed = true;
+            Vod2Video * video = NULL;
             for (size_t i = 0; i < files.size(); ++i) {
                 if (files[i].ft >= ft_) {
-                    ft_ = files[i].ft;
-                    set_video(files[i]); // don't use temp variable as param for set_video
+                    video = &files[i];
                     break;
                 }
             }
-            if (failed) {
-                ft_ = files.back().ft;
-                set_video(files.back());
+            if (video == NULL) {
+                video = &files.back();
             }
-            failed = true;
+            ft_ = video->ft;
+            video->name = play_info_.channel.nm;
+            video->duration = play_info_.channel.dur;
+            video->file_size = play_info_.channel.ts;
+            set_video(*video); // don't use temp variable as param for set_video
+
+            bool failed = true;
             for (size_t i = 0; i < play_info_.jumps.size(); ++i) {
                 if (play_info_.jumps[i].ft == ft_) {
                     set_jump(play_info_.jumps[i]);
