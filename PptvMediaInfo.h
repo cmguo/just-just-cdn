@@ -39,7 +39,7 @@ namespace ppbox
 
         enum VersionEnum
         {
-            vod, 
+            vod = 1, 
             vod_quick, 
             vod_play, 
             live, 
