@@ -121,10 +121,7 @@ namespace ppbox
             ppbox::data::MediaInfo & info,
             boost::system::error_code & ec)
         {
-            info.name = video_->name;
-            info.bitrate = video_->bitrate;
-            info.duration = video_->duration;
-            info.is_live = (0 != video_->duration);
+            info = *video_;
             ec.clear();
             return ec;
         }

@@ -47,9 +47,16 @@ namespace ppbox
                 url = url_;
                 url.host(jump_->server_host.host());
                 url.svc(jump_->server_host.svc());
-                url.path("/" + format(segment) + std::string("/") + url.path());
+                url.path("/" + format(segment) + url.path());
                 url.param("key", get_key());
                 LOG_DEBUG("[segment_url] url:"<< url.to_string());
+            } else if (segment == (size_t)-1) {
+                url = url_;
+                url.host(jump_->server_host.host());
+                url.svc(jump_->server_host.svc());
+                url.param("key", get_key());
+                url.param("w", "1");
+                url.param("z", "1");
             } else {
                 ec = logic_error::item_not_exist;
             }
