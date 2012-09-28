@@ -17,7 +17,7 @@ namespace ppbox
 {
     namespace demux
     {
-        class BufferDemuxer;
+        class SegmentDemuxer;
     }
 
     namespace certify
@@ -144,7 +144,7 @@ namespace ppbox
             ppbox::certify::Certifier & cert_;
             ppbox::dac::DacModule & dac_;
 
-            ppbox::demux::BufferDemuxer * demuxer_;
+            ppbox::demux::SegmentDemuxer * demuxer_;
 
         protected:
             Video * video_;

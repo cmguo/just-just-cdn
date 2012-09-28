@@ -11,7 +11,8 @@
 
 #include <ppbox/demux/DemuxModule.h>
 #include <ppbox/demux/base/DemuxEvent.h>
-#include <ppbox/demux/base/BufferDemuxer.h>
+#include <ppbox/demux/base/SegmentDemuxer.h>
+#include <ppbox/demux/base/SegmentBuffer.h>
 
 #include <ppbox/common/DynamicString.h>
 
@@ -97,6 +98,9 @@ namespace ppbox
             if (url_.param("platform").empty()) {
                 url_.param("platform", str_cdn_platform);
             }
+            if (url_.param("auth").empty()) {
+                url_.param("auth", "55b7c50dc1adfc3bcabe2d9b2015e35c");
+            }
             if (url_.param("vvid").empty()) {
                 framework::string::Uuid vvid;
                 vvid.generate();
@@ -153,6 +157,8 @@ namespace ppbox
                 if (video_->is_live)
                     LOG_INFO("[set video] delay: " << video_->delay);
                 LOG_INFO("[set video] rid: " << video_->rid);
+            } else {
+                assert(*video_ == video);
             }
         }
 
@@ -165,6 +171,9 @@ namespace ppbox
                 LOG_INFO("[set jump] server_time: " << jump_->server_time.to_time_t());
                 LOG_INFO("[set jump] bw_type: " << jump_->bw_type);
                 LOG_INFO("[set jump] back_host: " << jump_->back_host.host_svc());
+                local_time_ = local_time_.now();
+            } else {
+                assert(*jump_ == jump);
             }
         }
 
@@ -180,12 +189,12 @@ namespace ppbox
         {
             ppbox::demux::StatusChangeEvent const & event = *e.cast<ppbox::demux::StatusChangeEvent>();
             if (event.stat.state() == ppbox::demux::DemuxStatistic::opened) {
-                ppbox::peer::PeerSource * source_ = NULL; // ((BufferDemuxer *)user_stat_)->source();
+                ppbox::peer::PeerSource * source_ = NULL; // ((SegmentDemuxer *)user_stat_)->source();
                 dac_.submit(ppbox::dac::DacPlayOpenInfo(*this, *source_, event.stat));
                 if (!event.stat.last_error())
                     async_open2();
             } else if (event.stat.state() == ppbox::demux::DemuxStatistic::stopped) {
-                dac_.submit(ppbox::dac::DacPlayCloseInfo(*this, event.stat, demuxer_->buffer_stat()));
+                dac_.submit(ppbox::dac::DacPlayCloseInfo(*this, event.stat, demuxer_->buffer().stat()));
             }
         }
 
@@ -217,7 +226,7 @@ namespace ppbox
         std::string PptvMedia::get_key() const
         {
             return util::protocol::pptv::gen_key_from_time(
-                jump_->server_time.to_time_t() + (Time::now() - local_time_).total_seconds());
+                jump_->server_time.to_time_t() + (time_t)(Time::now() - local_time_).total_seconds());
         }
 
     } // namespace cdn

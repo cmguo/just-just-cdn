@@ -87,6 +87,16 @@ namespace ppbox
                         break;
                 }
             }
+
+            friend bool operator==(
+                Video const & l, 
+                Video const & r)
+            {
+                return l.rid == r.rid
+                    && l.bitrate == r.bitrate
+                    && l.duration == r.duration
+                    && l.file_size == r.file_size;
+            }
         };
 
         struct Jump
@@ -131,6 +141,15 @@ namespace ppbox
                         ar.fail();
                         break;
                 }
+            }
+
+            friend bool operator==(
+                Jump const & l, 
+                Jump const & r)
+            {
+                return l.server_host == r.server_host
+                    && l.bw_type == r.bw_type
+                    && l.back_host == r.back_host;
             }
         };
 
