@@ -25,23 +25,21 @@ namespace ppbox
                 framework::string::Url const &url);
 
         public:
-            virtual boost::system::error_code get_info(
-                ppbox::data::MediaInfo & info,
-                boost::system::error_code & ec);
+            virtual size_t segment_count() const;
 
-        public:
             virtual boost::system::error_code segment_url(
                 size_t segment, 
                 framework::string::Url & url,
                 boost::system::error_code & ec);
-
-            virtual size_t segment_count() const;
 
             virtual void segment_info(
                 size_t segment, 
                 ppbox::data::SegmentInfo & info) const;
 
         protected:
+            void set_video(
+                Video & video);
+
             void set_segments(
                 std::vector<VodSegment> & segments);
 

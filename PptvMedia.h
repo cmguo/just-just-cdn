@@ -116,10 +116,10 @@ namespace ppbox
 
         protected:
             void set_video(
-                Video & seg);
+                Video & video);
 
             void set_jump(
-                Jump & seg);
+                Jump & jump);
 
             void set_user_host(
                 std::string const & user_host);

@@ -25,11 +25,6 @@ namespace ppbox
                 framework::string::Url const & url);
 
         public:
-            boost::system::error_code get_info(
-                ppbox::data::MediaInfo & info,
-                boost::system::error_code & ec);
-
-        public:
             size_t segment_count() const;
 
             boost::system::error_code segment_url(
@@ -52,7 +47,7 @@ namespace ppbox
                 Video & video);
 
             void set_segment(
-                LiveSegment & seg);
+                LiveSegment & segment);
 
         private:
             static bool parse_segment_param(

@@ -87,17 +87,20 @@ namespace ppbox
             }
         }
 
-        boost::system::error_code PptvVod::get_info(
-            ppbox::data::MediaInfo & info,
-            boost::system::error_code & ec)
+        void PptvVod::set_video(
+            Video & video)
         {
-            return PptvMedia::get_info(info, ec);
+            video.format = "mp4";
+            PptvMedia::set_video(video);
         }
 
         void PptvVod::set_segments(
             std::vector<VodSegment> & segments)
         {
-            segments_ = &segments;
+            if (segments_ == NULL) {
+                segments_ = &segments;
+                LOG_INFO("[set segments] count: " << segments.size());
+            }
         }
 
     } //cdn

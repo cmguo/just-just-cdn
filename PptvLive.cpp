@@ -66,20 +66,11 @@ namespace ppbox
             info.duration = segment_->interval;
         }
 
-        boost::system::error_code PptvLive::get_info(
-            ppbox::data::MediaInfo & info,
-            boost::system::error_code & ec)
-        {
-            PptvMedia::get_info(info, ec);
-            if (!ec) {
-                info.is_live = true;
-            }
-            return ec;
-        }
-
         void PptvLive::set_video(
             Video & video)
         {
+            video.format = "flv";
+            video.is_live = true;
             if (video.duration == 0)
                 video.duration = video.delay;
 
@@ -87,10 +78,12 @@ namespace ppbox
         }
 
         void PptvLive::set_segment(
-            LiveSegment & seg)
+            LiveSegment & segment)
         {
-            if (jump_ == NULL)
-                segment_ = &seg;
+            if (jump_ == NULL) {
+                segment_ = &segment;
+                LOG_INFO("[set segment] interval: " << segment.interval);
+            }
 
             if (jump_ && video_) {
                 begin_time_ = jump_->server_time.to_time_t() - video_->duration;
