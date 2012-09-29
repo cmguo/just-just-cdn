@@ -1,7 +1,7 @@
-// Cdn.h
+// CdnModule.h
 
-#ifndef _PPBOX_CDN_CDN_H_
-#define _PPBOX_CDN_CDN_H_
+#ifndef _PPBOX_CDN_CDN_MODULE_H_
+#define _PPBOX_CDN_CDN_MODULE_H_
 
 #include <ppbox/common/CommonModuleBase.h>
 
@@ -10,14 +10,14 @@ namespace ppbox
     namespace cdn
     {
 
-        class Cdn
-            : public ppbox::common::CommonModuleBase<Cdn>
+        class CdnModule
+            : public ppbox::common::CommonModuleBase<CdnModule>
         {
         public:
-            Cdn(
+            CdnModule(
                 util::daemon::Daemon & daemon);
 
-            ~Cdn();
+            ~CdnModule();
 
         public:
             virtual boost::system::error_code startup();
@@ -28,4 +28,4 @@ namespace ppbox
     } // namespace cdn
 } // namespace ppbox
 
-#endif // _PPBOX_CDN_CDN_H_
+#endif // _PPBOX_CDN_CDN_MODULE_H_

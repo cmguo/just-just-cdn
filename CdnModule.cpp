@@ -1,7 +1,7 @@
-// Cdn.cpp
+// CdnModule.cpp
 
 #include "ppbox/cdn/Common.h"
-#include "ppbox/cdn/Cdn.h"
+#include "ppbox/cdn/CdnModule.h"
 #include "ppbox/cdn/PptvMediaTypes.h"
 
 #include <framework/logger/StreamRecord.h>
@@ -11,25 +11,25 @@ namespace ppbox
     namespace cdn
     {
 
-        FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("Cdn", 0)
+        FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("CdnModule", 0)
 
-        Cdn::Cdn(
+        CdnModule::CdnModule(
             util::daemon::Daemon & daemon)
-            : ppbox::common::CommonModuleBase<Cdn>(daemon, "Cdn")
+            : ppbox::common::CommonModuleBase<CdnModule>(daemon, "Cdn")
         {
         }
 
-        Cdn::~Cdn()
+        CdnModule::~CdnModule()
         {
         }
 
-        boost::system::error_code Cdn::startup()
+        boost::system::error_code CdnModule::startup()
         {
             boost::system::error_code ec;
             return ec;
         }
 
-        void Cdn::shutdown()
+        void CdnModule::shutdown()
         {
         }
 
