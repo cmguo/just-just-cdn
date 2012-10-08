@@ -180,7 +180,6 @@ namespace ppbox
 
             void handle_fetch(
                 boost::system::error_code const & ec, 
-                framework::string::Url const & url, 
                 parser_t parser, 
                 void * t, 
                 HttpFetch::response_type const & resp);

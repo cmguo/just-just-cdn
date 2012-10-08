@@ -66,7 +66,8 @@ namespace ppbox
         size_t PptvVod::segment_count() const
         {
             size_t ret = size_t(-1);
-            ret = segments_->size();
+            if (segments_)
+                ret = segments_->size();
             return ret;
         }
 

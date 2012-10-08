@@ -252,12 +252,11 @@ namespace ppbox
             LOG_WARN("[async_fetch] start, path: " << url.path());
 
             fetch_->async_fetch(url, server_host, 
-                boost::bind(&PptvMedia::handle_fetch, this, _1, boost::cref(url), parser, t, resp));
+                boost::bind(&PptvMedia::handle_fetch, this, _1, parser, t, resp));
         }
 
         void PptvMedia::handle_fetch(
             boost::system::error_code const & ecc, 
-            framework::string::Url const & url, 
             parser_t parser, 
             void * t, 
             HttpFetch::response_type const & resp)
@@ -269,13 +268,15 @@ namespace ppbox
                 parser(*fetch_, t, ec);
             }
 
+            std::string path = fetch_->http_request().head().path;
+            path = path.substr(0, path.find('?'));
             if (ec) {
-                LOG_WARN("[handle_fetch] failed, path: " << url.path() 
-                    << "ec: " << ec.message() << "elapse: " << fetch_->http_stat().total_elapse);
+                LOG_WARN("[handle_fetch] failed, path: " << path 
+                    << " ec: " << ec.message() << " elapse: " << fetch_->http_stat().total_elapse);
                 open_logs_.back().last_last_error = ec;
             } else {
-                LOG_INFO("[handle_fetch] succeed, path: " << url.path() 
-                    << "elapse: " << fetch_->http_stat().total_elapse);
+                LOG_INFO("[handle_fetch] succeed, path: " << path 
+                    << " elapse: " << fetch_->http_stat().total_elapse);
             }
 
             fetch_->close();
