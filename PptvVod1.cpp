@@ -85,14 +85,6 @@ namespace ppbox
             boost::system::error_code const & ec)
         {
             if (ec) {
-                if (StepType::jumping == open_step_) {
-                    LOG_WARN("jump : failure");
-                    LOG_DEBUG("jump failure (" << open_logs_[0].total_elapse << " milliseconds)");
-                }
-                if (StepType::draging == open_step_) {
-                    LOG_WARN("drag : failure");
-                    LOG_DEBUG("drag failure (" << open_logs_[1].total_elapse << " milliseconds)");
-                }
                 response(ec);
                 return;
             }
@@ -117,7 +109,7 @@ namespace ppbox
                         set_video(jump_info_.video.get());
                     set_jump(jump_info_);
                     set_user_host(jump_info_.user_host);
-                    if (is_demux()) {
+                    if (owner_type() == ot_demuxer) {
                         open_step_ = StepType::wait2;
                         response(ec);
                         break;;

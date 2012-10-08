@@ -50,15 +50,6 @@ namespace ppbox
             boost::system::error_code const & ec)
         {
             if (ec) {
-                if (StepType::closed == open_step_) {
-                    LOG_WARN("parse url:failure");
-                }
-                if (ec != boost::asio::error::would_block) {
-                    if (StepType::playing == open_step_) {
-                        LOG_WARN("play : failure"); 
-                        LOG_DEBUG("play failure (" << open_logs_[0].total_elapse << " milliseconds)");
-                    }
-                }
                 response(ec);
                 return;
             }

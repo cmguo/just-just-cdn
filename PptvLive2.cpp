@@ -66,15 +66,6 @@ namespace ppbox
             boost::system::error_code const & ec)
         {
             if (ec) {
-                if (StepType::closed == open_step_) {
-                    LOG_WARN("parse url:failure");
-                }
-                if (ec != boost::asio::error::would_block) {
-                    if (StepType::jumping == open_step_) {
-                        LOG_WARN("jump : failure"); 
-                        LOG_DEBUG("jump failure (" << open_logs_[0].total_elapse << " milliseconds)");
-                    }
-                }
                 response(ec);
                 return;
             }

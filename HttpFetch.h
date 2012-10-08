@@ -30,6 +30,7 @@ namespace ppbox
 
             ~HttpFetch();
 
+        public:
             void async_fetch(
                 framework::string::Url const & url, 
                 framework::network::NetName const & server_host, 
@@ -40,13 +41,19 @@ namespace ppbox
                 return http_.response_data();
             }
 
-            ppbox::cdn::HttpStatistics const & http_stat();
-
             void cancel();
 
             void detach(); // cancel but not response
 
             void close();
+
+        public:
+            ppbox::cdn::HttpStatistics const & http_stat();
+
+            util::protocol::HttpRequest const & http_request()
+            {
+                return http_.request();
+            }
 
         private:
             void handle_fetch(
@@ -54,7 +61,6 @@ namespace ppbox
 
             void response(
                 boost::system::error_code const & ec);
-
 
         private:
             util::protocol::HttpClient http_;

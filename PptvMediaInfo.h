@@ -9,7 +9,6 @@
 
 #include <util/serialization/Optional.h>
 #include <util/archive/XmlIArchive.h>
-#include <util/archive/ArchiveBuffer.h>
 
 #include <framework/network/NetName.h>
 

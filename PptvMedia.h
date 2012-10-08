@@ -20,6 +20,11 @@ namespace ppbox
         class SegmentDemuxer;
     }
 
+    namespace merge
+    {
+        class Merge;
+    }
+
     namespace certify
     {
         class Certifier;
@@ -61,6 +66,29 @@ namespace ppbox
                 boost::system::error_code & ec);
 
         public:
+            enum OnwerTypeEnum
+            {
+                ot_none, 
+                ot_demuxer, 
+                ot_merger, 
+            };
+
+        public:
+            OnwerTypeEnum owner_type() const { return owner_type_; }
+
+            ppbox::demux::SegmentDemuxer & demuxer() const
+            {
+                assert(owner_type_ == ot_demuxer);
+                return *(owner_type_ == ot_demuxer ? (ppbox::demux::SegmentDemuxer *)owner_ : NULL);
+            }
+
+            ppbox::merge::Merge & merger() const
+            {
+                assert(owner_type_ == ot_demuxer);
+                return *(owner_type_ == ot_merger ? (ppbox::merge::Merge *)owner_ : NULL);
+            }
+
+        public:
             Video const & video() const
             {
                 return *video_;
@@ -87,16 +115,15 @@ namespace ppbox
             }
 
         protected:
+            typedef void (* parser_t)(
+                HttpFetch & fetch, 
+                void * t, 
+                boost::system::error_code & ec);
+
             template <typename T>
             void async_fetch(
                 framework::string::Url const & url, 
                 framework::network::NetName const & server_host, 
-                T & t, 
-                HttpFetch::response_type const & resp);
-
-            template <typename T>
-            void handle_fetch(
-                boost::system::error_code const & ec, 
                 T & t, 
                 HttpFetch::response_type const & resp);
 
@@ -106,8 +133,6 @@ namespace ppbox
 
             void set_response(
                 MediaBase::response_type const & resp);
-
-            bool is_demux() { return demuxer_ != NULL; }
 
             virtual void async_open2() {};
 
@@ -140,28 +165,52 @@ namespace ppbox
                 Video & video, 
                 std::string const & param);
 
+            template <typename T>
+            static void parse(
+                HttpFetch & fetch, 
+                void * t, 
+                boost::system::error_code & ec);
+
+            void async_fetch(
+                framework::string::Url const & url, 
+                framework::network::NetName const & server_host, 
+                parser_t parser, 
+                void * t, 
+                HttpFetch::response_type const & resp);
+
+            void handle_fetch(
+                boost::system::error_code const & ec, 
+                framework::string::Url const & url, 
+                parser_t parser, 
+                void * t, 
+                HttpFetch::response_type const & resp);
+
         protected:
             ppbox::certify::Certifier & cert_;
             ppbox::dac::DacModule & dac_;
 
-            ppbox::demux::SegmentDemuxer * demuxer_;
-
         protected:
+            framework::string::Url url_;
+
             Video * video_;
             Jump * jump_;
 
+        private:
+            OnwerTypeEnum owner_type_;
+            void * owner_;
+
+        private:
+            MediaBase::response_type resp_;
+
+            std::string p2p_params_;
             Jump parsed_jump_;
             Video parsed_video_;
             std::string user_host_;
-            std::string p2p_params_;
             framework::timer::Time local_time_; // 用于计算key值
-
-        protected:
-            std::vector<HttpStatistics> open_logs_; // 不超过3个
 
         private:
             boost::shared_ptr<HttpFetch> fetch_;
-            MediaBase::response_type resp_;
+            std::vector<HttpStatistics> open_logs_; // 不超过3个
         };
 
         template <typename T>
@@ -171,32 +220,22 @@ namespace ppbox
             T & t, 
             HttpFetch::response_type const & resp)
         {
-            fetch_->async_fetch(url, server_host, 
-                boost::bind(&PptvMedia::handle_fetch<T>, this, _1, boost::ref(t), resp));
+            async_fetch(url, server_host, parse<T>, &t, resp);
         }
 
         template <typename T>
-        void PptvMedia::handle_fetch(
-            boost::system::error_code const & ec, 
-            T & t, 
-            HttpFetch::response_type const & resp)
+        void PptvMedia::parse(
+            HttpFetch & fetch, 
+            void * t, 
+            boost::system::error_code & ec)
         {
-            open_logs_.push_back(fetch_->http_stat());
-
-            if (ec) {
-                resp(ec);
-                return;
+            util::archive::XmlIArchive<> ia(fetch.data());
+            ia >> *(T *)t;
+            if (ia) {
+                ec.clear();
+            } else {
+                ec = error::bad_file_format;
             }
-
-            util::archive::XmlIArchive<> ia(fetch_->data());
-            ia >> t;
-            fetch_->close();
-            if (!ia) {
-                open_logs_.back().last_last_error = error::bad_file_format;
-                resp(error::bad_file_format);
-                return;
-            }
-            resp(ec);
         }
 
     } // cdn

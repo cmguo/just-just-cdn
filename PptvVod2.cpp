@@ -66,7 +66,7 @@ namespace ppbox
 
             switch (open_step_) {
                 case StepType::closed:
-                    if (jump_ && is_demux()) {
+                    if (jump_ && owner_type() == ot_demuxer) {
                         open_step_ = StepType::wait2;
                         response(ec);
                         break;

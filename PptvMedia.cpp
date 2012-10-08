@@ -14,6 +14,8 @@
 #include <ppbox/demux/base/SegmentDemuxer.h>
 #include <ppbox/demux/base/SegmentBuffer.h>
 
+#include <ppbox/data/SegmentSource.h>
+
 #include <ppbox/common/DynamicString.h>
 
 #include <util/protocol/pptv/TimeKey.h> // for gen_key_from_time
@@ -26,6 +28,7 @@ using namespace framework::string;
 using namespace framework::logger;
 
 #include <boost/bind.hpp>
+#include <boost/ref.hpp>
 
 #ifndef STR_CDN_TYPE
 #  define STR_CDN_TYPE "ppsdk"
@@ -51,17 +54,22 @@ namespace ppbox
             : ppbox::data::MediaBase(io_svc)
             , cert_(util::daemon::use_module<ppbox::certify::Certifier>(io_svc))
             , dac_(util::daemon::use_module<ppbox::dac::DacModule>(io_svc))
-            , demuxer_(NULL)
             , video_(NULL)
             , jump_(NULL)
+            , owner_type_(ot_none)
+            , owner_(NULL)
             , fetch_(new HttpFetch(io_svc))
         {
         }
 
         PptvMedia::~PptvMedia()
         {
-            if (demuxer_) {
-                demuxer_->un<ppbox::demux::StatusChangeEvent>(boost::bind(&PptvMedia::on_event, this, _1));
+            switch (owner_type_) {
+                case ot_demuxer:
+                    demuxer().un<ppbox::demux::StatusChangeEvent>(boost::bind(&PptvMedia::on_event, this, _1));
+                    break;
+                default:
+                    break;
             }
             fetch_->detach();
         }
@@ -78,6 +86,8 @@ namespace ppbox
              * p2p.* 
              */
             ppbox::data::MediaBase::set_url(url);
+
+            url_ = url;
 
             if (parse_jump_param(parsed_jump_, url_.param("cdn.jump"))) {
                 jump_ = &parsed_jump_;
@@ -131,9 +141,15 @@ namespace ppbox
         {
             resp_ = resp;
             // it is safe to get user stat object now
-            //if (demuxer_) {
-            //    demuxer_->on<ppbox::demux::StatusChangeEvent>(boost::bind(&PptvMedia::on_event, this, _1));
-            //}
+            ppbox::demux::DemuxModule & demux = util::daemon::use_module<ppbox::demux::DemuxModule>(get_io_service());
+            owner_ = demux.find(MediaBase::url_); // 需要原始的URL
+            if (owner_) {
+                owner_type_ = ot_demuxer;
+                ppbox::peer::PeerSource & peer = 
+                    const_cast<ppbox::peer::PeerSource &>(static_cast<ppbox::peer::PeerSource const &>(*demuxer().source().source()));
+                peer.pptv_media(*this);
+                demuxer().on<ppbox::demux::StatusChangeEvent>(boost::bind(&PptvMedia::on_event, this, _1));
+            }
         }
 
         void PptvMedia::response(
@@ -191,7 +207,7 @@ namespace ppbox
                 if (!event.stat.last_error())
                     async_open2();
             } else if (event.stat.state() == ppbox::demux::DemuxStatistic::stopped) {
-                dac_.submit(ppbox::dac::DacPlayCloseInfo(*this, event.stat, demuxer_->buffer().stat()));
+                dac_.submit(ppbox::dac::DacPlayCloseInfo(*this, event.stat, demuxer().buffer().stat()));
             }
         }
 
@@ -225,6 +241,48 @@ namespace ppbox
             return util::protocol::pptv::gen_key_from_time(
                 jump_->server_time.to_time_t() + (time_t)(Time::now() - local_time_).total_seconds());
         }
+
+        void PptvMedia::async_fetch(
+            framework::string::Url const & url, 
+            framework::network::NetName const & server_host, 
+            parser_t parser, 
+            void * t, 
+            HttpFetch::response_type const & resp)
+        {
+            LOG_WARN("[async_fetch] start, path: " << url.path());
+
+            fetch_->async_fetch(url, server_host, 
+                boost::bind(&PptvMedia::handle_fetch, this, _1, boost::cref(url), parser, t, resp));
+        }
+
+        void PptvMedia::handle_fetch(
+            boost::system::error_code const & ecc, 
+            framework::string::Url const & url, 
+            parser_t parser, 
+            void * t, 
+            HttpFetch::response_type const & resp)
+        {
+            boost::system::error_code ec = ecc;
+            open_logs_.push_back(fetch_->http_stat());
+
+            if (!ec) {
+                parser(*fetch_, t, ec);
+            }
+
+            if (ec) {
+                LOG_WARN("[handle_fetch] failed, path: " << url.path() 
+                    << "ec: " << ec.message() << "elapse: " << fetch_->http_stat().total_elapse);
+                open_logs_.back().last_last_error = ec;
+            } else {
+                LOG_INFO("[handle_fetch] succeed, path: " << url.path() 
+                    << "elapse: " << fetch_->http_stat().total_elapse);
+            }
+
+            fetch_->close();
+
+            resp(ec);
+        }
+
 
     } // namespace cdn
 } // namespace ppbox
