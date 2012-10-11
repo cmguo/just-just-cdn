@@ -200,14 +200,15 @@ namespace ppbox
         void PptvMedia::on_event(
             util::event::Event const & e)
         {
-            ppbox::demux::StatusChangeEvent const & event = *e.cast<ppbox::demux::StatusChangeEvent>();
-            if (event.stat.state() == ppbox::demux::DemuxStatistic::opened) {
-                ppbox::peer::PeerSource const & source_ = (ppbox::peer::PeerSource const &)demuxer().source().source();
-                dac_.submit(ppbox::dac::DacPlayOpenInfo(*this, source_, event.stat));
-                if (!event.stat.last_error())
-                    async_open2();
-            } else if (event.stat.state() == ppbox::demux::DemuxStatistic::stopped) {
-                dac_.submit(ppbox::dac::DacPlayCloseInfo(*this, event.stat, demuxer().buffer().source().buffer_stat()));
+            if (ppbox::demux::StatusChangeEvent const * event = e.as<ppbox::demux::StatusChangeEvent>()) {
+                if (event->stat.state() == ppbox::demux::DemuxStatistic::opened) {
+                    ppbox::peer::PeerSource const & source_ = (ppbox::peer::PeerSource const &)demuxer().source().source();
+                    dac_.submit(ppbox::dac::DacPlayOpenInfo(*this, source_, event->stat));
+                    if (!event->stat.last_error())
+                        async_open2();
+                } else if (event->stat.state() == ppbox::demux::DemuxStatistic::stopped) {
+                    dac_.submit(ppbox::dac::DacPlayCloseInfo(*this, event->stat, demuxer().buffer().source().buffer_stat()));
+                }
             }
         }
 
