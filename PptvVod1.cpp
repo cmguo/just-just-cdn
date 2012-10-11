@@ -15,14 +15,14 @@ using namespace framework::string;
 #include <framework/logger/StreamRecord.h>
 using namespace framework::logger;
 
-FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("PptvVod1", 0);
+FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("ppbox.cdn.PptvVod1", Debug);
 
 #ifndef PPBOX_DNS_VOD_JUMP
 #  define PPBOX_DNS_VOD_JUMP "(tcp)(v4)jump.150hi.com:80"
 #endif
 
 #ifndef PPBOX_DNS_VOD_DRAG
-#  define PPBOX_DNS_VOD_DRAG "(tcp)(v4)drag.150hi.com:80"
+#  define PPBOX_DNS_VOD_DRAG "(tcp)(v4)drag.synacast.com:80"
 #endif
 
 namespace ppbox
@@ -109,11 +109,11 @@ namespace ppbox
                         set_video(jump_info_.video.get());
                     set_jump(jump_info_);
                     set_user_host(jump_info_.user_host);
-                    if (owner_type() == ot_demuxer) {
-                        open_step_ = StepType::wait2;
-                        response(ec);
-                        break;;
-                    }
+                    //if (owner_type() == ot_demuxer) {
+                    //    open_step_ = StepType::wait2;
+                    //    response(ec);
+                    //    break;;
+                    //}
                 case StepType::wait2:
                     open_step_ = StepType::draging;
                     async_fetch(

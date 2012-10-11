@@ -43,7 +43,7 @@ namespace ppbox
     namespace cdn
     {
 
-        FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("PptvMedia", 0);
+        FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("ppbox.cdn.PptvMedia", Debug);
 
         DEFINE_DYNAMIC_STRING(str_cdn_type, STR_CDN_TYPE);
 
@@ -129,7 +129,7 @@ namespace ppbox
 
         boost::system::error_code PptvMedia::get_info(
             ppbox::data::MediaInfo & info,
-            boost::system::error_code & ec)
+            boost::system::error_code & ec) const
         {
             info = *video_;
             ec.clear();
@@ -146,7 +146,7 @@ namespace ppbox
             if (owner_) {
                 owner_type_ = ot_demuxer;
                 ppbox::peer::PeerSource & peer = 
-                    const_cast<ppbox::peer::PeerSource &>(static_cast<ppbox::peer::PeerSource const &>(*demuxer().source().source()));
+                    const_cast<ppbox::peer::PeerSource &>(static_cast<ppbox::peer::PeerSource const &>(demuxer().source().source()));
                 peer.pptv_media(*this);
                 demuxer().on<ppbox::demux::StatusChangeEvent>(boost::bind(&PptvMedia::on_event, this, _1));
             }
@@ -202,12 +202,12 @@ namespace ppbox
         {
             ppbox::demux::StatusChangeEvent const & event = *e.cast<ppbox::demux::StatusChangeEvent>();
             if (event.stat.state() == ppbox::demux::DemuxStatistic::opened) {
-                ppbox::peer::PeerSource * source_ = NULL; // ((SegmentDemuxer *)user_stat_)->source();
-                dac_.submit(ppbox::dac::DacPlayOpenInfo(*this, *source_, event.stat));
+                ppbox::peer::PeerSource const & source_ = (ppbox::peer::PeerSource const &)demuxer().source().source();
+                dac_.submit(ppbox::dac::DacPlayOpenInfo(*this, source_, event.stat));
                 if (!event.stat.last_error())
                     async_open2();
             } else if (event.stat.state() == ppbox::demux::DemuxStatistic::stopped) {
-                dac_.submit(ppbox::dac::DacPlayCloseInfo(*this, event.stat, demuxer().buffer().stat()));
+                dac_.submit(ppbox::dac::DacPlayCloseInfo(*this, event.stat, demuxer().buffer().source().buffer_stat()));
             }
         }
 
@@ -249,7 +249,7 @@ namespace ppbox
             void * t, 
             HttpFetch::response_type const & resp)
         {
-            LOG_WARN("[async_fetch] start, path: " << url.path());
+            LOG_INFO("[async_fetch] start, path: " << url.path());
 
             fetch_->async_fetch(url, server_host, 
                 boost::bind(&PptvMedia::handle_fetch, this, _1, parser, t, resp));
@@ -272,11 +272,11 @@ namespace ppbox
             path = path.substr(0, path.find('?'));
             if (ec) {
                 LOG_WARN("[handle_fetch] failed, path: " << path 
-                    << " ec: " << ec.message() << " elapse: " << fetch_->http_stat().total_elapse);
+                    << " ec: " << ec.message() << " elapse: " << fetch_->http_stat().total_elapse << " milliseconds");
                 open_logs_.back().last_last_error = ec;
             } else {
                 LOG_INFO("[handle_fetch] succeed, path: " << path 
-                    << " elapse: " << fetch_->http_stat().total_elapse);
+                    << " elapse: " << fetch_->http_stat().total_elapse << " milliseconds");
             }
 
             fetch_->close();

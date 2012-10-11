@@ -15,7 +15,7 @@ namespace ppbox
         struct Live3Video
             : public Video
         {
-            boost::int32_t ft;
+            size_t ft;
 
             Live3Video()
                 : ft(0)

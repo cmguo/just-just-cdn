@@ -11,11 +11,11 @@ namespace ppbox
     namespace cdn
     {
 
-        FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("CdnModule", 0)
+        //FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("ppbox.cdn.CdnModule", Debug)
 
         CdnModule::CdnModule(
             util::daemon::Daemon & daemon)
-            : ppbox::common::CommonModuleBase<CdnModule>(daemon, "Cdn")
+            : ppbox::common::CommonModuleBase<CdnModule>(daemon, "CdnModule")
         {
         }
 

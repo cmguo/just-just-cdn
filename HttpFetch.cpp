@@ -8,7 +8,7 @@
 #include <framework/logger/StringRecord.h>
 using namespace framework::logger;
 
-FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("HttpFetch", 0);
+FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("ppbox.cdn.HttpFetch", Debug);
 
 
 namespace ppbox

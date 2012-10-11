@@ -11,7 +11,7 @@ using namespace framework::string;
 #include <framework/logger/StreamRecord.h>
 using namespace framework::logger;
 
-FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("PptvLive2", 0);
+FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("ppbox.cdn.PptvLive2", Debug);
 
 #ifndef PPBOX_DNS_LIVE2_JUMP
 #  define PPBOX_DNS_LIVE2_JUMP "(tcp)(v4)live.dt.synacast.com:80"

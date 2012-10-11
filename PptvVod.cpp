@@ -13,7 +13,7 @@ using namespace framework::system;
 using namespace framework::logger;
 using namespace boost::system;
 
-FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("PptvVod", 0);
+FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("ppbox.cdn.PptvVod", Debug);
 
 namespace ppbox
 {
@@ -40,18 +40,19 @@ namespace ppbox
         boost::system::error_code PptvVod::segment_url(
             size_t segment, 
             framework::string::Url & url,
-            boost::system::error_code & ec)
+            boost::system::error_code & ec) const
         {
             ec.clear();
             if (segment < segments_->size()) {
                 url = url_;
+                url.protocol("http");
                 url.host(jump_->server_host.host());
                 url.svc(jump_->server_host.svc());
                 url.path("/" + format(segment) + url.path());
                 url.param("key", get_key());
-                LOG_DEBUG("[segment_url] url:"<< url.to_string());
             } else if (segment == (size_t)-1) {
                 url = url_;
+                url.protocol("http");
                 url.host(jump_->server_host.host());
                 url.svc(jump_->server_host.svc());
                 url.param("key", get_key());

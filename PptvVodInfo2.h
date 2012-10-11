@@ -14,7 +14,7 @@ namespace ppbox
 
         struct Vod2Drag
         {
-            boost::int32_t ft;
+            size_t ft;
             std::vector<VodSegment> segments;
             Vod2Drag()
                 :ft(0)
@@ -34,7 +34,7 @@ namespace ppbox
         struct Vod2Jump
             : Jump
         {
-            boost::int32_t ft;
+            size_t ft;
 
             Vod2Jump()
                 : ft(0)
@@ -55,7 +55,7 @@ namespace ppbox
         struct Vod2Video
             : public Video
         {
-            boost::int32_t ft;
+            size_t ft;
 
             Vod2Video()
                 : ft(0)

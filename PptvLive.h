@@ -30,7 +30,7 @@ namespace ppbox
             boost::system::error_code segment_url(
                 size_t segment, 
                 framework::string::Url & url, 
-                boost::system::error_code & ec);
+                boost::system::error_code & ec) const;
 
             void segment_info(
                 size_t segment, 

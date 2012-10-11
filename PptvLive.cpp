@@ -7,7 +7,7 @@
 #include <framework/string/Format.h>
 using namespace framework::string;
 
-FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("PptvLive", 0);
+FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("ppbox.cdn.PptvLive", framework::logger::Debug);
 
 namespace ppbox
 {
@@ -45,7 +45,7 @@ namespace ppbox
         boost::system::error_code PptvLive::segment_url(
             size_t segment, 
             framework::string::Url & url,
-            boost::system::error_code & ec)
+            boost::system::error_code & ec) const
         {
             ec.clear();
             time_t file_time = begin_time_ + (segment * segment_->interval);

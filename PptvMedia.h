@@ -63,7 +63,7 @@ namespace ppbox
         public:
             virtual boost::system::error_code get_info(
                 ppbox::data::MediaInfo & info,
-                boost::system::error_code & ec);
+                boost::system::error_code & ec) const;
 
         public:
             enum OnwerTypeEnum

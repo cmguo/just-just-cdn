@@ -12,7 +12,7 @@ using namespace framework::string;
 using namespace framework::logger;
 using namespace boost::system;
 
-FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("Vod2Segment", 0);
+FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("ppbox.cdn.Vod2Segment", Debug);
 
 #ifndef PPBOX_DNS_VOD_PLAY
 #  define PPBOX_DNS_VOD_PLAY "(tcp)(v4)epg.api.pptv.com:80"
