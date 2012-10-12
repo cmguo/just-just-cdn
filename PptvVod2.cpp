@@ -109,7 +109,7 @@ namespace ppbox
             url.host(dns_vod_play.host());
             url.svc(dns_vod_play.svc());
             url.path("/boxplay.api");
-            url.param("id",url_.path().substr(1));
+            url.param("id", url_.path().substr(1));
             if (ft_ != (size_t)-1) {
                 url.param("f", format(ft_));
             }

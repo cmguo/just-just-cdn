@@ -37,6 +37,20 @@ namespace ppbox
             PptvMedia::set_url(url);
         }
 
+        boost::system::error_code PptvVod::get_info(
+            ppbox::data::MediaInfo & info,
+            boost::system::error_code & ec) const
+        {
+            if (!video_->url.is_valid()) {
+                video_->url = url_;
+                video_->url.svc("80");
+                video_->url.param("w", "1");
+                video_->url.param("z", "1");
+            }
+            video_->url.param("key", get_key());
+            return PptvMedia::get_info(info, ec);
+        }
+
         boost::system::error_code PptvVod::segment_url(
             size_t segment, 
             framework::string::Url & url,
@@ -46,18 +60,8 @@ namespace ppbox
             if (segment < segments_->size()) {
                 url = url_;
                 url.protocol("http");
-                url.host(jump_->server_host.host());
-                url.svc(jump_->server_host.svc());
                 url.path("/" + format(segment) + url.path());
                 url.param("key", get_key());
-            } else if (segment == (size_t)-1) {
-                url = url_;
-                url.protocol("http");
-                url.host(jump_->server_host.host());
-                url.svc(jump_->server_host.svc());
-                url.param("key", get_key());
-                url.param("w", "1");
-                url.param("z", "1");
             } else {
                 ec = logic_error::item_not_exist;
             }

@@ -72,6 +72,8 @@ namespace ppbox
             }
 
             url_.path("/" + path);
+            drag_info_.video.rid = path;
+
             handle_async_open(ec);
         }
 
@@ -105,8 +107,10 @@ namespace ppbox
                     }
                     break;
                 case StepType::jumping:
-                    if (jump_info_.video.is_initialized())
+                    if (jump_info_.video.is_initialized()) {
+                        jump_info_.video->rid = drag_info_.video.rid;
                         set_video(jump_info_.video.get());
+                    }
                     set_jump(jump_info_);
                     set_user_host(jump_info_.user_host);
                     //if (owner_type() == ot_demuxer) {

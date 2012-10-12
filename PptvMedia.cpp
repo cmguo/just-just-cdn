@@ -88,6 +88,7 @@ namespace ppbox
             ppbox::data::MediaBase::set_url(url);
 
             url_ = url;
+            url_.protocol("http");
 
             if (parse_jump_param(parsed_jump_, url_.param("cdn.jump"))) {
                 jump_ = &parsed_jump_;
@@ -185,6 +186,9 @@ namespace ppbox
                 LOG_INFO("[set jump] bw_type: " << jump_->bw_type);
                 LOG_INFO("[set jump] back_host: " << jump_->back_host.host_svc());
                 local_time_ = local_time_.now();
+
+                url_.host(jump_->server_host.host());
+                url_.svc(jump_->server_host.svc());
             } else {
                 assert(*jump_ == jump);
             }

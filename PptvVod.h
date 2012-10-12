@@ -24,6 +24,10 @@ namespace ppbox
             virtual void set_url(
                 framework::string::Url const &url);
 
+            virtual boost::system::error_code get_info(
+                ppbox::data::MediaInfo & info,
+                boost::system::error_code & ec) const;
+
         public:
             virtual size_t segment_count() const;
 
