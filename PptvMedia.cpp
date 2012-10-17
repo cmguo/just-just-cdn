@@ -35,7 +35,7 @@ using namespace framework::logger;
 #endif
 
 #ifndef STR_CDN_PLATFORM
-#  define STR_CDN_PLATFORM "ppsdk"
+#  define STR_CDN_PLATFORM "ppbox"
 #endif
 
 namespace ppbox
@@ -90,15 +90,15 @@ namespace ppbox
             url_ = url;
             url_.protocol("http");
 
-            if (parse_jump_param(parsed_jump_, url_.param("cdn.jump"))) {
-                jump_ = &parsed_jump_;
-            }
-            url_.param("cdn.jump", ""); // clear
-
             if (parse_video_param(parsed_video_, url_.param("cdn.video"))) {
-                video_ = &parsed_video_;
+                set_video(parsed_video_);
             }
             url_.param("cdn.video", ""); // clear
+
+            if (parse_jump_param(parsed_jump_, url_.param("cdn.jump"))) {
+                set_jump(parsed_jump_);
+            }
+            url_.param("cdn.jump", ""); // clear
 
             p2p_params_ = url_.param("p2p");
             url_.param("p2p", "");
@@ -171,6 +171,8 @@ namespace ppbox
                 if (video_->is_live)
                     LOG_INFO("[set video] delay: " << video_->delay);
                 LOG_INFO("[set video] rid: " << video_->rid);
+
+                url_.path("/" + video_->rid);
             } else {
                 assert(*video_ == video);
             }

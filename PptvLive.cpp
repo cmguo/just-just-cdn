@@ -37,6 +37,13 @@ namespace ppbox
             url_.param("cdn.segment", "");
         }
 
+        void PptvLive::on_error(
+            boost::system::error_code & ec) const
+        {
+            if (ec == util::protocol::http_error::not_found)
+                ec = boost::asio::error::would_block;
+        }
+
         size_t PptvLive::segment_count() const
         {
             return size_t(-1);
@@ -61,9 +68,9 @@ namespace ppbox
             size_t segment, 
             ppbox::data::SegmentInfo & info) const
         {
-            info.head_size = 0;
-            info.size = 0;
-            info.duration = segment_->interval;
+            info.head_size = invalid_size;
+            info.size = invalid_size;
+            info.duration = segment_->interval * 1000;
         }
 
         void PptvLive::set_video(
@@ -71,7 +78,7 @@ namespace ppbox
         {
             video.format = "flv";
             video.is_live = true;
-            if (video.duration == 0)
+            if (video.duration == invalid_size)
                 video.duration = video.delay;
 
             PptvMedia::set_video(video);
@@ -80,14 +87,15 @@ namespace ppbox
         void PptvLive::set_segment(
             LiveSegment & segment)
         {
-            if (jump_ == NULL) {
+            if (segment_ == NULL) {
                 segment_ = &segment;
                 LOG_INFO("[set segment] interval: " << segment.interval);
             }
 
             if (jump_ && video_) {
-                begin_time_ = jump_->server_time.to_time_t() - video_->duration;
+                begin_time_ = jump_->server_time.to_time_t() - video_->duration / 1000;
                 begin_time_ = begin_time_ / segment_->interval * segment_->interval;
+                LOG_INFO("[set segment] begin_time: " << begin_time_);
             }
         }
 

@@ -48,8 +48,8 @@ namespace ppbox
                 std::vector<std::string> strs;
                 slice<std::string>(url_.path(), std::inserter(strs, strs.end()), "-");
                 if (strs.size() >= 3) {
-                    jump_info_.video.name = strs[0];
-                    jump_info_.video.rid = strs[0];
+                    jump_info_.video.name = strs[0].substr(1);
+                    jump_info_.video.rid = jump_info_.video.name;
                     parse2(strs[2], jump_info_.video.bitrate);
                     parse2(strs[1], seg_.interval);
                 } else {
@@ -107,7 +107,7 @@ namespace ppbox
             url = url_;
             url.host(dns_live2_jump.host());
             url.svc(dns_live2_jump.svc());
-            url.path("/live2/" + video_->rid);
+            url.path("/live2/" + jump_info_.video.rid);
             return url;
         }
 

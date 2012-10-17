@@ -36,6 +36,8 @@ namespace ppbox
     namespace cdn
     {
 
+        using ppbox::data::invalid_size;
+
         enum VersionEnum
         {
             vod = 1, 

@@ -101,6 +101,7 @@ namespace ppbox
                 ar & SERIALIZATION_NVP(dur);
                 ar & SERIALIZATION_NVP(ts);
                 ar & SERIALIZATION_NVP(file);
+                dur *= 1000;
             }
 
         };
@@ -123,10 +124,10 @@ namespace ppbox
                 Archive & ar)
             {
                 ar.version(vod_play);
-                ar & SERIALIZATION_NVP(channel)
-                    & util::serialization::make_nvp("dt", ar.abnormal_collection(jumps))
-                    & util::serialization::make_nvp("drag", ar.abnormal_collection(drags))
-                    & SERIALIZATION_NVP(uh);
+                ar & SERIALIZATION_NVP(channel);
+                ar & util::serialization::make_nvp("dt", ar.abnormal_collection(jumps));
+                ar & util::serialization::make_nvp("drag", ar.abnormal_collection(drags));
+                ar & SERIALIZATION_NVP(uh);
             }
         };
 

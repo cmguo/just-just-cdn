@@ -41,10 +41,7 @@ namespace ppbox
             request_head.path = url.path_all();
             request_head.host.reset(url.host_svc());
             request_head["Accept"] = "{*/*}";
-
-            std::ostringstream oss;
-            request_head.get_content(oss);
-            LOG_STR(Trace, ("[async_fetch] request_head", oss.str()));
+            request_head["Accept-Encoding"] = "{gzip}";
 
             http_stat_.begin_try();
             http_.async_fetch(request_head,

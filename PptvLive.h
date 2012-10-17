@@ -21,18 +21,22 @@ namespace ppbox
             ~PptvLive();
 
         public:
-            void set_url(
+            virtual void set_url(
                 framework::string::Url const & url);
 
         public:
-            size_t segment_count() const;
+            virtual void on_error(
+                boost::system::error_code & ec) const;
 
-            boost::system::error_code segment_url(
+        public:
+            virtual size_t segment_count() const;
+
+            virtual boost::system::error_code segment_url(
                 size_t segment, 
                 framework::string::Url & url, 
                 boost::system::error_code & ec) const;
 
-            void segment_info(
+            virtual void segment_info(
                 size_t segment, 
                 ppbox::data::SegmentInfo & info) const;
 

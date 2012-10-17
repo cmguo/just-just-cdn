@@ -14,7 +14,7 @@ namespace ppbox
         {
             Jump jump;
             Video video;
-            boost::uint16_t delay_play_time;
+            boost::uint32_t delay_play_time;
 
             template <
                 typename Archive
@@ -26,6 +26,7 @@ namespace ppbox
                 ar & jump
                     & video
                     & SERIALIZATION_NVP(delay_play_time);
+                delay_play_time *= 1000;
             }
         };
 
