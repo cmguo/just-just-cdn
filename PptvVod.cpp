@@ -37,35 +37,34 @@ namespace ppbox
             PptvMedia::set_url(url);
         }
 
-        boost::system::error_code PptvVod::get_info(
-            ppbox::data::MediaInfo & info,
+        bool PptvVod::get_url(
+            framework::string::Url & url,
             boost::system::error_code & ec) const
         {
-            if (!video_->url.is_valid()) {
-                video_->url = url_;
-                video_->url.svc("80");
-                video_->url.param("w", "1");
-                video_->url.param("z", "1");
-            }
-            video_->url.param("key", get_key());
-            return PptvMedia::get_info(info, ec);
+            url = url_;
+            url.svc("80");
+            url.param("w", "1");
+            url.param("z", "1");
+            url.param("key", get_key());
+            ec.clear();
+            return true;
         }
 
-        boost::system::error_code PptvVod::segment_url(
+        bool PptvVod::segment_url(
             size_t segment, 
             framework::string::Url & url,
             boost::system::error_code & ec) const
         {
-            ec.clear();
-            if (segment < segments_->size()) {
-                url = url_;
-                url.protocol("http");
-                url.path("/" + format(segment) + url.path());
-                url.param("key", get_key());
-            } else {
+            if (segments_ && segment >= segments_->size()) {
                 ec = logic_error::item_not_exist;
+                return false;
             }
-            return ec;
+            url = url_;
+            url.protocol("http");
+            url.path("/" + format(segment) + url.path());
+            url.param("key", get_key());
+            ec.clear();
+            return true;
         }
 
         size_t PptvVod::segment_count() const

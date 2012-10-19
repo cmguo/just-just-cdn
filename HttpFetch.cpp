@@ -38,6 +38,7 @@ namespace ppbox
 
             util::protocol::HttpRequestHead request_head;
             request_head.method = util::protocol::HttpRequestHead::get;
+            request_head.version = 0x101;
             request_head.path = url.path_all();
             request_head.host.reset(url.host_svc());
             request_head["Accept"] = "{*/*}";

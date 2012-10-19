@@ -41,8 +41,8 @@ namespace ppbox
 
         struct Live3Stream
         {
-            size_t delay;
-            size_t jump;
+            boost::uint32_t delay;
+            boost::uint32_t jump;
             LiveSegment seg; // interval
             std::vector<Live3Video> item;
 
@@ -62,6 +62,8 @@ namespace ppbox
                 ar & SERIALIZATION_NVP(jump);
                 ar & seg;
                 ar & item;
+                delay *= 1000;
+                jump *= 1000;
             }
 
         };

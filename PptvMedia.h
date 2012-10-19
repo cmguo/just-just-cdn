@@ -61,8 +61,12 @@ namespace ppbox
             virtual void close();
 
         public:
-            virtual boost::system::error_code get_info(
+            virtual bool get_info(
                 ppbox::data::MediaInfo & info,
+                boost::system::error_code & ec) const;
+
+            virtual bool get_url(
+                framework::string::Url & url,
                 boost::system::error_code & ec) const;
 
         public:

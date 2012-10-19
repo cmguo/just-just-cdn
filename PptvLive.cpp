@@ -49,7 +49,7 @@ namespace ppbox
             return size_t(-1);
         }
 
-        boost::system::error_code PptvLive::segment_url(
+        bool PptvLive::segment_url(
             size_t segment, 
             framework::string::Url & url,
             boost::system::error_code & ec) const
@@ -61,7 +61,7 @@ namespace ppbox
             url.svc(jump_->server_host.svc());
             url.path("/live/" + video_->rid + "/" + format(file_time) + ".block");
             LOG_DEBUG("[segment_url] url:" << url.to_string());
-            return ec;
+            return true;
         }
 
         void PptvLive::segment_info(
@@ -80,6 +80,8 @@ namespace ppbox
             video.is_live = true;
             if (video.duration == invalid_size)
                 video.duration = video.delay;
+            if (video.current == 0)
+                video.duration = video.duration;
 
             PptvMedia::set_video(video);
         }

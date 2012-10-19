@@ -128,13 +128,25 @@ namespace ppbox
         {
         }
 
-        boost::system::error_code PptvMedia::get_info(
+        bool PptvMedia::get_info(
             ppbox::data::MediaInfo & info,
             boost::system::error_code & ec) const
         {
             info = *video_;
+            if (info.is_live) {
+                info.current = info.duration + (Time::now() - local_time_).total_milliseconds();
+            }
             ec.clear();
-            return ec;
+            return true;
+        }
+
+        bool PptvMedia::get_url(
+            framework::string::Url & url,
+            boost::system::error_code & ec) const
+        {
+            url = url_;
+            ec.clear();
+            return true;
         }
 
         void PptvMedia::set_response(

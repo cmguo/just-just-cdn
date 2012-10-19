@@ -72,10 +72,14 @@ namespace ppbox
                         boost::bind(&PptvLive3::handle_async_open, this ,_1));
                     break;
                 case StepType::playing:
-                    set_user_host(play_info_.uh);
-                    open_step_ = StepType::finish;
-                    response(ec);
-                    break;
+                    {
+                        boost::system::error_code ec;
+                        deside_ft(ec);
+                        set_user_host(play_info_.uh);
+                        open_step_ = StepType::finish;
+                        response(ec);
+                        break;
+                    }
                 default:
                     assert(0);
                     break;
@@ -95,7 +99,11 @@ namespace ppbox
             url = url_;
             url.host(dns_live2_play.host());
             url.svc(dns_live2_play.svc());
-            url.path("/live2/" + video_->rid);
+            url.path("/boxplay.api");
+            url.param("id", url_.path().substr(1));
+            if (ft_ != (size_t)-1) {
+                url.param("f", format(ft_));
+            }
             return url;
         }
 
@@ -121,6 +129,7 @@ namespace ppbox
             ft_ = video->ft;
             video->name = play_info_.channel.nm;
             video->duration = play_info_.channel.stream.jump;
+            video->delay = play_info_.channel.stream.delay;
             set_video(*video);
             set_jump(play_info_.jump);
             set_segment(play_info_.channel.stream.seg);

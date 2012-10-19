@@ -31,7 +31,7 @@ namespace ppbox
         public:
             virtual size_t segment_count() const;
 
-            virtual boost::system::error_code segment_url(
+            virtual bool segment_url(
                 size_t segment, 
                 framework::string::Url & url, 
                 boost::system::error_code & ec) const;
