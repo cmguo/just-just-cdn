@@ -14,6 +14,9 @@
 #include <ppbox/demux/base/SegmentDemuxer.h>
 #include <ppbox/demux/base/SegmentBuffer.h>
 
+#include <ppbox/merge/MergeModule.h>
+#include <ppbox/merge/MergerBase.h>
+
 #include <ppbox/data/SegmentSource.h>
 
 #include <ppbox/common/DynamicString.h>
@@ -119,12 +122,14 @@ namespace ppbox
             }
         }
 
-        void PptvMedia::cancel()
+        void PptvMedia::cancel(
+            boost::system::error_code & ec)
         {
-            fetch_->cancel();
+            fetch_->cancel(ec);
         }
 
-        void PptvMedia::close()
+        void PptvMedia::close(
+            boost::system::error_code & ec)
         {
         }
 
@@ -162,6 +167,17 @@ namespace ppbox
                     const_cast<ppbox::peer::PeerSource &>(static_cast<ppbox::peer::PeerSource const &>(demuxer().source().source()));
                 peer.pptv_media(*this);
                 demuxer().on<ppbox::demux::StatusChangeEvent>(boost::bind(&PptvMedia::on_event, this, _1));
+                return;
+            }
+            ppbox::merge::MergeModule & merge = util::daemon::use_module<ppbox::merge::MergeModule>(get_io_service());
+            owner_ = merge.find(MediaBase::url_); // 需要原始的URL
+            if (owner_) {
+                owner_type_ = ot_merger;
+                ppbox::peer::PeerSource & peer = 
+                    const_cast<ppbox::peer::PeerSource &>(static_cast<ppbox::peer::PeerSource const &>(merger().source().source()));
+                peer.pptv_media(*this);
+                //merger().on<ppbox::demux::StatusChangeEvent>(boost::bind(&PptvMedia::on_event, this, _1));
+                return;
             }
         }
 
@@ -298,7 +314,7 @@ namespace ppbox
                     << " elapse: " << fetch_->http_stat().total_elapse << " milliseconds");
             }
 
-            fetch_->close();
+            fetch_->close(ec);
 
             resp(ec);
         }

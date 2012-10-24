@@ -156,7 +156,7 @@ namespace ppbox
             }
             for (size_t i = 0; i < play_info_.drags.size(); ++i) {
                     if (play_info_.drags[i].ft == ft_) {
-                    //set_segments(play_info_.drags[i].segments);
+                    set_segments(play_info_.drags[i].segments);
                     failed = false;
                     break;
                 }

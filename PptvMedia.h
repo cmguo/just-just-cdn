@@ -22,7 +22,7 @@ namespace ppbox
 
     namespace merge
     {
-        class Merge;
+        class MergerBase;
     }
 
     namespace certify
@@ -56,9 +56,11 @@ namespace ppbox
             virtual void set_url(
                 framework::string::Url const &url);
 
-            virtual void cancel();
+            virtual void cancel(
+                boost::system::error_code & ec);
 
-            virtual void close();
+            virtual void close(
+                boost::system::error_code & ec);
 
         public:
             virtual bool get_info(
@@ -86,10 +88,10 @@ namespace ppbox
                 return *(owner_type_ == ot_demuxer ? (ppbox::demux::SegmentDemuxer *)owner_ : NULL);
             }
 
-            ppbox::merge::Merge & merger() const
+            ppbox::merge::MergerBase & merger() const
             {
-                assert(owner_type_ == ot_demuxer);
-                return *(owner_type_ == ot_merger ? (ppbox::merge::Merge *)owner_ : NULL);
+                assert(owner_type_ == ot_merger);
+                return *(owner_type_ == ot_merger ? (ppbox::merge::MergerBase *)owner_ : NULL);
             }
 
         public:

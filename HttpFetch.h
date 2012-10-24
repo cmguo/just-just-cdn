@@ -41,11 +41,13 @@ namespace ppbox
                 return http_.response_data();
             }
 
-            void cancel();
+            void cancel(
+                boost::system::error_code & ec);
 
             void detach(); // cancel but not response
 
-            void close();
+            void close(
+                boost::system::error_code & ec);
 
         public:
             ppbox::cdn::HttpStatistics const & http_stat();

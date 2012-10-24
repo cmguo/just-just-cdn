@@ -49,10 +49,10 @@ namespace ppbox
                 boost::bind(&HttpFetch::handle_fetch, shared_from_this(), _1));
         }
 
-        void HttpFetch::cancel()
+        void HttpFetch::cancel(
+            boost::system::error_code & ec)
         {
-            boost::system::error_code ec1;
-            http_.cancel_forever(ec1);
+            http_.cancel_forever(ec);
             canceled_ = true;
         }
 
@@ -60,14 +60,15 @@ namespace ppbox
         {
             boost::mutex::scoped_lock lock(mutex_);
             if (!resp_.empty()) {
-                cancel();
+                boost::system::error_code ec;
+                cancel(ec);
                 resp_.clear();
             }
         }
 
-        void HttpFetch::close()
+        void HttpFetch::close(
+            boost::system::error_code & ec)
         {
-            boost::system::error_code  ec;
             http_.close(ec);
         }
 
@@ -105,7 +106,8 @@ namespace ppbox
             if (!resp.empty()) {
                 resp(ec);
             } else {
-                close();
+                boost::system::error_code ec1;
+                close(ec1);
             }
         }
         
