@@ -12,12 +12,12 @@
 #include <ppbox/demux/DemuxModule.h>
 #include <ppbox/demux/base/DemuxEvent.h>
 #include <ppbox/demux/base/SegmentDemuxer.h>
-#include <ppbox/demux/base/SegmentBuffer.h>
 
 #include <ppbox/merge/MergeModule.h>
 #include <ppbox/merge/MergerBase.h>
 
 #include <ppbox/data/SegmentSource.h>
+#include <ppbox/data/SegmentBuffer.h>
 
 #include <ppbox/common/DynamicString.h>
 
