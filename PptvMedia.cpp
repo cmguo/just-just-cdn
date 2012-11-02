@@ -314,7 +314,8 @@ namespace ppbox
                     << " elapse: " << fetch_->http_stat().total_elapse << " milliseconds");
             }
 
-            fetch_->close(ec);
+            boost::system::error_code ec2;
+            fetch_->close(ec2);
 
             resp(ec);
         }
