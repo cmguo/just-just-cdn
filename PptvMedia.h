@@ -6,10 +6,12 @@
 #include "ppbox/cdn/PptvMediaInfo.h"
 #include "ppbox/cdn/HttpFetch.h"
 #include "ppbox/cdn/HttpStatistics.h"
+#include "ppbox/cdn/CdnError.h"
 
 #include <ppbox/data/MediaBase.h>
 
 #include <util/event/Event.h>
+#include <util/archive/XmlIArchive.h>
 
 #include <boost/shared_ptr.hpp>
 

@@ -23,7 +23,7 @@ namespace ppbox
             }
 
             bool operator<(
-                Live3Video const & r)
+                Live3Video const & r) const
             {
                 return ft < r.ft;
             }

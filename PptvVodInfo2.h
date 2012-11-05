@@ -63,7 +63,7 @@ namespace ppbox
             }
 
             bool operator<(
-                Vod2Video const & r)
+                Vod2Video const & r) const
             {
                 return ft < r.ft;
             }

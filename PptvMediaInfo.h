@@ -4,32 +4,13 @@
 #define _PPBOX_CDN_PPTV_MEDIA_INFO_H_
 
 #include "ppbox/cdn/UtcTime.h"
+#include "ppbox/cdn/Serialize.h"
 
 #include <ppbox/data/MediaBase.h>
 
 #include <util/serialization/Optional.h>
-#include <util/archive/XmlIArchive.h>
 
 #include <framework/network/NetName.h>
-
-namespace util
-{
-    namespace serialization
-    {
-        template <
-            typename Archive
-        >
-        void serialize(
-            Archive & ar, 
-            framework::network::NetName & t)
-        {
-            std::string value;
-            ar & value;
-            t.from_string(value);
-        }
-
-    }
-}
 
 namespace ppbox
 {
