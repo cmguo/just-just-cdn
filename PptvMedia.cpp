@@ -28,7 +28,6 @@
 #include <framework/string/StringToken.h>
 using namespace framework::string;
 #include <framework/logger/StreamRecord.h>
-using namespace framework::logger;
 
 #include <boost/bind.hpp>
 #include <boost/ref.hpp>
@@ -46,7 +45,7 @@ namespace ppbox
     namespace cdn
     {
 
-        FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("ppbox.cdn.PptvMedia", Debug);
+        FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("ppbox.cdn.PptvMedia", framework::logger::Debug);
 
         DEFINE_DYNAMIC_STRING(str_cdn_type, STR_CDN_TYPE);
 
@@ -138,7 +137,8 @@ namespace ppbox
             boost::system::error_code & ec) const
         {
             info = *video_;
-            if (info.is_live) {
+            if (info.type == ppbox::data::MediaInfo::live) {
+                info.start_time = jump_->server_time.to_time_t();
                 info.current = info.duration + (Time::now() - local_time_).total_milliseconds();
             }
             ec.clear();
@@ -196,7 +196,7 @@ namespace ppbox
                 video_ = &video;
                 LOG_INFO("[set video] name: " << video_->name);
                 LOG_INFO("[set video] duration: " << video_->duration);
-                if (video_->is_live)
+                if (video_->type == Video::live)
                     LOG_INFO("[set video] delay: " << video_->delay);
                 LOG_INFO("[set video] rid: " << video_->rid);
 

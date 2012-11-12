@@ -77,7 +77,7 @@ namespace ppbox
             Video & video)
         {
             video.format = "flv";
-            video.is_live = true;
+            video.type = Video::live;
             if (video.duration == invalid_size)
                 video.duration = video.delay;
             if (video.current == 0)
