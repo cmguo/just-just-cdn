@@ -8,7 +8,7 @@
 #include "ppbox/cdn/HttpStatistics.h"
 #include "ppbox/cdn/CdnError.h"
 
-#include <ppbox/data/MediaBase.h>
+#include <ppbox/data/SegmentMedia.h>
 
 #include <util/event/Event.h>
 #include <util/archive/XmlIArchive.h>
@@ -46,7 +46,7 @@ namespace ppbox
     {
 
         class PptvMedia
-            : public ppbox::data::MediaBase
+            : public ppbox::data::SegmentMedia
         {
         public:
             PptvMedia(

@@ -10,6 +10,16 @@ namespace ppbox
     namespace cdn
     {
 
+        struct LiveVideo
+            : Video
+        {
+            LiveVideo()
+            {
+                flags |= f_time_smoth;
+                flags |= f_fix_duration;
+            }
+        };
+
         struct LiveSegment
         {
             boost::uint16_t interval;

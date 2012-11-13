@@ -54,7 +54,7 @@ namespace ppbox
         PptvMedia::PptvMedia(
             boost::asio::io_service & io_svc,
             framework::string::Url const & url)
-            : ppbox::data::MediaBase(io_svc, url)
+            : ppbox::data::SegmentMedia(io_svc, url)
             , cert_(util::daemon::use_module<ppbox::certify::Certifier>(io_svc))
             , dac_(util::daemon::use_module<ppbox::dac::DacModule>(io_svc))
             , url_(url)

@@ -13,7 +13,7 @@ namespace ppbox
         struct Live2JumpInfo
         {
             Jump jump;
-            Video video;
+            LiveVideo video;
             boost::uint32_t delay_play_time;
 
             template <

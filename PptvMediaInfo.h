@@ -36,6 +36,8 @@ namespace ppbox
 
             Video()
             {
+                flags |= f_segment;
+                flags |= f_segment_seek;
             }
 
             template <

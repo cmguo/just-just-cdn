@@ -13,7 +13,7 @@ namespace ppbox
     {
 
         struct Live3Video
-            : public Video
+            : public LiveVideo
         {
             size_t ft;
 
