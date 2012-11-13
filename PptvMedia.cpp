@@ -52,16 +52,19 @@ namespace ppbox
         DEFINE_DYNAMIC_STRING(str_cdn_platform, STR_CDN_PLATFORM);
 
         PptvMedia::PptvMedia(
-            boost::asio::io_service & io_svc)
-            : ppbox::data::MediaBase(io_svc)
+            boost::asio::io_service & io_svc,
+            framework::string::Url const & url)
+            : ppbox::data::MediaBase(io_svc, url)
             , cert_(util::daemon::use_module<ppbox::certify::Certifier>(io_svc))
             , dac_(util::daemon::use_module<ppbox::dac::DacModule>(io_svc))
+            , url_(url)
             , video_(NULL)
             , jump_(NULL)
             , owner_type_(ot_none)
             , owner_(NULL)
             , fetch_(new HttpFetch(io_svc))
         {
+            parse_url();
         }
 
         PptvMedia::~PptvMedia()
@@ -76,8 +79,7 @@ namespace ppbox
             fetch_->detach();
         }
 
-        void PptvMedia::set_url(
-            framework::string::Url const &url)
+        void PptvMedia::parse_url()
         {
             /*
              * ²¹³ävvid¡¢type¡¢platform
@@ -87,9 +89,6 @@ namespace ppbox
              * cdn.* 
              * p2p.* 
              */
-            ppbox::data::MediaBase::set_url(url);
-
-            url_ = url;
             url_.protocol("http");
 
             if (parse_video_param(parsed_video_, url_.param("cdn.video"))) {

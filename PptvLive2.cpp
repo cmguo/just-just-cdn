@@ -25,8 +25,9 @@ namespace ppbox
         DEFINE_DOMAIN_NAME(dns_live2_jump, PPBOX_DNS_LIVE2_JUMP);
 
         PptvLive2::PptvLive2(
-            boost::asio::io_service & io_svc)
-            : PptvLive(io_svc)
+            boost::asio::io_service & io_svc,
+            framework::string::Url const & url)
+            : PptvLive(io_svc, url)
             , open_step_(StepType::closed)
         {
         }

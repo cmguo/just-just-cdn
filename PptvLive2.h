@@ -16,7 +16,8 @@ namespace ppbox
         {
         public:
             PptvLive2(
-                boost::asio::io_service & io_svc);
+                boost::asio::io_service & io_svc,
+                framework::string::Url const & url);
 
             ~PptvLive2();
 

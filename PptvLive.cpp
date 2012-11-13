@@ -15,26 +15,20 @@ namespace ppbox
     {
 
         PptvLive::PptvLive(
-            boost::asio::io_service & io_svc)
-            : PptvMedia(io_svc)
+            boost::asio::io_service & io_svc,
+            framework::string::Url const & url)
+            : PptvMedia(io_svc, url)
             , segment_(NULL)
             , begin_time_(0)
         {
-        }
-
-        PptvLive::~PptvLive()
-        {
-        }
-
-        void PptvLive::set_url(
-            framework::string::Url const & url)
-        {
-            PptvMedia::set_url(url);
-
             if (parse_segment_param(parsed_segment_, url_.param("cdn.segment"))) {
                 segment_ = &parsed_segment_;
             }
             url_.param("cdn.segment", "");
+        }
+
+        PptvLive::~PptvLive()
+        {
         }
 
         void PptvLive::on_error(

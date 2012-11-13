@@ -21,20 +21,15 @@ namespace ppbox
     {
 
         PptvVod::PptvVod(
-            boost::asio::io_service & io_svc)
-            : PptvMedia(io_svc)
+            boost::asio::io_service & io_svc,
+            framework::string::Url const & url)
+            : PptvMedia(io_svc, url)
             , segments_(NULL)
         {
         }
 
         PptvVod::~PptvVod()
         {
-        }
-
-        void PptvVod::set_url(
-            framework::string::Url const & url)
-        {
-            PptvMedia::set_url(url);
         }
 
         bool PptvVod::get_url(

@@ -34,8 +34,9 @@ namespace ppbox
         DEFINE_DOMAIN_NAME(dns_vod_drag, PPBOX_DNS_VOD_DRAG);
 
         PptvVod1::PptvVod1(
-            boost::asio::io_service & io_svc)
-            : PptvVod(io_svc)
+            boost::asio::io_service & io_svc,
+            framework::string::Url const & url)
+            : PptvVod(io_svc, url)
             , open_step_(StepType::closed)
             , know_seg_count_(false)
         {

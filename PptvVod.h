@@ -16,14 +16,12 @@ namespace ppbox
         {
         public:
             PptvVod(
-                boost::asio::io_service & io_svc);
+                boost::asio::io_service & io_svc,
+                framework::string::Url const & url);
 
             ~PptvVod();
 
         public:
-            virtual void set_url(
-                framework::string::Url const &url);
-
             virtual bool get_url(
                 framework::string::Url & url,
                 boost::system::error_code & ec) const;

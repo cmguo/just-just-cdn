@@ -50,14 +50,12 @@ namespace ppbox
         {
         public:
             PptvMedia(
-                boost::asio::io_service & io_svc);
+                boost::asio::io_service & io_svc,
+                framework::string::Url const & url);
 
             ~PptvMedia();
 
         public:
-            virtual void set_url(
-                framework::string::Url const &url);
-
             virtual void cancel(
                 boost::system::error_code & ec);
 
@@ -165,6 +163,8 @@ namespace ppbox
                 util::event::Event const & e);
 
         private:
+            void parse_url();
+
             static bool parse_jump_param(
                 Jump & jump, 
                 std::string const & param);
