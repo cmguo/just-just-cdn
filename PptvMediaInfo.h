@@ -21,10 +21,10 @@ namespace ppbox
 
         enum VersionEnum
         {
-            vod = 1, 
+            vod_1 = 1, 
             vod_quick, 
             vod_play, 
-            live, 
+            live_1, 
             live_2, 
             live_2_play, 
         };
@@ -47,7 +47,7 @@ namespace ppbox
                 Archive & ar)
             {
                 switch (ar.version()) {
-                    case vod:
+                    case vod_1:
                     case vod_quick:
                         {
                             float duration = (float)this->duration / 1000.0f;
@@ -104,7 +104,7 @@ namespace ppbox
                 Archive & ar)
             {
                 switch (ar.version()) {
-                    case vod:
+                    case vod_1:
                     case vod_quick:
                         ar & SERIALIZATION_NVP(server_host)
                             & SERIALIZATION_NVP(server_time)

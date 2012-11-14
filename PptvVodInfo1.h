@@ -29,7 +29,7 @@ namespace ppbox
             void serialize( 
                 Archive & ar)
             {
-                ar.version(vod);
+                ar.version(vod_1);
                 Jump::serialize(ar);
                 ar & SERIALIZATION_NVP(user_host);
 
@@ -52,9 +52,9 @@ namespace ppbox
             void serialize(
                 Archive & ar)
             {
-                ar.version(vod);
+                ar.version(vod_1);
                 ar & SERIALIZATION_NVP(video);
-                ar & util::serialization::make_nvp("segments", util::serialization::make_optional(segments, vod));
+                ar & util::serialization::make_nvp("segments", util::serialization::make_optional(segments, vod_1));
                 if (segments.empty())
                     ar & util::serialization::make_nvp("ss", util::serialization::make_optional(segments, vod_quick));
             }

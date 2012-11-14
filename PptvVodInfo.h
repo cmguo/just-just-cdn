@@ -49,7 +49,7 @@ namespace ppbox
                 float duration = (float)this->duration / 1000.0f;
 
                 switch (ar.version()) {
-                    case vod:
+                    case vod_1:
                         ar & util::serialization::make_nvp("headlength", head_length)
                             & util::serialization::make_nvp("filesize", file_length)
                             & util::serialization::make_nvp("duration", duration)
