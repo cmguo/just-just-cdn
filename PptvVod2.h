@@ -58,7 +58,7 @@ namespace ppbox
             size_t ft_;
         };
 
-        PPBOX_REGISTER_MEDIA(ppvod2, PptvVod2);
+        PPBOX_REGISTER_MEDIA("ppvod2", PptvVod2);
 
     } // namespace cdn
 } // namespace ppbox

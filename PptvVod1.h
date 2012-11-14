@@ -62,7 +62,7 @@ namespace ppbox
 
         };//VodSegmemt
 
-        PPBOX_REGISTER_MEDIA(ppvod, PptvVod1);
+        PPBOX_REGISTER_MEDIA("ppvod", PptvVod1);
 
     } // cdn
 } // ppbox
