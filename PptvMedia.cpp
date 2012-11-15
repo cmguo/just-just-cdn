@@ -283,7 +283,7 @@ namespace ppbox
             void * t, 
             HttpFetch::response_type const & resp)
         {
-            LOG_INFO("[async_fetch] start, path: " << url.path());
+            LOG_INFO("[async_fetch] start, url: " << url.to_string());
 
             fetch_->async_fetch(url, server_host, 
                 boost::bind(&PptvMedia::handle_fetch, this, _1, parser, t, resp));
