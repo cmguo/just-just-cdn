@@ -6,7 +6,7 @@
 #include "ppbox/cdn/UtcTime.h"
 #include "ppbox/cdn/Serialize.h"
 
-#include <ppbox/data/MediaBase.h>
+#include <ppbox/data/base/MediaBase.h>
 
 #include <util/serialization/Optional.h>
 

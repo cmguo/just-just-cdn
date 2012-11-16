@@ -8,7 +8,7 @@
 #include "ppbox/cdn/HttpStatistics.h"
 #include "ppbox/cdn/CdnError.h"
 
-#include <ppbox/data/SegmentMedia.h>
+#include <ppbox/data/segment/SegmentMedia.h>
 
 #include <util/event/Event.h>
 #include <util/archive/XmlIArchive.h>

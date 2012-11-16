@@ -11,13 +11,13 @@
 
 #include <ppbox/demux/DemuxModule.h>
 #include <ppbox/demux/base/DemuxEvent.h>
-#include <ppbox/demux/base/SegmentDemuxer.h>
+#include <ppbox/demux/segment/SegmentDemuxer.h>
 
 #include <ppbox/merge/MergeModule.h>
 #include <ppbox/merge/MergerBase.h>
 
-#include <ppbox/data/SegmentSource.h>
-#include <ppbox/data/SegmentBuffer.h>
+#include <ppbox/data/segment/SegmentSource.h>
+#include <ppbox/data/segment/SegmentBuffer.h>
 
 #include <ppbox/common/DynamicString.h>
 
@@ -240,7 +240,7 @@ namespace ppbox
                     if (!event->stat.last_error())
                         async_open2();
                 } else if (event->stat.state() == ppbox::demux::DemuxStatistic::stopped) {
-                    dac_.submit(ppbox::dac::DacPlayCloseInfo(*this, event->stat, demuxer().buffer().source().buffer_stat()));
+                    dac_.submit(ppbox::dac::DacPlayCloseInfo(*this, event->stat, demuxer().source()));
                 }
             }
         }
@@ -273,7 +273,7 @@ namespace ppbox
         std::string PptvMedia::get_key() const
         {
             return util::protocol::pptv::gen_key_from_time(
-                jump_->server_time.to_time_t() + (time_t)(Time::now() - local_time_).total_seconds());
+                (boost::uint32_t)(jump_->server_time.to_time_t() + (time_t)(Time::now() - local_time_).total_seconds()));
         }
 
         void PptvMedia::async_fetch(
