@@ -44,9 +44,6 @@ namespace ppbox
             }
 
         protected:
-            void set_video(
-                Video & video);
-
             void set_segment(
                 LiveSegment & segment);
 

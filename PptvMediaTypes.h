@@ -30,7 +30,7 @@ namespace ppbox
             }
         }
 
-        PPBOX_REGISTER_CLASS2("pptv", PptvMedia, create_pptv);
+        PPBOX_REGISTER_CLASS_FACTORY_FUNC("pptv", ppbox::data::MediaProtocolFactory, create_pptv);
 
     } // cdn
 } // ppbox

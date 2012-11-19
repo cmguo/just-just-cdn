@@ -55,7 +55,7 @@ namespace ppbox
             size_t ft_;
         };
 
-        PPBOX_REGISTER_MEDIA("pplive3", PptvLive3);
+        PPBOX_REGISTER_MEDIA_BY_PROTOCOL("pplive3", PptvLive3);
 
     } // namespace cdn
 } // namespace ppbox

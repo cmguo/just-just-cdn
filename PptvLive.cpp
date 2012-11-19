@@ -21,6 +21,15 @@ namespace ppbox
             , segment_(NULL)
             , begin_time_(0)
         {
+            ppbox::data::MediaBasicInfo info;
+            info.type = ppbox::data::MediaBasicInfo::live;
+            info.flags = ppbox::data::MediaBasicInfo::f_segment;
+            info.flags |= ppbox::data::MediaBasicInfo::f_segment_seek;
+            info.flags |= ppbox::data::MediaBasicInfo::f_fix_duration;
+            info.flags |= ppbox::data::MediaBasicInfo::f_time_smoth;
+            info.format = "flv";
+            set_basic_info(info);
+
             if (parse_segment_param(parsed_segment_, url_.param("cdn.segment"))) {
                 segment_ = &parsed_segment_;
             }
@@ -65,19 +74,6 @@ namespace ppbox
             info.head_size = invalid_size;
             info.size = invalid_size;
             info.duration = segment_->interval * 1000;
-        }
-
-        void PptvLive::set_video(
-            Video & video)
-        {
-            video.format = "flv";
-            video.type = Video::live;
-            if (video.duration == invalid_size)
-                video.duration = video.delay;
-            if (video.current == 0)
-                video.duration = video.duration;
-
-            PptvMedia::set_video(video);
         }
 
         void PptvLive::set_segment(

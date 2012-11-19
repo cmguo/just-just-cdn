@@ -63,6 +63,10 @@ namespace ppbox
                 boost::system::error_code & ec);
 
         public:
+            virtual bool get_basic_info(
+                ppbox::data::MediaBasicInfo & info,
+                boost::system::error_code & ec) const;
+
             virtual bool get_info(
                 ppbox::data::MediaInfo & info,
                 boost::system::error_code & ec) const;
@@ -146,6 +150,9 @@ namespace ppbox
             std::string get_key() const;
 
         protected:
+            void set_basic_info(
+                ppbox::data::MediaBasicInfo const & info);
+
             void set_video(
                 Video & video);
 

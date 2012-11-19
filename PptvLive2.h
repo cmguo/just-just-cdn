@@ -49,7 +49,7 @@ namespace ppbox
             LiveSegment seg_;
         };
 
-        PPBOX_REGISTER_MEDIA("pplive2", PptvLive2);
+        PPBOX_REGISTER_MEDIA_BY_PROTOCOL("pplive2", PptvLive2);
 
     } // namespace cdn
 } // namespace ppbox

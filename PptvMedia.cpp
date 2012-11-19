@@ -131,6 +131,15 @@ namespace ppbox
         {
         }
 
+        bool PptvMedia::get_basic_info(
+            ppbox::data::MediaBasicInfo & info, 
+            boost::system::error_code & ec) const
+        {
+            info = parsed_video_;
+            ec.clear();
+            return true;
+        }
+
         bool PptvMedia::get_info(
             ppbox::data::MediaInfo & info,
             boost::system::error_code & ec) const
@@ -188,9 +197,22 @@ namespace ppbox
             resp(ec);
         }
 
+        void PptvMedia::set_basic_info(
+            ppbox::data::MediaBasicInfo const & info)
+        {
+            (ppbox::data::MediaBasicInfo &)parsed_video_ = info;
+        }
+
         void PptvMedia::set_video(
             Video & video)
         {
+            (ppbox::data::MediaBasicInfo &)video = parsed_video_;
+            if (video.type == Video::live) {
+                if (video.duration == invalid_size)
+                    video.duration = video.delay;
+                if (video.current == 0)
+                    video.current = video.duration;
+            }
             if (video_ == NULL) {
                 video_ = &video;
                 LOG_INFO("[set video] name: " << video_->name);

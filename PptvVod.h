@@ -39,9 +39,6 @@ namespace ppbox
                 ppbox::data::SegmentInfo & info) const;
 
         protected:
-            void set_video(
-                Video & video);
-
             void set_segments(
                 std::vector<VodSegment> & segments);
 

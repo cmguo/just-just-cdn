@@ -26,6 +26,11 @@ namespace ppbox
             : PptvMedia(io_svc, url)
             , segments_(NULL)
         {
+            ppbox::data::MediaBasicInfo info;
+            info.flags = ppbox::data::MediaBasicInfo::f_segment;
+            info.flags |= ppbox::data::MediaBasicInfo::f_segment_seek;
+            info.format = "mp4";
+            set_basic_info(info);
         }
 
         PptvVod::~PptvVod()
@@ -85,13 +90,6 @@ namespace ppbox
                 info.offset = boost::uint64_t(-1);
                 info.duration = boost::uint64_t(-1);
             }
-        }
-
-        void PptvVod::set_video(
-            Video & video)
-        {
-            video.format = "mp4";
-            PptvMedia::set_video(video);
         }
 
         void PptvVod::set_segments(
