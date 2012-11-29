@@ -85,7 +85,7 @@ namespace ppbox
             }
 
             if (jump_ && video_) {
-                begin_time_ = jump_->server_time.to_time_t() - video_->duration / 1000;
+                begin_time_ = jump_->server_time.to_time_t() - video_->shift / 1000;
                 begin_time_ = begin_time_ / segment_->interval * segment_->interval;
                 LOG_INFO("[set segment] begin_time: " << begin_time_);
             }

@@ -147,7 +147,7 @@ namespace ppbox
             info = *video_;
             if (info.type == ppbox::data::MediaInfo::live) {
                 info.start_time = jump_->server_time.to_time_t();
-                info.current = info.duration + (Time::now() - local_time_).total_milliseconds();
+                info.current = info.shift + (Time::now() - local_time_).total_milliseconds();
             }
             ec.clear();
             return true;
@@ -208,17 +208,19 @@ namespace ppbox
         {
             (ppbox::data::MediaBasicInfo &)video = parsed_video_;
             if (video.type == Video::live) {
-                if (video.duration == invalid_size)
-                    video.duration = video.delay;
+                if (video.shift == invalid_size)
+                    video.shift = video.delay;
                 if (video.current == 0)
-                    video.current = video.duration;
+                    video.current = video.shift;
             }
             if (video_ == NULL) {
                 video_ = &video;
                 LOG_INFO("[set video] name: " << video_->name);
                 LOG_INFO("[set video] duration: " << video_->duration);
-                if (video_->type == Video::live)
+                if (video_->type == Video::live) {
                     LOG_INFO("[set video] delay: " << video_->delay);
+                    LOG_INFO("[set video] shift: " << video_->shift);
+                }
                 LOG_INFO("[set video] rid: " << video_->rid);
 
                 url_.path("/" + video_->rid);

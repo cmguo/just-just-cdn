@@ -129,7 +129,7 @@ namespace ppbox
             }
             ft_ = video->ft;
             video->name = play_info_.channel.nm;
-            video->duration = play_info_.channel.stream.jump;
+            video->shift = play_info_.channel.stream.jump;
             video->delay = play_info_.channel.stream.delay;
             set_video(*video);
             set_jump(play_info_.jump);
