@@ -208,7 +208,7 @@ namespace ppbox
         {
             (ppbox::data::MediaBasicInfo &)video = parsed_video_;
             if (video.type == Video::live) {
-                if (video.shift == invalid_size)
+                if (video.shift == 0)
                     video.shift = video.delay;
                 if (video.current == 0)
                     video.current = video.shift;
