@@ -13,9 +13,8 @@ using namespace util::protocol;
 #include <framework/string/Format.h>
 using namespace framework::string;
 #include <framework/logger/StreamRecord.h>
-using namespace framework::logger;
 
-FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("ppbox.cdn.PptvVod1", Debug);
+FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("ppbox.cdn.PptvVod1", framework::logger::Debug);
 
 #ifndef PPBOX_DNS_VOD_JUMP
 #  define PPBOX_DNS_VOD_JUMP "(tcp)(v4)jump.synacast.com:80"

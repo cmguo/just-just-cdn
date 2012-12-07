@@ -9,10 +9,8 @@
 #include <framework/string/Parse.h>
 #include <framework/logger/StreamRecord.h>
 using namespace framework::string;
-using namespace framework::logger;
-using namespace boost::system;
 
-FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("ppbox.cdn.Vod2Segment", Debug);
+FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("ppbox.cdn.Vod2Segment", framework::logger::Debug);
 
 #ifndef PPBOX_DNS_VOD_PLAY
 #  define PPBOX_DNS_VOD_PLAY "(tcp)(v4)epg.api.pptv.com:80"
@@ -55,7 +53,7 @@ namespace ppbox
         }
 
         void PptvVod2::handle_async_open(
-            error_code const & ec)
+            boost::system::error_code const & ec)
         {
             if (ec) {
                 LOG_WARN("play: failure");

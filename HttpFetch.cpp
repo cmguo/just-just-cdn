@@ -6,9 +6,8 @@
 #include <util/protocol/http/HttpRequest.h>
 #include <framework/logger/StreamRecord.h>
 #include <framework/logger/StringRecord.h>
-using namespace framework::logger;
 
-FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("ppbox.cdn.HttpFetch", Debug);
+FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("ppbox.cdn.HttpFetch", framework::logger::Debug);
 
 
 namespace ppbox

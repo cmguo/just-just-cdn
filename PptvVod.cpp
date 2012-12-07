@@ -10,10 +10,8 @@
 #include <framework/system/LogicError.h>
 using namespace framework::string;
 using namespace framework::system;
-using namespace framework::logger;
-using namespace boost::system;
 
-FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("ppbox.cdn.PptvVod", Debug);
+FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("ppbox.cdn.PptvVod", framework::logger::Debug);
 
 namespace ppbox
 {

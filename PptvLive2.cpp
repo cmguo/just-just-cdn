@@ -9,9 +9,8 @@
 #include <framework/string/Format.h>
 using namespace framework::string;
 #include <framework/logger/StreamRecord.h>
-using namespace framework::logger;
 
-FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("ppbox.cdn.PptvLive2", Debug);
+FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("ppbox.cdn.PptvLive2", framework::logger::Debug);
 
 #ifndef PPBOX_DNS_LIVE2_JUMP
 #  define PPBOX_DNS_LIVE2_JUMP "(tcp)(v4)live.dt.synacast.com:80"

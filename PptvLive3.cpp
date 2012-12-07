@@ -9,9 +9,8 @@
 #include <framework/string/Format.h>
 using namespace framework::string;
 #include <framework/logger/StreamRecord.h>
-using namespace framework::logger;
 
-FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("ppbox.cdn.PptvLive3", Debug);
+FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("ppbox.cdn.PptvLive3", framework::logger::Debug);
 
 #ifndef PPBOX_DNS_LIVE2_PLAY
 #  define PPBOX_DNS_LIVE2_PLAY "(tcp)(v4)epg.api.pptv.com:80"
