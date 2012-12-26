@@ -43,7 +43,7 @@ namespace ppbox
                     (util::protocol::HttpClient::Statistics &)(*this) = stat;
                 }
                 total_elapse = elapse();
-                last_last_error = ((util::protocol::HttpClient::Statistics &)(*this)).last_error;
+                last_last_error = stat.last_error;
             }
 
             void end_try(
