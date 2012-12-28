@@ -64,7 +64,7 @@ namespace ppbox
                         break;
                     }
                     open_step_ = StepType::playing;
-                    LOG_INFO("jump: start");
+                    LOG_INFO("play: start");
                     async_fetch(
                         get_play_url(url),
                         dns_live2_play,
@@ -97,8 +97,13 @@ namespace ppbox
             framework::string::Url & url) const
         {
             url = url_;
-            url.host(dns_live2_play.host());
-            url.svc(dns_live2_play.svc());
+            if (url_.host().empty()) {
+                url.host(dns_live2_play.host());
+                url.svc(dns_live2_play.svc());
+            } else {
+                url.host(url_.host());
+                url.svc(url_.svc());
+            }
             url.path("/boxplay.api");
             url.param("id", url_.path().substr(1));
             if (ft_ != (size_t)-1) {

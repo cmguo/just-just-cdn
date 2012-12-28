@@ -105,8 +105,13 @@ namespace ppbox
             framework::string::Url & url)
         {
             url = url_;
-            url.host(dns_vod_play.host());
-            url.svc(dns_vod_play.svc());
+            if (url_.host().empty()) {
+                url.host(dns_vod_play.host());
+                url.svc(dns_vod_play.svc());
+            } else {
+                url.host(url_.host());
+                url.svc(url_.svc());
+            }
             url.path("/boxplay.api");
             url.param("id", url_.path().substr(1));
             if (ft_ != (size_t)-1) {
