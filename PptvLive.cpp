@@ -4,8 +4,10 @@
 #include "ppbox/cdn/CdnError.h"
 #include "ppbox/cdn/PptvLive.h"
 
+#include <framework/logger/Logger.h>
+#include <framework/logger/StreamRecord.h>
+
 #include <framework/string/Format.h>
-using namespace framework::string;
 
 FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("ppbox.cdn.PptvLive", framework::logger::Debug);
 
@@ -62,7 +64,7 @@ namespace ppbox
             url = url_; //这里使用原始传入的播放url
             url.host(jump_->server_host.host());
             url.svc(jump_->server_host.svc());
-            url.path("/live/" + video_->rid + "/" + format(file_time) + ".block");
+            url.path("/live/" + video_->rid + "/" + framework::string::format(file_time) + ".block");
             LOG_DEBUG("[segment_url] url:" << url.to_string());
             return true;
         }
@@ -96,7 +98,7 @@ namespace ppbox
             std::string const & param)
         {
             boost::system::error_code ec = 
-                map_find(param, "interval", segment.interval, "&");
+                framework::string::map_find(param, "interval", segment.interval, "&");
             return !ec;
         }
 
