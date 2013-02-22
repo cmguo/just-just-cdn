@@ -69,13 +69,16 @@ namespace ppbox
             return true;
         }
 
-        void PptvLive::segment_info(
+        bool PptvLive::segment_info(
             size_t segment, 
-            ppbox::data::SegmentInfo & info) const
+            ppbox::data::SegmentInfo & info, 
+            boost::system::error_code & ec) const
         {
+            ec.clear();
             info.head_size = invalid_size;
             info.size = invalid_size;
             info.duration = segment_->interval * 1000;
+            return true;
         }
 
         void PptvLive::set_segment(

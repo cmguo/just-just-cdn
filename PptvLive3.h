@@ -53,6 +53,7 @@ namespace ppbox
             StepType::Enum open_step_;
             LivePlayInfo play_info_;
             size_t ft_;
+            bool noshift_;
         };
 
         PPBOX_REGISTER_MEDIA_BY_PROTOCOL("pplive3", PptvLive3);

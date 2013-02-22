@@ -48,6 +48,14 @@ namespace ppbox
             return true;
         }
 
+        size_t PptvVod::segment_count() const
+        {
+            size_t ret = size_t(-1);
+            if (segments_)
+                ret = segments_->size();
+            return ret;
+        }
+
         bool PptvVod::segment_url(
             size_t segment, 
             framework::string::Url & url,
@@ -65,19 +73,13 @@ namespace ppbox
             return true;
         }
 
-        size_t PptvVod::segment_count() const
-        {
-            size_t ret = size_t(-1);
-            if (segments_)
-                ret = segments_->size();
-            return ret;
-        }
-
-        void PptvVod::segment_info(
+        bool PptvVod::segment_info(
             size_t segment,
-            ppbox::data::SegmentInfo & info) const
+            ppbox::data::SegmentInfo & info,
+            boost::system::error_code & ec) const
         {
-            if (segments_ && segments_->size() > segment) {
+            ec.clear();
+            if (segments_ && segment < segments_->size()) {
                 info.head_size = segments_->at(segment).head_length;
                 info.size = segments_->at(segment).file_length;
                 info.offset = segments_->at(segment).offset;
@@ -88,6 +90,7 @@ namespace ppbox
                 info.offset = boost::uint64_t(-1);
                 info.duration = boost::uint64_t(-1);
             }
+            return true;
         }
 
         void PptvVod::set_segments(

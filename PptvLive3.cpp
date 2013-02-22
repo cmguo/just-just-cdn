@@ -90,6 +90,7 @@ namespace ppbox
             boost::system::error_code & ec)
         {
             parse2(url_.param("ft"), ft_);
+            noshift_ = url_.param("cdn.live.noshift") == "true";
             ec.clear();
         }
 
@@ -133,7 +134,11 @@ namespace ppbox
             }
             ft_ = video->ft;
             video->name = play_info_.channel.nm;
-            video->shift = play_info_.channel.stream.jump;
+            if (noshift_) {
+                video->shift = play_info_.channel.stream.delay;
+            } else {
+                video->shift = play_info_.channel.stream.jump;
+            }
             video->delay = play_info_.channel.stream.delay;
             set_video(*video);
             set_jump(play_info_.jump);
