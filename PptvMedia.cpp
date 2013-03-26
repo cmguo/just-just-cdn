@@ -69,13 +69,6 @@ namespace ppbox
 
         PptvMedia::~PptvMedia()
         {
-            switch (owner_type_) {
-                case ot_demuxer:
-                    demuxer().un<ppbox::demux::StatusChangeEvent>(boost::bind(&PptvMedia::on_event, this, _1));
-                    break;
-                default:
-                    break;
-            }
             fetch_->detach();
         }
 
@@ -129,6 +122,14 @@ namespace ppbox
         void PptvMedia::close(
             boost::system::error_code & ec)
         {
+            switch (owner_type_) {
+                case ot_demuxer:
+                    demuxer().un<ppbox::demux::StatusChangeEvent>(boost::bind(&PptvMedia::on_event, this, _1));
+                    break;
+                default:
+                    break;
+            }
+            owner_type_ = ot_none;
         }
 
         bool PptvMedia::get_basic_info(
