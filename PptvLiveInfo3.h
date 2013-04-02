@@ -107,7 +107,7 @@ namespace ppbox
             {
                 ar.version(live_2_play);
                 ar & SERIALIZATION_NVP(channel)
-                    & util::serialization::make_nvp("dt", jump)
+                    & SERIALIZATION_NVP_NAME("dt", jump)
                     & SERIALIZATION_NVP(uh);
             }
         };

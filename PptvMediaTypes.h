@@ -7,6 +7,7 @@
 
 #include "ppbox/cdn/PptvVod1.h"
 #include "ppbox/cdn/PptvVod2.h"
+#include "ppbox/cdn/PptvLive1.h"
 #include "ppbox/cdn/PptvLive2.h"
 #include "ppbox/cdn/PptvLive3.h"
 

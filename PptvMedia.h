@@ -37,11 +37,6 @@ namespace ppbox
         class DacModule;
     }
 
-    namespace peer
-    {
-        class PeerSource;
-    }
-
     namespace cdn
     {
 

@@ -3,6 +3,7 @@
 #include "ppbox/cdn/Common.h"
 #include "ppbox/cdn/PptvMedia.h"
 #include "ppbox/cdn/CdnError.h"
+#include "ppbox/cdn/P2pSource.h"
 
 #include <ppbox/certify/Certifier.h>
 #include <ppbox/dac/DacModule.h>
@@ -172,8 +173,8 @@ namespace ppbox
             owner_ = demux.find(MediaBase::url_); // 需要原始的URL
             if (owner_) {
                 owner_type_ = ot_demuxer;
-                ppbox::peer::PeerSource & peer = 
-                    const_cast<ppbox::peer::PeerSource &>(static_cast<ppbox::peer::PeerSource const &>(demuxer().source().source()));
+                P2pSource & peer = 
+                    const_cast<P2pSource &>(static_cast<P2pSource const &>(demuxer().source().source()));
                 peer.pptv_media(*this);
                 demuxer().on<ppbox::demux::StatusChangeEvent>(boost::bind(&PptvMedia::on_event, this, _1));
                 return;
@@ -182,8 +183,8 @@ namespace ppbox
             owner_ = merge.find(MediaBase::url_); // 需要原始的URL
             if (owner_) {
                 owner_type_ = ot_merger;
-                ppbox::peer::PeerSource & peer = 
-                    const_cast<ppbox::peer::PeerSource &>(static_cast<ppbox::peer::PeerSource const &>(merger().source().source()));
+                P2pSource & peer = 
+                    const_cast<P2pSource &>(static_cast<P2pSource const &>(merger().source().source()));
                 peer.pptv_media(*this);
                 //merger().on<ppbox::demux::StatusChangeEvent>(boost::bind(&PptvMedia::on_event, this, _1));
                 return;
@@ -260,7 +261,7 @@ namespace ppbox
         {
             if (ppbox::demux::StatusChangeEvent const * event = e.as<ppbox::demux::StatusChangeEvent>()) {
                 if (event->stat.state() == ppbox::demux::DemuxStatistic::opened) {
-                    ppbox::peer::PeerSource const & source_ = (ppbox::peer::PeerSource const &)demuxer().source().source();
+                    P2pSource const & source_ = (P2pSource const &)demuxer().source().source();
                     dac_.submit(ppbox::dac::DacPlayOpenInfo(*this, source_, event->stat));
                     if (!event->stat.last_error())
                         async_open2();
