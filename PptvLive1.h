@@ -3,8 +3,8 @@
 #ifndef _PPBOX_CDN_PPTV_LIVE1_H_
 #define _PPBOX_CDN_PPTV_LIVE1_H_
 
-#include "ppbox/cdn/PptvLive.h"
 #include "ppbox/cdn/PptvLiveInfo1.h"
+#include "ppbox/cdn/PptvLive.h"
 
 namespace ppbox
 {

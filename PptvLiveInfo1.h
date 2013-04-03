@@ -5,6 +5,8 @@
 
 #include "ppbox/cdn/PptvLiveInfo.h"
 
+#include <util/serialization/stl/vector.h>
+
 namespace ppbox
 {
     namespace cdn

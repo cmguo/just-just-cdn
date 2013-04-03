@@ -3,8 +3,8 @@
 #ifndef _PPBOX_CDN_SEGMENT_VOD_H_
 #define _PPBOX_CDN_SEGMENT_VOD_H_
 
-#include "ppbox/cdn/PptvMedia.h"
 #include "ppbox/cdn/PptvVodInfo.h"
+#include "ppbox/cdn/PptvMedia.h"
 
 namespace ppbox
 {
