@@ -3,7 +3,7 @@
 #ifndef _PPBOX_CDN_PPTV_MEDIA_TYPES_H_
 #define _PPBOX_CDN_PPTV_MEDIA_TYPES_H_
 
-#define PPBOX_ENABLE_REGISTER_CLASS
+#include <ppbox/common/ClassRegister.h>
 
 #include "ppbox/cdn/PptvVod1.h"
 #include "ppbox/cdn/PptvVod2.h"
