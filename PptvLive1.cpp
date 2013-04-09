@@ -73,7 +73,6 @@ namespace ppbox
             boost::system::error_code & ec) const
         {
             ec.clear();
-            time_t file_time = begin_time_ + (segment * segment_->interval);
             url = url_; //这里使用原始传入的播放url
             url.host(jump_->server_host.host());
             url.svc(jump_->server_host.svc());
