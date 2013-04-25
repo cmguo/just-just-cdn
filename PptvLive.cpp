@@ -26,9 +26,9 @@ namespace ppbox
             ppbox::data::MediaBasicInfo info;
             info.type = ppbox::data::MediaBasicInfo::live;
             info.flags = ppbox::data::MediaBasicInfo::f_segment;
-            info.flags |= ppbox::data::MediaBasicInfo::f_segment_seek;
-            info.flags |= ppbox::data::MediaBasicInfo::f_fix_duration;
-            info.flags |= ppbox::data::MediaBasicInfo::f_time_smoth;
+            info.flags |= ppbox::data::SegmentMediaFlags::f_segment_seek;
+            info.flags |= ppbox::data::SegmentMediaFlags::f_fix_duration;
+            info.flags |= ppbox::data::SegmentMediaFlags::f_time_smoth;
             info.format = "flv";
             set_basic_info(info);
 

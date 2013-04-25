@@ -7,6 +7,7 @@
 #include "ppbox/cdn/Serialize.h"
 
 #include <ppbox/data/base/MediaBase.h>
+#include <ppbox/data/segment/SegmentInfo.h>
 
 #include <util/serialization/Optional.h>
 
@@ -37,7 +38,7 @@ namespace ppbox
             Video()
             {
                 flags |= f_segment;
-                flags |= f_segment_seek;
+                flags |= ppbox::data::SegmentMediaFlags::f_segment_seek;
             }
 
             template <

@@ -15,8 +15,8 @@ namespace ppbox
         {
             LiveVideo()
             {
-                flags |= f_time_smoth;
-                flags |= f_fix_duration;
+                flags |= ppbox::data::SegmentMediaFlags::f_time_smoth;
+                flags |= ppbox::data::SegmentMediaFlags::f_fix_duration;
             }
         };
 

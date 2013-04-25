@@ -26,7 +26,7 @@ namespace ppbox
         {
             ppbox::data::MediaBasicInfo info;
             info.flags = ppbox::data::MediaBasicInfo::f_segment;
-            info.flags |= ppbox::data::MediaBasicInfo::f_segment_seek;
+            info.flags |= ppbox::data::SegmentMediaFlags::f_segment_seek;
             info.format = "mp4";
             set_basic_info(info);
         }
