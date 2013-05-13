@@ -56,8 +56,12 @@ namespace ppbox
             boost::asio::io_service & io_svc,
             framework::string::Url const & url)
             : ppbox::data::SegmentMedia(io_svc, url)
+#ifndef PPBOX_DISABLE_CERTIFY
             , cert_(util::daemon::use_module<ppbox::certify::Certifier>(io_svc))
+#endif
+#ifndef PPBOX_DISABLE_DAC
             , dac_(util::daemon::use_module<ppbox::dac::DacModule>(io_svc))
+#endif
             , url_(url)
             , video_(NULL)
             , jump_(NULL)

@@ -58,7 +58,9 @@ namespace ppbox
                 }
             } else {
                 std::string key = "kioe257ds";
+#ifndef PPBOX_DISABLE_CERTIFY
                 cert_.certify_url(url_, key, ec);
+#endif
                 if (!ec) {
                     path = pptv::url_decode(path, key);
                     StringToken st(path, "||");
