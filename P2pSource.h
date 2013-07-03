@@ -18,6 +18,11 @@ namespace ppbox
         class SegmentSource;
     }
 
+    namespace demux
+    {
+        class DemuxStatistic;
+    }
+
     namespace cdn
     {
 
@@ -53,8 +58,12 @@ namespace ppbox
             }
 
         private:
-            virtual void on_event(
-                util::event::Event const & e) = 0;
+            void on_event(
+                util::event::Observable const & sender, 
+                util::event::Event const & event);
+
+            virtual void on_demux_stat(
+                ppbox::demux::DemuxStatistic const & stat) = 0;
 
             virtual void parse_param(
                 std::string const & params) = 0;

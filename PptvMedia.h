@@ -162,7 +162,8 @@ namespace ppbox
                 boost::system::error_code const & ec);
 
             void on_event(
-                util::event::Event const & e);
+                util::event::Observable const & sender, 
+                util::event::Event const & event);
 
         private:
             void parse_url();

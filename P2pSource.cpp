@@ -45,7 +45,7 @@ namespace ppbox
 
             switch (pptv_media().owner_type()) {
                 case ppbox::cdn::PptvMedia::ot_demuxer:
-                    pptv_media().demuxer().on<ppbox::demux::BufferingEvent>(boost::bind(&P2pSource::on_event, this, _1));
+                    pptv_media().demuxer().buffer_update.on(boost::bind(&P2pSource::on_event, this, _1, _2));
                     seg_source_ = &pptv_media().demuxer().source();
                     break;
                 case ppbox::cdn::PptvMedia::ot_merger:
@@ -58,6 +58,16 @@ namespace ppbox
             }
 
             parse_param(pptv_media().p2p_params());
+        }
+
+        void P2pSource::on_event(
+            util::event::Observable const & sender, 
+            util::event::Event const & event)
+        {
+            if (pptv_media().owner_type() == ppbox::cdn::PptvMedia::ot_demuxer) {
+                ppbox::demux::SegmentDemuxer & demuxer = pptv_media().demuxer();
+                on_demux_stat(demuxer.buffer_update.stat);
+            }
         }
 
         void P2pSource::open_log(

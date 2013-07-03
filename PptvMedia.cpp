@@ -129,7 +129,7 @@ namespace ppbox
         {
             switch (owner_type_) {
                 case ot_demuxer:
-                    demuxer().un<ppbox::demux::StatusChangeEvent>(boost::bind(&PptvMedia::on_event, this, _1));
+                    demuxer().status_changed.un(boost::bind(&PptvMedia::on_event, this, _1, _2));
                     break;
                 default:
                     break;
@@ -180,7 +180,7 @@ namespace ppbox
                 P2pSource & peer = 
                     const_cast<P2pSource &>(static_cast<P2pSource const &>(demuxer().source().source()));
                 peer.pptv_media(*this);
-                demuxer().on<ppbox::demux::StatusChangeEvent>(boost::bind(&PptvMedia::on_event, this, _1));
+                demuxer().status_changed.on(boost::bind(&PptvMedia::on_event, this, _1, _2));
                 return;
             }
             ppbox::merge::MergeModule & merge = util::daemon::use_module<ppbox::merge::MergeModule>(get_io_service());
@@ -261,16 +261,20 @@ namespace ppbox
         }
         
         void PptvMedia::on_event(
-            util::event::Event const & e)
+            util::event::Observable const & sender, 
+            util::event::Event const & event)
         {
-            if (ppbox::demux::StatusChangeEvent const * event = e.as<ppbox::demux::StatusChangeEvent>()) {
-                if (event->stat.state() == ppbox::demux::DemuxStatistic::opened) {
+            if (owner_type_ == ot_demuxer) {
+                assert(event == demuxer().status_changed);
+                using ppbox::demux::DemuxStatistic;
+                DemuxStatistic const & stat = demuxer().status_changed.stat;
+                if (stat.state() == DemuxStatistic::opened) {
                     P2pSource const & source_ = (P2pSource const &)demuxer().source().source();
-                    dac_.submit(ppbox::dac::DacPlayOpenInfo(*this, source_, event->stat));
-                    if (!event->stat.last_error())
+                    dac_.submit(ppbox::dac::DacPlayOpenInfo(*this, source_, stat));
+                    if (!stat.last_error())
                         async_open2();
-                } else if (event->stat.state() == ppbox::demux::DemuxStatistic::stopped) {
-                    dac_.submit(ppbox::dac::DacPlayCloseInfo(*this, event->stat, demuxer().source()));
+                } else if (stat.state() == DemuxStatistic::stopped) {
+                    dac_.submit(ppbox::dac::DacPlayCloseInfo(*this, stat, demuxer().source()));
                 }
             }
         }
