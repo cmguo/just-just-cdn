@@ -103,6 +103,7 @@ namespace ppbox
             response_type resp;
             resp.swap(resp_);
             if (!resp.empty()) {
+                lock.unlock();
                 resp(ec);
             } else {
                 boost::system::error_code ec1;

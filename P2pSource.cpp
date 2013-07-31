@@ -25,6 +25,8 @@ namespace ppbox
         P2pSource::P2pSource(
             boost::asio::io_service & io_svc)
             : HttpSource(io_svc)
+            , pptv_media_(NULL)
+            , seg_source_(NULL)
         {
         }
 

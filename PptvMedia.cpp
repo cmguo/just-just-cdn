@@ -174,7 +174,7 @@ namespace ppbox
             resp_ = resp;
             // it is safe to get user stat object now
             ppbox::demux::DemuxModule & demux = util::daemon::use_module<ppbox::demux::DemuxModule>(get_io_service());
-            owner_ = demux.find(MediaBase::url_); // 需要原始的URL
+            owner_ = demux.find(*this); // 需要原始的URL
             if (owner_) {
                 owner_type_ = ot_demuxer;
                 P2pSource & peer = 
@@ -184,7 +184,7 @@ namespace ppbox
                 return;
             }
             ppbox::merge::MergeModule & merge = util::daemon::use_module<ppbox::merge::MergeModule>(get_io_service());
-            owner_ = merge.find(MediaBase::url_); // 需要原始的URL
+            owner_ = merge.find(*this); // 需要原始的URL
             if (owner_) {
                 owner_type_ = ot_merger;
                 P2pSource & peer = 
@@ -193,6 +193,7 @@ namespace ppbox
                 //merger().on<ppbox::demux::StatusChangeEvent>(boost::bind(&PptvMedia::on_event, this, _1));
                 return;
             }
+            assert(owner_);
         }
 
         void PptvMedia::response(
