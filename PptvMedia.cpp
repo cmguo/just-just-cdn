@@ -58,9 +58,13 @@ namespace ppbox
             : ppbox::data::SegmentMedia(io_svc, url)
 #ifndef PPBOX_DISABLE_CERTIFY
             , cert_(util::daemon::use_module<ppbox::certify::Certifier>(io_svc))
+#else
+            , cert_(*(ppbox::certify::Certifier *)NULL)
 #endif
 #ifndef PPBOX_DISABLE_DAC
             , dac_(util::daemon::use_module<ppbox::dac::DacModule>(io_svc))
+#else
+            , dac_(*(ppbox::dac::DacModule *)NULL)
 #endif
             , url_(url)
             , video_(NULL)

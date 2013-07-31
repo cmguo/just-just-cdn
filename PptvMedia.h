@@ -196,12 +196,8 @@ namespace ppbox
                 HttpFetch::response_type const & resp);
 
         protected:
-#ifndef PPBOX_DISABLE_CERTIFY
             ppbox::certify::Certifier & cert_;
-#endif
-#ifndef PPBOX_DISABLE_DAC
             ppbox::dac::DacModule & dac_;
-#endif
 
         protected:
             framework::string::Url url_;
