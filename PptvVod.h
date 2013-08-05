@@ -1,7 +1,7 @@
-//PptvVod.h
+// PptvVod.h
 
-#ifndef _PPBOX_CDN_SEGMENT_VOD_H_
-#define _PPBOX_CDN_SEGMENT_VOD_H_
+#ifndef _PPBOX_CDN_PPTV_VOD_H_
+#define _PPBOX_CDN_PPTV_VOD_H_
 
 #include "ppbox/cdn/PptvVodInfo.h"
 #include "ppbox/cdn/PptvMedia.h"
@@ -47,7 +47,7 @@ namespace ppbox
             std::vector<VodSegment> * segments_;
         };
 
-    } // cdn
-} // ppbox
+    } // namespace cdn
+} // namespace ppbox
 
-#endif//_PPBOX_CDN_VOD_SEGMENT_H_
+#endif //_PPBOX_CDN_PPTV_VOD_H_

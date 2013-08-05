@@ -1,7 +1,7 @@
 // PptvMedia.h
 
-#ifndef _PPBOX_CDN_PPTV_SEGMENT_H_
-#define _PPBOX_CDN_PPTV_SEGMENT_H_
+#ifndef _PPBOX_CDN_PPTV_MEDIA_H_
+#define _PPBOX_CDN_PPTV_MEDIA_H_
 
 #include "ppbox/cdn/PptvMediaInfo.h"
 #include "ppbox/cdn/HttpFetch.h"
@@ -158,9 +158,6 @@ namespace ppbox
                 std::string const & user_host);
 
         private:
-            void response2(
-                boost::system::error_code const & ec);
-
             void on_event(
                 util::event::Observable const & sender, 
                 util::event::Event const & event);
@@ -248,7 +245,7 @@ namespace ppbox
             }
         }
 
-    } // cdn
-} // ppbox
+    } // namespace cdn
+} // namespace ppbox
 
-#endif
+#endif // _PPBOX_CDN_PPTV_MEDIA_H_

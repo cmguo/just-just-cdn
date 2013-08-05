@@ -1,7 +1,7 @@
-//PptvVod1.h
+// PptvVod1.h
 
-#ifndef _PPBOX_CDN_VOD1_SEGMENTS_H_
-#define _PPBOX_CDN_VOD1_SEGMENTS_H_
+#ifndef _PPBOX_CDN_PPTV_VOD1_H_
+#define _PPBOX_CDN_PPTV_VOD1_H_
 
 #include "ppbox/cdn/PptvVodInfo1.h"
 #include "ppbox/cdn/PptvVod.h"
@@ -64,7 +64,7 @@ namespace ppbox
 
         PPBOX_REGISTER_MEDIA_BY_PROTOCOL("ppvod", PptvVod1);
 
-    } // cdn
-} // ppbox
+    } // namespace cdn
+} // namespace ppbox
 
-#endif // _PPBOX_CDN_VOD1_SEGMENTS_H_
+#endif // _PPBOX_CDN_PPTV_VOD1_H_
