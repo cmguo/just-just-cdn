@@ -135,7 +135,7 @@ namespace ppbox
                     response(ec);
                     break;
                 default:
-                    assert(0);
+                    //assert(0);
                     break;
             }
         }

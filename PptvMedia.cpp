@@ -273,12 +273,12 @@ namespace ppbox
                 assert(event == demuxer().status_changed);
                 using ppbox::demux::DemuxStatistic;
                 DemuxStatistic const & stat = demuxer().status_changed.stat;
-                if (stat.state() == DemuxStatistic::opened) {
+                if (stat.status() == DemuxStatistic::opened) {
                     P2pSource const & source_ = (P2pSource const &)demuxer().source().source();
                     dac_.submit(ppbox::dac::DacPlayOpenInfo(*this, source_, stat));
                     if (!stat.last_error())
                         async_open2();
-                } else if (stat.state() == DemuxStatistic::stopped) {
+                } else if (stat.status() == DemuxStatistic::closed) {
                     dac_.submit(ppbox::dac::DacPlayCloseInfo(*this, stat, demuxer().source()));
                 }
             }
