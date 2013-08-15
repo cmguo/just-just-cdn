@@ -36,7 +36,9 @@ namespace ppbox
 
         ppbox::cdn::HttpStatistics const & P2pSource::http_stat() const
         {
-            const_cast<P2pSource *>(this)->open_log(true);
+            if (http_stat_.try_times > 0) {
+                const_cast<P2pSource *>(this)->open_log(true);
+            }
             return http_stat_;
         }
 
