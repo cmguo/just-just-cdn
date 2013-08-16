@@ -64,6 +64,7 @@ namespace ppbox
                         ar & util::serialization::make_nvp("hl", head_length)
                             & util::serialization::make_nvp("fs", file_length)
                             & util::serialization::make_nvp("dur", duration);
+                            & util::serialization::make_nvp("of", offset);
                         break;
                 }
 

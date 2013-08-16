@@ -143,7 +143,6 @@ namespace ppbox
             ft_ = video->ft;
             video->name = play_info_.channel.nm;
             video->duration = play_info_.channel.dur;
-            video->file_size = play_info_.channel.ts;
             set_video(*video); // don't use temp variable as param for set_video
 
             bool failed = true;
