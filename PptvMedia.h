@@ -24,7 +24,7 @@ namespace ppbox
 
     namespace merge
     {
-        class MergerBase;
+        class Merger;
     }
 
     namespace certify
@@ -87,10 +87,10 @@ namespace ppbox
                 return *(owner_type_ == ot_demuxer ? (ppbox::demux::SegmentDemuxer *)owner_ : NULL);
             }
 
-            ppbox::merge::MergerBase & merger() const
+            ppbox::merge::Merger & merger() const
             {
                 assert(owner_type_ == ot_merger);
-                return *(owner_type_ == ot_merger ? (ppbox::merge::MergerBase *)owner_ : NULL);
+                return *(owner_type_ == ot_merger ? (ppbox::merge::Merger *)owner_ : NULL);
             }
 
         public:

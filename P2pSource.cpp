@@ -7,7 +7,7 @@
 #include <ppbox/demux/base/DemuxEvent.h>
 #include <ppbox/demux/segment/SegmentDemuxer.h>
 
-#include <ppbox/merge/MergerBase.h>
+#include <ppbox/merge/Merger.h>
 
 #include <ppbox/data/segment/SegmentSource.h>
 

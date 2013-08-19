@@ -15,7 +15,7 @@
 #include <ppbox/demux/segment/SegmentDemuxer.h>
 
 #include <ppbox/merge/MergeModule.h>
-#include <ppbox/merge/MergerBase.h>
+#include <ppbox/merge/Merger.h>
 
 #include <ppbox/data/segment/SegmentSource.h>
 #include <ppbox/data/segment/SegmentBuffer.h>
