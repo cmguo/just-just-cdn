@@ -71,6 +71,7 @@ namespace ppbox
             , jump_(NULL)
             , owner_type_(ot_none)
             , owner_(NULL)
+            , source_(NULL)
             , fetch_(new HttpFetch(io_svc))
         {
             parse_url();
@@ -181,9 +182,6 @@ namespace ppbox
             owner_ = demux.find(*this); // 需要原始的URL
             if (owner_) {
                 owner_type_ = ot_demuxer;
-                P2pSource & peer = 
-                    const_cast<P2pSource &>(static_cast<P2pSource const &>(demuxer().source().source()));
-                peer.pptv_media(*this);
                 demuxer().status_changed.on(boost::bind(&PptvMedia::on_event, this, _1, _2));
                 return;
             }
@@ -191,9 +189,9 @@ namespace ppbox
             owner_ = merge.find(*this); // 需要原始的URL
             if (owner_) {
                 owner_type_ = ot_merger;
-                P2pSource & peer = 
-                    const_cast<P2pSource &>(static_cast<P2pSource const &>(merger().source().source()));
-                peer.pptv_media(*this);
+                source_ = 
+                    &const_cast<P2pSource &>(static_cast<P2pSource const &>(merger().source().source()));
+                source_->pptv_media(*this);
                 //merger().on<ppbox::demux::StatusChangeEvent>(boost::bind(&PptvMedia::on_event, this, _1));
                 return;
             }
@@ -273,13 +271,16 @@ namespace ppbox
                 assert(event == demuxer().status_changed);
                 using ppbox::demux::DemuxStatistic;
                 DemuxStatistic const & stat = demuxer().status_changed.stat;
-                if (stat.status() == DemuxStatistic::opened) {
-                    P2pSource const & source_ = (P2pSource const &)demuxer().source().source();
+                if (stat.status() == DemuxStatistic::demux_opening) {
+                    source_ = 
+                        &const_cast<P2pSource &>(static_cast<P2pSource const &>(demuxer().source().source()));
+                    source_->pptv_media(*this);
+                } else if (stat.status() == DemuxStatistic::opened) {
                     dac_.submit(ppbox::dac::DacPlayOpenInfo(*this, source_, stat));
                     if (!stat.last_error())
                         async_open2();
                 } else if (stat.status() == DemuxStatistic::closed) {
-                    dac_.submit(ppbox::dac::DacPlayCloseInfo(*this, stat, demuxer().source()));
+                    dac_.submit(ppbox::dac::DacPlayCloseInfo(*this, stat, &demuxer().source()));
                 }
             }
         }
@@ -311,6 +312,8 @@ namespace ppbox
 
         std::string PptvMedia::get_key() const
         {
+            if (jump_ == NULL)
+                return std::string();
             return util::protocol::pptv::gen_key_from_time(
                 (boost::uint32_t)(jump_->server_time.to_time_t() + (time_t)(Time::now() - local_time_).total_seconds()));
         }

@@ -40,6 +40,8 @@ namespace ppbox
     namespace cdn
     {
 
+        class P2pSource;
+
         class PptvMedia
             : public ppbox::data::SegmentMedia
         {
@@ -205,6 +207,7 @@ namespace ppbox
         private:
             OnwerTypeEnum owner_type_;
             void * owner_;
+            P2pSource * source_;
 
         private:
             MediaBase::response_type resp_;
