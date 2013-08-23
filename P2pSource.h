@@ -38,6 +38,22 @@ namespace ppbox
             virtual ~P2pSource();
 
         public:
+            virtual boost::system::error_code open(
+                framework::string::Url const & url,
+                boost::uint64_t beg, 
+                boost::uint64_t end, 
+                boost::system::error_code & ec);
+
+            virtual void async_open(
+                framework::string::Url const & url,
+                boost::uint64_t beg, 
+                boost::uint64_t end, 
+                response_type const & resp);
+
+            virtual boost::system::error_code close(
+                boost::system::error_code & ec);
+
+        public:
             ppbox::cdn::HttpStatistics const & http_stat() const;
 
             void pptv_media(
@@ -67,6 +83,12 @@ namespace ppbox
 
             virtual void parse_param(
                 std::string const & params) = 0;
+
+            virtual boost::system::error_code prepare(
+                framework::string::Url & url, 
+                boost::uint64_t & beg, 
+                boost::uint64_t & end, 
+                boost::system::error_code & ec) = 0;
 
         private:
             ppbox::cdn::PptvMedia const * pptv_media_;

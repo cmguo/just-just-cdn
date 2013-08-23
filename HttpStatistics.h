@@ -15,6 +15,7 @@ namespace ppbox
         {
             HttpStatistics()
                 : try_times(0)
+                , not_ended(false)
                 , total_elapse((boost::uint32_t)-1)
             {
                 util::protocol::HttpClient::Statistics::reset();
@@ -34,11 +35,13 @@ namespace ppbox
                     reset();
                 }
                 ++try_times;
+                not_ended = true;
             }
 
             void end_try(
                 util::protocol::HttpClient::Statistics const & stat)
             {
+                not_ended = false;
                 if (try_times == 1) {
                     (util::protocol::HttpClient::Statistics &)(*this) = stat;
                 }
@@ -59,6 +62,7 @@ namespace ppbox
             }
 
             size_t try_times;
+            bool not_ended;
             boost::uint32_t total_elapse;
             boost::system::error_code last_last_error;
         };

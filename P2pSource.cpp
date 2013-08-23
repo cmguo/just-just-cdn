@@ -4,7 +4,6 @@
 #include "ppbox/cdn/P2pSource.h"
 #include "ppbox/cdn/PptvMedia.h"
 
-#include <ppbox/demux/base/DemuxEvent.h>
 #include <ppbox/demux/segment/SegmentDemuxer.h>
 
 #include <ppbox/merge/Merger.h>
@@ -13,7 +12,8 @@
 
 #include <framework/logger/Logger.h>
 #include <framework/logger/StreamRecord.h>
-using namespace framework::string;
+
+#include <boost/bind.hpp>
 
 namespace ppbox
 {
@@ -34,9 +34,58 @@ namespace ppbox
         {
         }
 
+        boost::system::error_code P2pSource::open(
+            framework::string::Url const & url,
+            boost::uint64_t beg, 
+            boost::uint64_t end, 
+            boost::system::error_code & ec)
+        {
+            LOG_DEBUG("[open] url:" << url.to_string()
+                <<" range: "<< beg << " - " << end);
+
+            open_log(false);
+
+            framework::string::Url p2p_url(url);
+            if (prepare(p2p_url, beg, end, ec))
+                return ec;
+                LOG_DEBUG("[open] p2p_url:" << p2p_url.to_string()
+                    <<" range: "<< beg << " - " << end);
+            return HttpSource::open(p2p_url, beg, end, ec);
+        }
+
+        void P2pSource::async_open(
+            framework::string::Url const & url,
+            boost::uint64_t beg, 
+            boost::uint64_t end, 
+            response_type const & resp)
+        {
+            LOG_DEBUG("[async_open] url:" << url.to_string()
+                <<" range: "<< beg << " - " << end);
+
+            open_log(false);
+
+            framework::string::Url p2p_url(url);
+            boost::system::error_code ec;
+            if (prepare(p2p_url, beg, end, ec)) {
+                get_io_service().post(
+                    boost::bind(resp, ec));
+            } else {
+                LOG_DEBUG("[async_open] p2p_url:" << p2p_url.to_string()
+                    <<" range: "<< beg << " - " << end);
+                HttpSource::async_open(p2p_url, beg, end, resp);
+            }
+        }
+
+        boost::system::error_code P2pSource::close(
+            boost::system::error_code & ec)
+        {
+            open_log(true);
+            return HttpSource::close(ec);
+        }
+
         ppbox::cdn::HttpStatistics const & P2pSource::http_stat() const
         {
-            if (http_stat_.try_times > 0) {
+            if (http_stat_.not_ended) {
                 const_cast<P2pSource *>(this)->open_log(true);
             }
             return http_stat_;
