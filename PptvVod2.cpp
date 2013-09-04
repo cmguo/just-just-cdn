@@ -10,7 +10,7 @@
 #include <framework/logger/StreamRecord.h>
 using namespace framework::string;
 
-FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("ppbox.cdn.Vod2Segment", framework::logger::Debug);
+FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("ppbox.cdn.PptvVod2", framework::logger::Debug);
 
 #ifndef PPBOX_DNS_VOD_PLAY
 #  define PPBOX_DNS_VOD_PLAY "(tcp)(v4)epg.api.pptv.com:80"
