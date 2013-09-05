@@ -225,7 +225,9 @@ namespace ppbox
             if (video_ == NULL) {
                 video_ = &video;
                 LOG_INFO("[set video] name: " << video_->name);
+                LOG_INFO("[set video] file_size: " << video_->file_size);
                 LOG_INFO("[set video] duration: " << video_->duration);
+                LOG_INFO("[set video] bitrate: " << video_->bitrate);
                 if (video_->type == Video::live) {
                     LOG_INFO("[set video] delay: " << video_->delay);
                     LOG_INFO("[set video] shift: " << video_->shift);

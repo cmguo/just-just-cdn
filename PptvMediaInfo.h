@@ -52,11 +52,13 @@ namespace ppbox
                     case vod_quick:
                         {
                             float duration = (float)this->duration / 1000.0f;
+                            boost::uint32_t bitrate = this->bitrate / 8;
                             ar & SERIALIZATION_NVP(name)
                                 & SERIALIZATION_NVP_NAME("filesize", file_size)
                                 & SERIALIZATION_NVP(bitrate)
                                 & SERIALIZATION_NVP(duration);
                             this->duration = (boost::uint32_t)(duration * 1000.0f);
+                            this->bitrate = bitrate * 8;
                         }
                         break;
                     case live_2:
@@ -64,8 +66,12 @@ namespace ppbox
                         break;
                     case vod_play: // 点播Play
                     case live_2_play: // 二代直播Play
-                        ar & SERIALIZATION_NVP(rid)
-                            & SERIALIZATION_NVP(bitrate);
+                        {
+                            boost::uint32_t bitrate = this->bitrate / 1000;
+                            ar & SERIALIZATION_NVP(rid)
+                                & SERIALIZATION_NVP(bitrate);
+                            this->bitrate = bitrate * 1000;
+                        }
                         break;
                     default:
                         ar.fail();
