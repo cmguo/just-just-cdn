@@ -3,7 +3,7 @@
 #ifndef _PPBOX_CDN_PPTV_MEDIA_TYPES_H_
 #define _PPBOX_CDN_PPTV_MEDIA_TYPES_H_
 
-#include <ppbox/common/ClassRegister.h>
+#include <util/tools/ClassRegister.h>
 
 #include "ppbox/cdn/PptvVod1.h"
 #include "ppbox/cdn/PptvVod2.h"
@@ -31,7 +31,7 @@ namespace ppbox
             }
         }
 
-        PPBOX_REGISTER_CLASS_FACTORY_FUNC("pptv", ppbox::data::MediaProtocolFactory, create_pptv);
+        UTIL_REGISTER_CLASS_FACTORY_FUNC("pptv", ppbox::data::MediaProtocolFactory, create_pptv);
 
     } // cdn
 } // ppbox

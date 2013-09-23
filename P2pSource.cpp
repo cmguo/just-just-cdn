@@ -34,7 +34,7 @@ namespace ppbox
         {
         }
 
-        boost::system::error_code P2pSource::open(
+        bool P2pSource::open(
             framework::string::Url const & url,
             boost::uint64_t beg, 
             boost::uint64_t end, 
@@ -46,10 +46,10 @@ namespace ppbox
             open_log(false);
 
             framework::string::Url p2p_url(url);
-            if (prepare(p2p_url, beg, end, ec))
-                return ec;
-                LOG_DEBUG("[open] p2p_url:" << p2p_url.to_string()
-                    <<" range: "<< beg << " - " << end);
+            if (!prepare(p2p_url, beg, end, ec))
+                return false;
+            LOG_DEBUG("[open] p2p_url:" << p2p_url.to_string()
+                <<" range: "<< beg << " - " << end);
             return HttpSource::open(p2p_url, beg, end, ec);
         }
 
@@ -66,7 +66,7 @@ namespace ppbox
 
             framework::string::Url p2p_url(url);
             boost::system::error_code ec;
-            if (prepare(p2p_url, beg, end, ec)) {
+            if (!prepare(p2p_url, beg, end, ec)) {
                 get_io_service().post(
                     boost::bind(resp, ec));
             } else {
@@ -76,7 +76,7 @@ namespace ppbox
             }
         }
 
-        boost::system::error_code P2pSource::close(
+        bool P2pSource::close(
             boost::system::error_code & ec)
         {
             open_log(true);

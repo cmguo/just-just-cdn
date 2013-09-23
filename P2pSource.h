@@ -5,7 +5,7 @@
 
 #include <ppbox/cdn/HttpStatistics.h>
 
-#include <ppbox/data/source/HttpSource.h>
+#include <util/stream/url/HttpSource.h>
 
 #include <util/event/Event.h>
 
@@ -29,7 +29,7 @@ namespace ppbox
         class PptvMedia;
 
         class P2pSource
-            : public  ppbox::data::HttpSource
+            : public  util::stream::HttpSource
         {
         public:
             P2pSource(
@@ -38,7 +38,7 @@ namespace ppbox
             virtual ~P2pSource();
 
         public:
-            virtual boost::system::error_code open(
+            virtual bool open(
                 framework::string::Url const & url,
                 boost::uint64_t beg, 
                 boost::uint64_t end, 
@@ -50,7 +50,7 @@ namespace ppbox
                 boost::uint64_t end, 
                 response_type const & resp);
 
-            virtual boost::system::error_code close(
+            virtual bool close(
                 boost::system::error_code & ec);
 
         public:
@@ -84,7 +84,7 @@ namespace ppbox
             virtual void parse_param(
                 std::string const & params) = 0;
 
-            virtual boost::system::error_code prepare(
+            virtual bool prepare(
                 framework::string::Url & url, 
                 boost::uint64_t & beg, 
                 boost::uint64_t & end, 
