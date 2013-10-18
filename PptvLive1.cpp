@@ -53,7 +53,7 @@ namespace ppbox
             set_response(resp);
             boost::system::error_code ec;
 
-            std::string key = "pplive";
+            std::string key = url_.param_or("cdn.key", "pplive");
             url_str_ = url_.path().substr(1);
             url_str_ = pptv::base64_decode(url_str_, key);
             if (!url_str_.empty()) {

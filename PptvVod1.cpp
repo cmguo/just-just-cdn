@@ -57,7 +57,7 @@ namespace ppbox
                     path = Url::encode(path, ".");
                 }
             } else {
-                std::string key = "kioe257ds";
+                std::string key = url_.param_or("cdn.key", "kioe257ds");
 #ifndef PPBOX_DISABLE_CERTIFY
                 cert_.certify_url(url_, key, ec);
 #endif
