@@ -5,6 +5,9 @@
 #include "ppbox/cdn/CdnError.h"
 
 #include <ppbox/common/DomainName.h>
+#include <ppbox/common/UrlHelper.h>
+
+#include <util/archive/ArchiveBuffer.h>
 
 #include <framework/string/Parse.h>
 #include <framework/logger/StreamRecord.h>
@@ -98,6 +101,15 @@ namespace ppbox
             boost::system::error_code & ec)
         {
             parse2(url_.param("ft"), ft_);
+            if (ppbox::common::decode_param(url_, "play_xml", ec)) {
+                util::archive::ArchiveBuffer<> buf(boost::asio::buffer(url_.param("play_xml")));
+                util::archive::XmlIArchive<> ia(buf);
+                ia >> play_info_;
+                if (ia) {
+                    open_step_ = StepType::playing;
+                }
+            }
+            url_.param("play_xml", "");
             ec.clear();
         }
 
