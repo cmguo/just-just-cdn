@@ -102,7 +102,8 @@ namespace ppbox
         {
             parse2(url_.param("ft"), ft_);
             if (ppbox::common::decode_param(url_, "play_xml", ec)) {
-                util::archive::ArchiveBuffer<> buf(boost::asio::buffer(url_.param("play_xml")));
+                std::string play_xml = url_.param("play_xml");
+                util::archive::ArchiveBuffer<> buf(boost::asio::buffer(play_xml));
                 util::archive::XmlIArchive<> ia(buf);
                 ia >> play_info_;
                 if (ia) {
