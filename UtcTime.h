@@ -7,7 +7,7 @@
 
 #include <framework/string/Slice.h>
 #include <framework/network/NetName.h>
-#include <framework/timer/TimeConvert.h>
+#include <framework/timer/TimeHelper.h>
 
 #include <iterator>
 
@@ -92,7 +92,7 @@ namespace ppbox
                 m_tm.tm_min    = Res1[1];
                 m_tm.tm_sec    = Res1[2];
                 m_tm.tm_isdst  = -1;
-                return framework::timer::time_gm(&m_tm);
+                return framework::timer::TimeHelper::make_utc_time(&m_tm);
             }
 
         private:
