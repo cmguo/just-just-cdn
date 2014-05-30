@@ -22,6 +22,11 @@ namespace ppbox
             std::string proto_type;
             size_t buffer_size;
 
+            Live1JumpInfo()
+                : buffer_size(0)
+            {
+            }
+
             template <
                 typename Archive
             >

@@ -20,7 +20,7 @@ namespace ppbox
     namespace cdn
     {
 
-        FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("ppbox.peer.P2pSource", framework::logger::Debug);
+        FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("ppbox.cdn.P2pSource", framework::logger::Debug);
 
         P2pSource::P2pSource(
             boost::asio::io_service & io_svc)
