@@ -3,6 +3,7 @@
 #include "ppbox/cdn/Common.h"
 #include "ppbox/cdn/CdnModule.h"
 #include "ppbox/cdn/PptvMediaTypes.h"
+#include "ppbox/cdn/P2pSource.h"
 
 #include <framework/logger/StreamRecord.h>
 

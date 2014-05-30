@@ -79,22 +79,35 @@ namespace ppbox
                 util::event::Event const & event);
 
             virtual void on_demux_stat(
-                ppbox::demux::DemuxStatistic const & stat) = 0;
+                ppbox::demux::DemuxStatistic const & stat)
+            {
+            }
 
             virtual void parse_param(
-                std::string const & params) = 0;
+                std::string const & params)
+            {
+            }
 
             virtual bool prepare(
                 framework::string::Url & url, 
                 boost::uint64_t & beg, 
                 boost::uint64_t & end, 
-                boost::system::error_code & ec) = 0;
+                boost::system::error_code & ec)
+            {
+                ec.clear();
+                return true;
+            }
 
         private:
             ppbox::cdn::PptvMedia const * pptv_media_;
             ppbox::data::SegmentSource const * seg_source_;
             ppbox::cdn::HttpStatistics http_stat_;
         };
+
+#ifdef PPBOX_DISABLE_PEER
+        UTIL_REGISTER_URL_SOURCE("ppvod", P2pSource);
+        UTIL_REGISTER_URL_SOURCE("ppvod2", P2pSource);
+#endif
 
     } // namespace peer
 } // namespace ppbox
