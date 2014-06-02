@@ -29,7 +29,7 @@ namespace ppbox
             info.flags |= ppbox::data::SegmentMediaFlags::f_segment_seek;
             info.flags |= ppbox::data::SegmentMediaFlags::f_fix_duration;
             info.flags |= ppbox::data::SegmentMediaFlags::f_time_smoth;
-            info.format = "flv";
+            //info.format = "flv"; // auto detect
             set_basic_info(info);
 
             if (parse_segment_param(parsed_segment_, url_.param("cdn.segment"))) {

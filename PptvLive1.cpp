@@ -35,7 +35,7 @@ namespace ppbox
             ppbox::data::MediaBasicInfo info;
             boost::system::error_code ec;
             get_basic_info(info, ec);
-            info.format = "asf";
+            //info.format = "asf"; // unknown
             set_basic_info(info);
 
             jump_info_.seg.interval = boost::uint16_t(-1);
