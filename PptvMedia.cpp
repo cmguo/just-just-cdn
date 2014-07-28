@@ -85,13 +85,13 @@ namespace ppbox
         void PptvMedia::parse_url()
         {
             /*
-             * 补充vvid、type、platform
-             * cdn.jump.bwtype也在PptvMedia统一处理
-             * cdn.jump.server_host 也在PptvMedia统一处理
-             * cdn.drag.* 由派生类处理
-             * cdn.* 
-             * p2p.* 
-             */
+            * 补充vvid、type、platform
+            * cdn.jump.bwtype也在PptvMedia统一处理
+            * cdn.jump.server_host 也在PptvMedia统一处理
+            * cdn.drag.* 由派生类处理
+            * cdn.* 
+            * p2p.* 
+            */
             url_.protocol("http");
 
             if (parse_video_param(parsed_video_, url_.param("cdn.video"))) {
@@ -133,11 +133,11 @@ namespace ppbox
             boost::system::error_code & ec)
         {
             switch (owner_type_) {
-                case ot_demuxer:
-                    demuxer().status_changed.un(boost::bind(&PptvMedia::on_event, this, _1, _2));
-                    break;
-                default:
-                    break;
+            case ot_demuxer:
+                demuxer().status_changed.un(boost::bind(&PptvMedia::on_event, this, _1, _2));
+                break;
+            default:
+                break;
             }
             owner_type_ = ot_none;
         }
@@ -189,10 +189,7 @@ namespace ppbox
             owner_ = merge.find(*this); // 需要原始的URL
             if (owner_) {
                 owner_type_ = ot_merger;
-                source_ = 
-                    &const_cast<P2pSource &>(static_cast<P2pSource const &>(merger().source().source()));
-                source_->pptv_media(*this);
-                //merger().on<ppbox::demux::StatusChangeEvent>(boost::bind(&PptvMedia::on_event, this, _1));
+                merger().status_changed.on(boost::bind(&PptvMedia::on_event, this, _1, _2));
                 return;
             }
             assert(owner_);
@@ -264,26 +261,31 @@ namespace ppbox
             user_host_ = user_host;
             LOG_INFO("[set user_host] " << user_host_);
         }
-        
+
         void PptvMedia::on_event(
             util::event::Observable const & sender, 
             util::event::Event const & event)
         {
-            if (owner_type_ == ot_demuxer) {
-                assert(event == demuxer().status_changed);
-                using ppbox::demux::DemuxStatistic;
-                DemuxStatistic const & stat = demuxer().status_changed.stat;
-                if (stat.status() == DemuxStatistic::demux_opening) {
+            using ppbox::data::StreamStatistic;
+            StreamStatistic const & stat = ((ppbox::data::StreamEvent const &)event).stat;
+            if (stat.status() == StreamStatistic::stream_opening) {
+                if (owner_type_ == ot_demuxer) {
+                    assert(event == demuxer().status_changed);
                     source_ = 
                         &const_cast<P2pSource &>(static_cast<P2pSource const &>(demuxer().source().source()));
                     source_->pptv_media(*this);
-                } else if (stat.status() == DemuxStatistic::opened) {
-                    dac_.submit(ppbox::dac::DacPlayOpenInfo(*this, source_, stat));
-                    if (!stat.last_error())
-                        async_open2();
-                } else if (stat.status() == DemuxStatistic::closed) {
-                    dac_.submit(ppbox::dac::DacPlayCloseInfo(*this, stat, &demuxer().source()));
+                } else {
+                    assert(event == merger().status_changed);
+                    source_ = 
+                        &const_cast<P2pSource &>(static_cast<P2pSource const &>(merger().source().source()));
+                    source_->pptv_media(*this);
                 }
+            } else if (stat.status() == StreamStatistic::opened) {
+                dac_.submit(ppbox::dac::DacPlayOpenInfo(*this, source_, stat));
+                if (!stat.last_error())
+                    async_open2();
+            } else if (stat.status() == StreamStatistic::closed) {
+                dac_.submit(ppbox::dac::DacPlayCloseInfo(*this, stat, &demuxer().source()));
             }
         }
 

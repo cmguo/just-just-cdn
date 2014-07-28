@@ -16,11 +16,7 @@ namespace ppbox
     namespace data
     {
         class SegmentSource;
-    }
-
-    namespace demux
-    {
-        class DemuxStatistic;
+        struct StreamStatus;
     }
 
     namespace cdn
@@ -78,8 +74,8 @@ namespace ppbox
                 util::event::Observable const & sender, 
                 util::event::Event const & event);
 
-            virtual void on_demux_stat(
-                ppbox::demux::DemuxStatistic const & stat)
+            virtual void on_stream_status(
+                ppbox::data::StreamStatus const & stat)
             {
             }
 

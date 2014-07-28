@@ -117,10 +117,7 @@ namespace ppbox
             util::event::Observable const & sender, 
             util::event::Event const & event)
         {
-            if (pptv_media().owner_type() == ppbox::cdn::PptvMedia::ot_demuxer) {
-                ppbox::demux::SegmentDemuxer & demuxer = pptv_media().demuxer();
-                on_demux_stat(demuxer.buffer_update.stat);
-            }
+            on_stream_status(((ppbox::data::StreamEvent const &)event).stat);
         }
 
         void P2pSource::open_log(
