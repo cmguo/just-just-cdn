@@ -13,6 +13,10 @@
 
 #include <framework/network/NetName.h>
 
+#ifndef PPBOX_CDN_PARAM_DELIM
+#  define PPBOX_CDN_PARAM_DELIM ","
+#endif
+
 namespace ppbox
 {
     namespace cdn

@@ -101,7 +101,7 @@ namespace ppbox
             std::string const & param)
         {
             boost::system::error_code ec = 
-                framework::string::map_find(param, "interval", segment.interval, "&");
+                framework::string::map_find(param, "interval", segment.interval, PPBOX_CDN_PARAM_DELIM);
             return !ec;
         }
 

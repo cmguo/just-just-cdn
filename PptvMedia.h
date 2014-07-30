@@ -169,11 +169,13 @@ namespace ppbox
 
             static bool parse_jump_param(
                 Jump & jump, 
-                std::string const & param);
+                std::string const & param, 
+                bool force = false);
 
             static bool parse_video_param(
                 Video & video, 
-                std::string const & param);
+                std::string const & param, 
+                bool force = false);
 
             template <typename T>
             static void parse(

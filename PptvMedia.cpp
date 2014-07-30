@@ -221,6 +221,7 @@ namespace ppbox
             }
             if (video_ == NULL) {
                 video_ = &video;
+                parse_video_param(video, MediaBase::url_.param("cdn.video"), false);
                 LOG_INFO("[set video] name: " << video_->name);
                 LOG_INFO("[set video] file_size: " << video_->file_size);
                 LOG_INFO("[set video] duration: " << video_->duration);
@@ -242,6 +243,7 @@ namespace ppbox
         {
             if (jump_ == NULL) {
                 jump_ = &jump;
+                parse_jump_param(jump, MediaBase::url_.param("cdn.jump"), true);
                 LOG_INFO("[set jump] server_host: " << jump_->server_host.host_svc());
                 LOG_INFO("[set jump] server_time: " << jump_->server_time.to_time_t());
                 LOG_INFO("[set jump] bw_type: " << jump_->bw_type);
@@ -291,26 +293,28 @@ namespace ppbox
 
         bool PptvMedia::parse_jump_param(
             Jump & jump, 
-            std::string const & param)
+            std::string const & param, 
+            bool force)
         {
             boost::system::error_code ec;
             ec 
-                || (ec = map_find(param, "svrhost", jump.server_host, "&"))
-                || (ec = map_find(param, "svrtime", jump.server_time, "&"))
-                || (ec = map_find(param, "bakhost", jump.back_host, "&"))
-                || (ec = map_find(param, "bwtype", jump.bw_type, "&"));
+                || ((ec = map_find(param, "svrhost", jump.server_host, PPBOX_CDN_PARAM_DELIM)) && !force)
+                || ((ec = map_find(param, "svrtime", jump.server_time, PPBOX_CDN_PARAM_DELIM)) && !force)
+                || ((ec = map_find(param, "bakhost", jump.back_host, PPBOX_CDN_PARAM_DELIM)) && !force)
+                || (ec = map_find(param, "bwtype", jump.bw_type, PPBOX_CDN_PARAM_DELIM));
             return !ec;
         }
 
         bool PptvMedia::parse_video_param(
             Video & video, 
-            std::string const & param)
+            std::string const & param, 
+            bool force)
         {
             boost::system::error_code ec;
             ec 
-                || (ec = map_find(param, "name", video.name, "&"))
-                || (ec = map_find(param, "bitrate", video.bitrate, "&"))
-                || (ec = map_find(param, "duration", video.duration, "&"));
+                || ((ec = map_find(param, "name", video.name, PPBOX_CDN_PARAM_DELIM)) && !force)
+                || ((ec = map_find(param, "bitrate", video.bitrate, PPBOX_CDN_PARAM_DELIM)) && !force)
+                || (ec = map_find(param, "duration", video.duration, PPBOX_CDN_PARAM_DELIM));
             return !ec;
         }
 
