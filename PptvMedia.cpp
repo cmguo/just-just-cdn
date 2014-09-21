@@ -143,7 +143,7 @@ namespace ppbox
         }
 
         bool PptvMedia::get_basic_info(
-            ppbox::data::MediaBasicInfo & info, 
+            ppbox::avbase::MediaBasicInfo & info, 
             boost::system::error_code & ec) const
         {
             info = parsed_video_;
@@ -152,11 +152,11 @@ namespace ppbox
         }
 
         bool PptvMedia::get_info(
-            ppbox::data::MediaInfo & info,
+            ppbox::avbase::MediaInfo & info,
             boost::system::error_code & ec) const
         {
             info = *video_;
-            if (info.type == ppbox::data::MediaInfo::live) {
+            if (info.type == ppbox::avbase::MediaInfo::live) {
                 info.start_time = jump_->server_time.to_time_t();
                 info.current = info.shift + (Time::now() - local_time_).total_milliseconds();
             }
@@ -204,15 +204,15 @@ namespace ppbox
         }
 
         void PptvMedia::set_basic_info(
-            ppbox::data::MediaBasicInfo const & info)
+            ppbox::avbase::MediaBasicInfo const & info)
         {
-            (ppbox::data::MediaBasicInfo &)parsed_video_ = info;
+            (ppbox::avbase::MediaBasicInfo &)parsed_video_ = info;
         }
 
         void PptvMedia::set_video(
             Video & video)
         {
-            (ppbox::data::MediaBasicInfo &)video = parsed_video_;
+            (ppbox::avbase::MediaBasicInfo &)video = parsed_video_;
             if (video.type == Video::live) {
                 if (video.shift == 0)
                     video.shift = video.delay;
@@ -268,8 +268,8 @@ namespace ppbox
             util::event::Observable const & sender, 
             util::event::Event const & event)
         {
-            using ppbox::data::StreamStatistic;
-            StreamStatistic const & stat = ((ppbox::data::StreamEvent const &)event).stat;
+            using ppbox::avbase::StreamStatistic;
+            StreamStatistic const & stat = ((ppbox::avbase::StreamEvent const &)event).stat;
             if (stat.status() == StreamStatistic::stream_opening) {
                 if (owner_type_ == ot_demuxer) {
                     assert(event == demuxer().status_changed);

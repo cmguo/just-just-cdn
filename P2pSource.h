@@ -13,10 +13,14 @@
 
 namespace ppbox
 {
+    namespace avbase
+    {
+        struct StreamStatus;
+    }
+
     namespace data
     {
         class SegmentSource;
-        struct StreamStatus;
     }
 
     namespace cdn
@@ -75,7 +79,7 @@ namespace ppbox
                 util::event::Event const & event);
 
             virtual void on_stream_status(
-                ppbox::data::StreamStatus const & stat)
+                ppbox::avbase::StreamStatus const & stat)
             {
             }
 
