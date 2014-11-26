@@ -1,39 +1,33 @@
-// PptvLive1.h
+// PptvLive2.h
 
-#ifndef _PPBOX_CDN_PPTV_LIVE1_H_
-#define _PPBOX_CDN_PPTV_LIVE1_H_
+#ifndef _PPBOX_CDN_PPTV_PPTV_LIVE2_H_
+#define _PPBOX_CDN_PPTV_PPTV_LIVE2_H_
 
-#include "ppbox/cdn/PptvLiveInfo1.h"
-#include "ppbox/cdn/PptvLive.h"
+#include "ppbox/cdn/pptv/PptvLiveInfo2.h"
+#include "ppbox/cdn/pptv/PptvLive.h"
 
 namespace ppbox
 {
     namespace cdn
     {
 
-        class PptvLive1
+        class PptvLive2
             : public PptvLive
         {
         public:
-            PptvLive1(
+            PptvLive2(
                 boost::asio::io_service & io_svc,
                 framework::string::Url const & url);
 
-            ~PptvLive1();
+            ~PptvLive2();
 
         public:
             virtual void async_open(
                 response_type const & resp);
 
-        public:
-            virtual bool segment_url(
-                size_t segment, 
-                framework::string::Url & url, 
-                boost::system::error_code & ec) const;
-
         private:
             void handle_async_open(
-                boost::system::error_code ec);
+                boost::system::error_code const & ec);
 
             framework::string::Url & get_jump_url(
                 framework::string::Url & url) const;
@@ -51,13 +45,13 @@ namespace ppbox
 
         private:
             StepType::Enum open_step_;
-            Live1JumpInfo jump_info_;
-            std::string url_str_;
+            Live2JumpInfo jump_info_;
+            LiveSegment seg_;
         };
 
-        PPBOX_REGISTER_MEDIA_BY_PROTOCOL("pplive", PptvLive1);
+        PPBOX_REGISTER_MEDIA_BY_PROTOCOL("pplive2", PptvLive2);
 
     } // namespace cdn
 } // namespace ppbox
 
-#endif // _PPBOX_CDN_PPTV_LIVE1_H_
+#endif // _PPBOX_CDN_PPTV_PPTV_LIVE2_H_

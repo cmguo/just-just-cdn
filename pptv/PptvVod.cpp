@@ -2,7 +2,7 @@
 
 #include "ppbox/cdn/Common.h"
 #include "ppbox/cdn/CdnError.h"
-#include "ppbox/cdn/PptvVod.h"
+#include "ppbox/cdn/pptv/PptvVod.h"
 
 #include <framework/string/Url.h>
 #include <framework/string/Format.h>

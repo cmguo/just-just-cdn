@@ -1,7 +1,7 @@
 // PptvMediaInfo.h
 
-#ifndef _PPBOX_CDN_PPTV_MEDIA_INFO_H_
-#define _PPBOX_CDN_PPTV_MEDIA_INFO_H_
+#ifndef _PPBOX_CDN_PPTV_PPTV_MEDIA_INFO_H_
+#define _PPBOX_CDN_PPTV_PPTV_MEDIA_INFO_H_
 
 #include "ppbox/cdn/UtcTime.h"
 #include "ppbox/cdn/Serialize.h"
@@ -151,4 +151,4 @@ namespace ppbox
     } // namespace cdn
 } // namespace ppbox
 
-#endif // _PPBOX_CDN_PPTV_MEDIA_INFO_H_
+#endif // _PPBOX_CDN_PPTV_PPTV_MEDIA_INFO_H_

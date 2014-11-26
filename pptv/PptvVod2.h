@@ -1,28 +1,28 @@
-// PptvLive3.h
+// PptvVod2.h
 
-#ifndef _PPBOX_CDN_PPTV_LIVE3_H_
-#define _PPBOX_CDN_PPTV_LIVE3_H_
+#ifndef PPBOX_CDN_PPTV_VOD2_H_
+#define PPBOX_CDN_PPTV_VOD2_H_
 
-#include "ppbox/cdn/PptvLiveInfo3.h"
-#include "ppbox/cdn/PptvLive.h"
+#include "ppbox/cdn/pptv/PptvVodInfo2.h"
+#include "ppbox/cdn/pptv/PptvVod.h"
 
 namespace ppbox
 {
     namespace cdn
     {
 
-        class PptvLive3
-            : public PptvLive
+        class PptvVod2
+            : public PptvVod
         {
         public:
-            PptvLive3(
+            PptvVod2(
                 boost::asio::io_service & io_svc,
                 framework::string::Url const & url);
 
-            ~PptvLive3();
+            ~PptvVod2();
 
         public:
-            virtual void async_open(
+            void async_open(
                 response_type const & resp);
 
         private:
@@ -30,7 +30,9 @@ namespace ppbox
                 boost::system::error_code & ec);
 
             framework::string::Url & get_play_url(
-                framework::string::Url & url) const;
+                framework::string::Url & url);
+
+            void async_open2();
 
             void handle_async_open(
                 boost::system::error_code const & ec);
@@ -44,21 +46,21 @@ namespace ppbox
                 enum Enum
                 {
                     closed, 
-                    playing, 
-                    finish, 
+                    playing,
+                    wait2, 
+                    finish
                 };
             };
 
         private:
             StepType::Enum open_step_;
-            LivePlayInfo play_info_;
+            VodPlayInfo play_info_;
             size_t ft_;
-            bool noshift_;
         };
 
-        PPBOX_REGISTER_MEDIA_BY_PROTOCOL("pplive3", PptvLive3);
+        PPBOX_REGISTER_MEDIA_BY_PROTOCOL("ppvod2", PptvVod2);
 
     } // namespace cdn
 } // namespace ppbox
 
-#endif // _PPBOX_CDN_PPTV_LIVE3_H_
+#endif // PPBOX_CDN_PPTV_VOD2_H_

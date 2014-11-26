@@ -1,7 +1,7 @@
 // PptvLive3.cpp
 
 #include "ppbox/cdn/Common.h"
-#include "ppbox/cdn/PptvLive3.h"
+#include "ppbox/cdn/pptv/PptvLive3.h"
 #include "ppbox/cdn/CdnError.h"
 
 #include <ppbox/common/DomainName.h>

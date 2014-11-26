@@ -1,8 +1,8 @@
 // P2pSource.cpp
 
 #include "ppbox/cdn/Common.h"
-#include "ppbox/cdn/P2pSource.h"
-#include "ppbox/cdn/PptvMedia.h"
+#include "ppbox/cdn/pptv/P2pSource.h"
+#include "ppbox/cdn/pptv/PptvMedia.h"
 
 #include <ppbox/demux/segment/SegmentDemuxer.h>
 

@@ -1,10 +1,10 @@
 //PptvLive.h
 
-#ifndef _PPBOX_CDN_LIVE_SEGMENTS_H_
-#define _PPBOX_CDN_LIVE_SEGMENTS_H_
+#ifndef _PPBOX_CDN_PPTV_LIVE_SEGMENTS_H_
+#define _PPBOX_CDN_PPTV_LIVE_SEGMENTS_H_
 
-#include "ppbox/cdn/PptvLiveInfo.h"
-#include "ppbox/cdn/PptvMedia.h"
+#include "ppbox/cdn/pptv/PptvLiveInfo.h"
+#include "ppbox/cdn/pptv/PptvMedia.h"
 
 namespace ppbox
 {
@@ -63,4 +63,4 @@ namespace ppbox
     } // namespace cdn
 } // namespace ppbox
 
-#endif // _PPBOX_CDN_LIVE_SEGMENTS_H_
+#endif // _PPBOX_CDN_PPTV_LIVE_SEGMENTS_H_

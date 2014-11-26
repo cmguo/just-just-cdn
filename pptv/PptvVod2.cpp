@@ -1,7 +1,7 @@
 //PptvVod2.cpp
 
 #include "ppbox/cdn/Common.h"
-#include "ppbox/cdn/PptvVod2.h"
+#include "ppbox/cdn/pptv/PptvVod2.h"
 #include "ppbox/cdn/CdnError.h"
 
 #include <ppbox/common/DomainName.h>

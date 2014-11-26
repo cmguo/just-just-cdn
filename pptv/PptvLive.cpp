@@ -2,7 +2,7 @@
 
 #include "ppbox/cdn/Common.h"
 #include "ppbox/cdn/CdnError.h"
-#include "ppbox/cdn/PptvLive.h"
+#include "ppbox/cdn/pptv/PptvLive.h"
 
 #include <framework/logger/Logger.h>
 #include <framework/logger/StreamRecord.h>

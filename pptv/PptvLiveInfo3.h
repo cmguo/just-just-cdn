@@ -1,9 +1,9 @@
 // PptvLiveInfo3.h
 
-#ifndef _PPBOX_CDN_PPTV_LIVE_INFO3_H_
-#define _PPBOX_CDN_PPTV_LIVE_INFO3_H_
+#ifndef _PPBOX_CDN_PPTV_PPTV_LIVE_INFO3_H_
+#define _PPBOX_CDN_PPTV_PPTV_LIVE_INFO3_H_
 
-#include "ppbox/cdn/PptvLiveInfo.h"
+#include "ppbox/cdn/pptv/PptvLiveInfo.h"
 
 #include <util/serialization/stl/vector.h>
 
@@ -115,4 +115,4 @@ namespace ppbox
     } // namespace cdn
 } // namespace ppbox
 
-#endif // _PPBOX_CDN_PPTV_LIVE_INFO3_H_
+#endif // _PPBOX_CDN_PPTV_PPTV_LIVE_INFO3_H_

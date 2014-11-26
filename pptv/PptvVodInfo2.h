@@ -1,9 +1,9 @@
 // PptvVodInfo2.h
 
-#ifndef _PPBOX_CDN_VOD2_INFO_H_
-#define _PPBOX_CDN_VOD2_INFO_H_
+#ifndef _PPBOX_CDN_PPTV_VOD2_INFO_H_
+#define _PPBOX_CDN_PPTV_VOD2_INFO_H_
 
-#include "ppbox/cdn/PptvVodInfo.h"
+#include "ppbox/cdn/pptv/PptvVodInfo.h"
 
 #include <util/serialization/stl/vector.h>
 
@@ -132,4 +132,4 @@ namespace ppbox
     } // namespace cdn
 } // namespace ppbox
 
-#endif // _PPBOX_CDN_VOD2_INFO_H_
+#endif // _PPBOX_CDN_PPTV_VOD2_INFO_H_

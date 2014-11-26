@@ -2,7 +2,7 @@
 
 #include "ppbox/cdn/Common.h"
 #include "ppbox/cdn/CdnError.h"
-#include "ppbox/cdn/PptvLive2.h"
+#include "ppbox/cdn/pptv/PptvLive2.h"
 
 #include <ppbox/common/DomainName.h>
 

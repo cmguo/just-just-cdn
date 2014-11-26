@@ -1,15 +1,15 @@
 // PptvMeidaTypes.h
 
-#ifndef _PPBOX_CDN_PPTV_MEDIA_TYPES_H_
-#define _PPBOX_CDN_PPTV_MEDIA_TYPES_H_
+#ifndef _PPBOX_CDN_PPTV_PPTV_MEDIA_TYPES_H_
+#define _PPBOX_CDN_PPTV_PPTV_MEDIA_TYPES_H_
 
 #include <util/tools/ClassRegister.h>
 
-#include "ppbox/cdn/PptvVod1.h"
-#include "ppbox/cdn/PptvVod2.h"
-#include "ppbox/cdn/PptvLive1.h"
-#include "ppbox/cdn/PptvLive2.h"
-#include "ppbox/cdn/PptvLive3.h"
+#include "ppbox/cdn/pptv/PptvVod1.h"
+#include "ppbox/cdn/pptv/PptvVod2.h"
+#include "ppbox/cdn/pptv/PptvLive1.h"
+#include "ppbox/cdn/pptv/PptvLive2.h"
+#include "ppbox/cdn/pptv/PptvLive3.h"
 
 namespace ppbox
 {
@@ -36,4 +36,4 @@ namespace ppbox
     } // cdn
 } // ppbox
 
-#endif // _PPBOX_CDN_PPTV_MEDIA_TYPES_H_
+#endif // _PPBOX_CDN_PPTV_PPTV_MEDIA_TYPES_H_

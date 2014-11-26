@@ -1,10 +1,10 @@
 // PptvVod.h
 
-#ifndef _PPBOX_CDN_PPTV_VOD_H_
-#define _PPBOX_CDN_PPTV_VOD_H_
+#ifndef _PPBOX_CDN_PPTV_PPTV_VOD_H_
+#define _PPBOX_CDN_PPTV_PPTV_VOD_H_
 
-#include "ppbox/cdn/PptvVodInfo.h"
-#include "ppbox/cdn/PptvMedia.h"
+#include "ppbox/cdn/pptv/PptvVodInfo.h"
+#include "ppbox/cdn/pptv/PptvMedia.h"
 
 namespace ppbox
 {
@@ -50,4 +50,4 @@ namespace ppbox
     } // namespace cdn
 } // namespace ppbox
 
-#endif //_PPBOX_CDN_PPTV_VOD_H_
+#endif //_PPBOX_CDN_PPTV_PPTV_VOD_H_
