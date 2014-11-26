@@ -2,8 +2,15 @@
 
 #include "ppbox/cdn/Common.h"
 #include "ppbox/cdn/CdnModule.h"
-#include "ppbox/cdn/pptv/PptvMediaTypes.h"
-#include "ppbox/cdn/pptv/P2pSource.h"
+
+#ifndef PPBOX_CDN_DISABLE_PPTV
+#  include "ppbox/cdn/pptv/PptvMediaTypes.h"
+#  include "ppbox/cdn/pptv/P2pSource.h"
+#endif
+
+#ifndef PPBOX_CDN_DISABLE_TRIP
+#  include "ppbox/cdn/trip/TripMediaTypes.h"
+#endif
 
 #include <framework/logger/StreamRecord.h>
 
