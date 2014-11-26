@@ -35,7 +35,7 @@ namespace ppbox
                 util::daemon::Daemon & daemon = 
                     util::daemon::Daemon::from_io_svc(io_svc);
                 std::string appid1;
-                daemon.config().get("TripLiveMedia", "appid", appid1);
+                daemon.config().get_force("TripLive", "appid", appid1);
                 if (appid != appid1) {
                     return NULL;
                 }
