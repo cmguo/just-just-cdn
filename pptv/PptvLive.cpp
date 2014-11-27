@@ -1,17 +1,17 @@
 // PptvLive.cpp
 
-#include "ppbox/cdn/Common.h"
-#include "ppbox/cdn/CdnError.h"
-#include "ppbox/cdn/pptv/PptvLive.h"
+#include "just/cdn/Common.h"
+#include "just/cdn/CdnError.h"
+#include "just/cdn/pptv/PptvLive.h"
 
 #include <framework/logger/Logger.h>
 #include <framework/logger/StreamRecord.h>
 
 #include <framework/string/Format.h>
 
-FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("ppbox.cdn.PptvLive", framework::logger::Debug);
+FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("just.cdn.PptvLive", framework::logger::Debug);
 
-namespace ppbox
+namespace just
 {
     namespace cdn
     {
@@ -23,12 +23,12 @@ namespace ppbox
             , segment_(NULL)
             , begin_time_(0)
         {
-            ppbox::data::MediaBasicInfo info;
-            info.type = ppbox::data::MediaBasicInfo::live;
-            info.flags = ppbox::data::MediaBasicInfo::f_segment;
-            info.flags |= ppbox::data::SegmentMediaFlags::f_segment_seek;
-            info.flags |= ppbox::data::SegmentMediaFlags::f_fix_duration;
-            info.flags |= ppbox::data::SegmentMediaFlags::f_time_smoth;
+            just::data::MediaBasicInfo info;
+            info.type = just::data::MediaBasicInfo::live;
+            info.flags = just::data::MediaBasicInfo::f_segment;
+            info.flags |= just::data::SegmentMediaFlags::f_segment_seek;
+            info.flags |= just::data::SegmentMediaFlags::f_fix_duration;
+            info.flags |= just::data::SegmentMediaFlags::f_time_smoth;
             //info.format = "flv"; // auto detect
             set_basic_info(info);
 
@@ -71,7 +71,7 @@ namespace ppbox
 
         bool PptvLive::segment_info(
             size_t segment, 
-            ppbox::data::SegmentInfo & info, 
+            just::data::SegmentInfo & info, 
             boost::system::error_code & ec) const
         {
             ec.clear();
@@ -101,9 +101,9 @@ namespace ppbox
             std::string const & param)
         {
             boost::system::error_code ec = 
-                framework::string::map_find(param, "interval", segment.interval, PPBOX_CDN_PARAM_DELIM);
+                framework::string::map_find(param, "interval", segment.interval, JUST_CDN_PARAM_DELIM);
             return !ec;
         }
 
     } // namespace cdn
-} // namespace ppbox
+} // namespace just

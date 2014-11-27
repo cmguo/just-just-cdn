@@ -1,12 +1,12 @@
 // PptvLive3.h
 
-#ifndef _PPBOX_CDN_PPTV_PPTV_LIVE3_H_
-#define _PPBOX_CDN_PPTV_PPTV_LIVE3_H_
+#ifndef _JUST_CDN_PPTV_PPTV_LIVE3_H_
+#define _JUST_CDN_PPTV_PPTV_LIVE3_H_
 
-#include "ppbox/cdn/pptv/PptvLiveInfo3.h"
-#include "ppbox/cdn/pptv/PptvLive.h"
+#include "just/cdn/pptv/PptvLiveInfo3.h"
+#include "just/cdn/pptv/PptvLive.h"
 
-namespace ppbox
+namespace just
 {
     namespace cdn
     {
@@ -56,9 +56,9 @@ namespace ppbox
             bool noshift_;
         };
 
-        PPBOX_REGISTER_MEDIA_BY_PROTOCOL("pplive3", PptvLive3);
+        JUST_REGISTER_MEDIA_BY_PROTOCOL("pplive3", PptvLive3);
 
     } // namespace cdn
-} // namespace ppbox
+} // namespace just
 
-#endif // _PPBOX_CDN_PPTV_PPTV_LIVE3_H_
+#endif // _JUST_CDN_PPTV_PPTV_LIVE3_H_

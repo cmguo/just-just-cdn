@@ -1,26 +1,26 @@
 // P2pSource.cpp
 
-#include "ppbox/cdn/Common.h"
-#include "ppbox/cdn/pptv/P2pSource.h"
-#include "ppbox/cdn/pptv/PptvMedia.h"
+#include "just/cdn/Common.h"
+#include "just/cdn/pptv/P2pSource.h"
+#include "just/cdn/pptv/PptvMedia.h"
 
-#include <ppbox/demux/segment/SegmentDemuxer.h>
+#include <just/demux/segment/SegmentDemuxer.h>
 
-#include <ppbox/merge/Merger.h>
+#include <just/merge/Merger.h>
 
-#include <ppbox/data/segment/SegmentSource.h>
+#include <just/data/segment/SegmentSource.h>
 
 #include <framework/logger/Logger.h>
 #include <framework/logger/StreamRecord.h>
 
 #include <boost/bind.hpp>
 
-namespace ppbox
+namespace just
 {
     namespace cdn
     {
 
-        FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("ppbox.cdn.P2pSource", framework::logger::Debug);
+        FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("just.cdn.P2pSource", framework::logger::Debug);
 
         P2pSource::P2pSource(
             boost::asio::io_service & io_svc)
@@ -83,7 +83,7 @@ namespace ppbox
             return HttpSource::close(ec);
         }
 
-        ppbox::cdn::HttpStatistics const & P2pSource::http_stat() const
+        just::cdn::HttpStatistics const & P2pSource::http_stat() const
         {
             if (http_stat_.not_ended) {
                 const_cast<P2pSource *>(this)->open_log(true);
@@ -92,17 +92,17 @@ namespace ppbox
         }
 
         void P2pSource::pptv_media(
-            ppbox::cdn::PptvMedia const & media)
+            just::cdn::PptvMedia const & media)
         {
             pptv_media_ = &media;
 
             switch (pptv_media().owner_type()) {
-                case ppbox::cdn::PptvMedia::ot_demuxer:
+                case just::cdn::PptvMedia::ot_demuxer:
                     pptv_media().demuxer().buffer_update.on(boost::bind(&P2pSource::on_event, this, _1, _2));
                     seg_source_ = &pptv_media().demuxer().source();
                     break;
-                case ppbox::cdn::PptvMedia::ot_merger:
-                     //pptv_media().merger().on<ppbox::demux::BufferingEvent>(boost::bind(&P2pSource::on_event, this, _1));
+                case just::cdn::PptvMedia::ot_merger:
+                     //pptv_media().merger().on<just::demux::BufferingEvent>(boost::bind(&P2pSource::on_event, this, _1));
                     seg_source_ = &pptv_media().merger().source();
                     break;
                 default:
@@ -117,7 +117,7 @@ namespace ppbox
             util::event::Observable const & sender, 
             util::event::Event const & event)
         {
-            on_stream_status(((ppbox::avbase::StreamEvent const &)event).stat);
+            on_stream_status(((just::avbase::StreamEvent const &)event).stat);
         }
 
         void P2pSource::open_log(
@@ -133,4 +133,4 @@ namespace ppbox
         }
 
     } // namespace peer
-} // namespace ppbox
+} // namespace just

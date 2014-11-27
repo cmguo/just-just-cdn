@@ -1,27 +1,27 @@
 // PptvLive3.cpp
 
-#include "ppbox/cdn/Common.h"
-#include "ppbox/cdn/pptv/PptvLive3.h"
-#include "ppbox/cdn/CdnError.h"
+#include "just/cdn/Common.h"
+#include "just/cdn/pptv/PptvLive3.h"
+#include "just/cdn/CdnError.h"
 
-#include <ppbox/common/DomainName.h>
+#include <just/common/DomainName.h>
 
 #include <framework/string/Format.h>
 using namespace framework::string;
 #include <framework/logger/StreamRecord.h>
 
-FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("ppbox.cdn.PptvLive3", framework::logger::Debug);
+FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("just.cdn.PptvLive3", framework::logger::Debug);
 
-#ifndef PPBOX_DNS_LIVE2_PLAY
-#  define PPBOX_DNS_LIVE2_PLAY "(tcp)(v4)epg.api.pptv.com:80"
+#ifndef JUST_DNS_LIVE2_PLAY
+#  define JUST_DNS_LIVE2_PLAY "(tcp)(v4)epg.api.pptv.com:80"
 #endif
 
-namespace ppbox
+namespace just
 {
     namespace cdn
     {
 
-        DEFINE_DOMAIN_NAME(dns_live2_play, PPBOX_DNS_LIVE2_PLAY);
+        DEFINE_DOMAIN_NAME(dns_live2_play, JUST_DNS_LIVE2_PLAY);
 
         PptvLive3::PptvLive3(
             boost::asio::io_service & io_svc,
@@ -146,6 +146,6 @@ namespace ppbox
         }
 
     } // namespace cdn
-} // namespace ppbox
+} // namespace just
 
 // PptvLive3.cpp

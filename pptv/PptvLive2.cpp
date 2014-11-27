@@ -1,27 +1,27 @@
 // PptvLive2.cpp
 
-#include "ppbox/cdn/Common.h"
-#include "ppbox/cdn/CdnError.h"
-#include "ppbox/cdn/pptv/PptvLive2.h"
+#include "just/cdn/Common.h"
+#include "just/cdn/CdnError.h"
+#include "just/cdn/pptv/PptvLive2.h"
 
-#include <ppbox/common/DomainName.h>
+#include <just/common/DomainName.h>
 
 #include <framework/string/Format.h>
 using namespace framework::string;
 #include <framework/logger/StreamRecord.h>
 
-FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("ppbox.cdn.PptvLive2", framework::logger::Debug);
+FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("just.cdn.PptvLive2", framework::logger::Debug);
 
-#ifndef PPBOX_DNS_LIVE2_JUMP
-#  define PPBOX_DNS_LIVE2_JUMP "(tcp)(v4)live.dt.synacast.com:80"
+#ifndef JUST_DNS_LIVE2_JUMP
+#  define JUST_DNS_LIVE2_JUMP "(tcp)(v4)live.dt.synacast.com:80"
 #endif
 
-namespace ppbox
+namespace just
 {
     namespace cdn
     {
 
-        DEFINE_DOMAIN_NAME(dns_live2_jump, PPBOX_DNS_LIVE2_JUMP);
+        DEFINE_DOMAIN_NAME(dns_live2_jump, JUST_DNS_LIVE2_JUMP);
 
         PptvLive2::PptvLive2(
             boost::asio::io_service & io_svc,
@@ -112,6 +112,6 @@ namespace ppbox
         }
 
     } // namespace cdn
-} // namespace ppbox
+} // namespace just
 
 // PptvLive2.cpp

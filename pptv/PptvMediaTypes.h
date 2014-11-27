@@ -1,17 +1,17 @@
 // PptvMeidaTypes.h
 
-#ifndef _PPBOX_CDN_PPTV_PPTV_MEDIA_TYPES_H_
-#define _PPBOX_CDN_PPTV_PPTV_MEDIA_TYPES_H_
+#ifndef _JUST_CDN_PPTV_PPTV_MEDIA_TYPES_H_
+#define _JUST_CDN_PPTV_PPTV_MEDIA_TYPES_H_
 
 #include <util/tools/ClassRegister.h>
 
-#include "ppbox/cdn/pptv/PptvVod1.h"
-#include "ppbox/cdn/pptv/PptvVod2.h"
-#include "ppbox/cdn/pptv/PptvLive1.h"
-#include "ppbox/cdn/pptv/PptvLive2.h"
-#include "ppbox/cdn/pptv/PptvLive3.h"
+#include "just/cdn/pptv/PptvVod1.h"
+#include "just/cdn/pptv/PptvVod2.h"
+#include "just/cdn/pptv/PptvLive1.h"
+#include "just/cdn/pptv/PptvLive2.h"
+#include "just/cdn/pptv/PptvLive3.h"
 
-namespace ppbox
+namespace just
 {
     namespace cdn
     {
@@ -31,9 +31,9 @@ namespace ppbox
             }
         }
 
-        UTIL_REGISTER_CLASS_FUNC(ppbox::data::MediaProtocolFactory, "pptv", create_pptv);
+        UTIL_REGISTER_CLASS_FUNC(just::data::MediaProtocolFactory, "pptv", create_pptv);
 
     } // cdn
-} // ppbox
+} // just
 
-#endif // _PPBOX_CDN_PPTV_PPTV_MEDIA_TYPES_H_
+#endif // _JUST_CDN_PPTV_PPTV_MEDIA_TYPES_H_

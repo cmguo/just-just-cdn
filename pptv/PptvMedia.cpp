@@ -1,26 +1,30 @@
 // PptvMedia.cpp
 
-#include "ppbox/cdn/Common.h"
-#include "ppbox/cdn/pptv/PptvMedia.h"
-#include "ppbox/cdn/CdnError.h"
-#include "ppbox/cdn/pptv/P2pSource.h"
+#include "just/cdn/Common.h"
+#include "just/cdn/pptv/PptvMedia.h"
+#include "just/cdn/CdnError.h"
+#include "just/cdn/pptv/P2pSource.h"
 
-#include <ppbox/certify/Certifier.h>
-#include <ppbox/dac/DacModule.h>
-#include <ppbox/dac/DacInfoPlayOpen.h>
-#include <ppbox/dac/DacInfoPlayClose.h>
+#ifndef JUST_DISABLE_CERTIFY
+#  include <just/certify/Certifier.h>
+#endif
+#ifndef JUST_DISABLE_DAC
+#  include <just/dac/DacModule.h>
+#  include <just/dac/DacInfoPlayOpen.h>
+#  include <just/dac/DacInfoPlayClose.h>
+#endif
 
-#include <ppbox/demux/DemuxModule.h>
-#include <ppbox/demux/base/DemuxEvent.h>
-#include <ppbox/demux/segment/SegmentDemuxer.h>
+#include <just/demux/DemuxModule.h>
+#include <just/demux/base/DemuxEvent.h>
+#include <just/demux/segment/SegmentDemuxer.h>
 
-#include <ppbox/merge/MergeModule.h>
-#include <ppbox/merge/Merger.h>
+#include <just/merge/MergeModule.h>
+#include <just/merge/Merger.h>
 
-#include <ppbox/data/segment/SegmentSource.h>
-#include <ppbox/data/segment/SegmentBuffer.h>
+#include <just/data/segment/SegmentSource.h>
+#include <just/data/segment/SegmentBuffer.h>
 
-#include <ppbox/common/DynamicString.h>
+#include <just/common/DynamicString.h>
 
 #include <util/protocol/pptv/TimeKey.h> // for gen_key_from_time
 
@@ -38,15 +42,15 @@ using namespace framework::string;
 #endif
 
 #ifndef STR_CDN_PLATFORM
-#  define STR_CDN_PLATFORM "ppbox"
+#  define STR_CDN_PLATFORM "just"
 #endif
 
-namespace ppbox
+namespace just
 {
     namespace cdn
     {
 
-        FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("ppbox.cdn.PptvMedia", framework::logger::Debug);
+        FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("just.cdn.PptvMedia", framework::logger::Debug);
 
         DEFINE_DYNAMIC_STRING(str_cdn_type, STR_CDN_TYPE);
 
@@ -55,16 +59,16 @@ namespace ppbox
         PptvMedia::PptvMedia(
             boost::asio::io_service & io_svc,
             framework::string::Url const & url)
-            : ppbox::data::SegmentMedia(io_svc, url)
-#ifndef PPBOX_DISABLE_CERTIFY
-            , cert_(util::daemon::use_module<ppbox::certify::Certifier>(io_svc))
+            : just::data::SegmentMedia(io_svc, url)
+#ifndef JUST_DISABLE_CERTIFY
+            , cert_(util::daemon::use_module<just::certify::Certifier>(io_svc))
 #else
-            , cert_(*(ppbox::certify::Certifier *)NULL)
+            , cert_(*(just::certify::Certifier *)NULL)
 #endif
-#ifndef PPBOX_DISABLE_DAC
-            , dac_(util::daemon::use_module<ppbox::dac::DacModule>(io_svc))
+#ifndef JUST_DISABLE_DAC
+            , dac_(util::daemon::use_module<just::dac::DacModule>(io_svc))
 #else
-            , dac_(*(ppbox::dac::DacModule *)NULL)
+            , dac_(*(just::dac::DacModule *)NULL)
 #endif
             , url_(url)
             , video_(NULL)
@@ -143,7 +147,7 @@ namespace ppbox
         }
 
         bool PptvMedia::get_basic_info(
-            ppbox::avbase::MediaBasicInfo & info, 
+            just::avbase::MediaBasicInfo & info, 
             boost::system::error_code & ec) const
         {
             info = parsed_video_;
@@ -152,11 +156,11 @@ namespace ppbox
         }
 
         bool PptvMedia::get_info(
-            ppbox::avbase::MediaInfo & info,
+            just::avbase::MediaInfo & info,
             boost::system::error_code & ec) const
         {
             info = *video_;
-            if (info.type == ppbox::avbase::MediaInfo::live) {
+            if (info.type == just::avbase::MediaInfo::live) {
                 info.start_time = jump_->server_time.to_time_t();
                 info.current = info.shift + (Time::now() - local_time_).total_milliseconds();
             }
@@ -178,14 +182,14 @@ namespace ppbox
         {
             resp_ = resp;
             // it is safe to get user stat object now
-            ppbox::demux::DemuxModule & demux = util::daemon::use_module<ppbox::demux::DemuxModule>(get_io_service());
+            just::demux::DemuxModule & demux = util::daemon::use_module<just::demux::DemuxModule>(get_io_service());
             owner_ = demux.find(*this); // 需要原始的URL
             if (owner_) {
                 owner_type_ = ot_demuxer;
                 demuxer().status_changed.on(boost::bind(&PptvMedia::on_event, this, _1, _2));
                 return;
             }
-            ppbox::merge::MergeModule & merge = util::daemon::use_module<ppbox::merge::MergeModule>(get_io_service());
+            just::merge::MergeModule & merge = util::daemon::use_module<just::merge::MergeModule>(get_io_service());
             owner_ = merge.find(*this); // 需要原始的URL
             if (owner_) {
                 owner_type_ = ot_merger;
@@ -204,15 +208,15 @@ namespace ppbox
         }
 
         void PptvMedia::set_basic_info(
-            ppbox::avbase::MediaBasicInfo const & info)
+            just::avbase::MediaBasicInfo const & info)
         {
-            (ppbox::avbase::MediaBasicInfo &)parsed_video_ = info;
+            (just::avbase::MediaBasicInfo &)parsed_video_ = info;
         }
 
         void PptvMedia::set_video(
             Video & video)
         {
-            (ppbox::avbase::MediaBasicInfo &)video = parsed_video_;
+            (just::avbase::MediaBasicInfo &)video = parsed_video_;
             if (video.type == Video::live) {
                 if (video.shift == 0)
                     video.shift = video.delay;
@@ -268,8 +272,8 @@ namespace ppbox
             util::event::Observable const & sender, 
             util::event::Event const & event)
         {
-            using ppbox::avbase::StreamStatistic;
-            StreamStatistic const & stat = ((ppbox::avbase::StreamEvent const &)event).stat;
+            using just::avbase::StreamStatistic;
+            StreamStatistic const & stat = ((just::avbase::StreamEvent const &)event).stat;
             if (stat.status() == StreamStatistic::stream_opening) {
                 if (owner_type_ == ot_demuxer) {
                     assert(event == demuxer().status_changed);
@@ -283,11 +287,15 @@ namespace ppbox
                     source_->pptv_media(*this);
                 }
             } else if (stat.status() == StreamStatistic::opened) {
-                dac_.submit(ppbox::dac::DacPlayOpenInfo(*this, source_, stat));
+#ifndef JUST_DISABLE_DAC
+                dac_.submit(just::dac::DacPlayOpenInfo(*this, source_, stat));
+#endif
                 if (!stat.last_error())
                     async_open2();
             } else if (stat.status() == StreamStatistic::closed) {
-                dac_.submit(ppbox::dac::DacPlayCloseInfo(*this, stat, &demuxer().source()));
+#ifndef JUST_DISABLE_DAC
+                dac_.submit(just::dac::DacPlayCloseInfo(*this, stat, &demuxer().source()));
+#endif
             }
         }
 
@@ -298,10 +306,10 @@ namespace ppbox
         {
             boost::system::error_code ec;
             ec 
-                || ((ec = map_find(param, "svrhost", jump.server_host, PPBOX_CDN_PARAM_DELIM)) && !force)
-                || ((ec = map_find(param, "svrtime", jump.server_time, PPBOX_CDN_PARAM_DELIM)) && !force)
-                || ((ec = map_find(param, "bakhost", jump.back_host, PPBOX_CDN_PARAM_DELIM)) && !force)
-                || (ec = map_find(param, "bwtype", jump.bw_type, PPBOX_CDN_PARAM_DELIM));
+                || ((ec = map_find(param, "svrhost", jump.server_host, JUST_CDN_PARAM_DELIM)) && !force)
+                || ((ec = map_find(param, "svrtime", jump.server_time, JUST_CDN_PARAM_DELIM)) && !force)
+                || ((ec = map_find(param, "bakhost", jump.back_host, JUST_CDN_PARAM_DELIM)) && !force)
+                || (ec = map_find(param, "bwtype", jump.bw_type, JUST_CDN_PARAM_DELIM));
             return !ec;
         }
 
@@ -312,9 +320,9 @@ namespace ppbox
         {
             boost::system::error_code ec;
             ec 
-                || ((ec = map_find(param, "name", video.name, PPBOX_CDN_PARAM_DELIM)) && !force)
-                || ((ec = map_find(param, "bitrate", video.bitrate, PPBOX_CDN_PARAM_DELIM)) && !force)
-                || (ec = map_find(param, "duration", video.duration, PPBOX_CDN_PARAM_DELIM));
+                || ((ec = map_find(param, "name", video.name, JUST_CDN_PARAM_DELIM)) && !force)
+                || ((ec = map_find(param, "bitrate", video.bitrate, JUST_CDN_PARAM_DELIM)) && !force)
+                || (ec = map_find(param, "duration", video.duration, JUST_CDN_PARAM_DELIM));
             return !ec;
         }
 
@@ -371,4 +379,4 @@ namespace ppbox
 
 
     } // namespace cdn
-} // namespace ppbox
+} // namespace just

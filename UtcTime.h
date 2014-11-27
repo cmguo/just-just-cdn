@@ -1,7 +1,7 @@
 // UtcTime.h
 
-#ifndef _PPBOX_CDN_UTC_TIME_H_
-#define _PPBOX_CDN_UTC_TIME_H_
+#ifndef _JUST_CDN_UTC_TIME_H_
+#define _JUST_CDN_UTC_TIME_H_
 
 #include <util/serialization/NVPair.h>
 
@@ -11,7 +11,7 @@
 
 #include <iterator>
 
-namespace ppbox
+namespace just
 {
     namespace cdn
     {
@@ -100,6 +100,6 @@ namespace ppbox
         };
 
     } // namespace cdn
-} // namespace ppbox
+} // namespace just
 
-#endif // _PPBOX_CDN_UTC_TIME_H_
+#endif // _JUST_CDN_UTC_TIME_H_

@@ -1,11 +1,11 @@
 // HttpStatistics.h
 
-#ifndef _PPBOX_CDN_HTTP_STATISTICS_H_
-#define _PPBOX_CDN_HTTP_STATISTICS_H_
+#ifndef _JUST_CDN_HTTP_STATISTICS_H_
+#define _JUST_CDN_HTTP_STATISTICS_H_
 
 #include <util/protocol/http/HttpClient.h>
 
-namespace ppbox
+namespace just
 {
     namespace cdn
     {
@@ -68,6 +68,6 @@ namespace ppbox
         };
 
     } // namespace cdn
-} // namespace ppbox
+} // namespace just
 
-#endif // _PPBOX_CDN_HTTP_STATISTICS_H_
+#endif // _JUST_CDN_HTTP_STATISTICS_H_

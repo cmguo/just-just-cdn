@@ -1,11 +1,11 @@
 //PptvVod2.cpp
 
-#include "ppbox/cdn/Common.h"
-#include "ppbox/cdn/pptv/PptvVod2.h"
-#include "ppbox/cdn/CdnError.h"
+#include "just/cdn/Common.h"
+#include "just/cdn/pptv/PptvVod2.h"
+#include "just/cdn/CdnError.h"
 
-#include <ppbox/common/DomainName.h>
-#include <ppbox/common/UrlHelper.h>
+#include <just/common/DomainName.h>
+#include <just/common/UrlHelper.h>
 
 #include <util/archive/ArchiveBuffer.h>
 
@@ -13,18 +13,18 @@
 #include <framework/logger/StreamRecord.h>
 using namespace framework::string;
 
-FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("ppbox.cdn.PptvVod2", framework::logger::Debug);
+FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("just.cdn.PptvVod2", framework::logger::Debug);
 
-#ifndef PPBOX_DNS_VOD_PLAY
-#  define PPBOX_DNS_VOD_PLAY "(tcp)(v4)epg.api.pptv.com:80"
+#ifndef JUST_DNS_VOD_PLAY
+#  define JUST_DNS_VOD_PLAY "(tcp)(v4)epg.api.pptv.com:80"
 #endif
 
-namespace ppbox
+namespace just
 {
     namespace cdn
     {
 
-        DEFINE_DOMAIN_NAME(dns_vod_play, PPBOX_DNS_VOD_PLAY);
+        DEFINE_DOMAIN_NAME(dns_vod_play, JUST_DNS_VOD_PLAY);
 
         PptvVod2::PptvVod2(
             boost::asio::io_service & io_svc,
@@ -101,7 +101,7 @@ namespace ppbox
             boost::system::error_code & ec)
         {
             parse2(url_.param("ft"), ft_);
-            if (ppbox::common::decode_param(url_, "play_xml", ec)) {
+            if (just::common::decode_param(url_, "play_xml", ec)) {
                 std::string play_xml = url_.param("play_xml");
                 util::archive::ArchiveBuffer<> buf(boost::asio::buffer(play_xml));
                 util::archive::XmlIArchive<> ia(buf);
@@ -184,4 +184,4 @@ namespace ppbox
         }
 
     } // cdn
-} // ppbox
+} // just

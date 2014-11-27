@@ -1,21 +1,21 @@
 // PptvMedia.h
 
-#ifndef _PPBOX_CDN_PPTV_PPTV_MEDIA_H_
-#define _PPBOX_CDN_PPTV_PPTV_MEDIA_H_
+#ifndef _JUST_CDN_PPTV_PPTV_MEDIA_H_
+#define _JUST_CDN_PPTV_PPTV_MEDIA_H_
 
-#include "ppbox/cdn/pptv/PptvMediaInfo.h"
-#include "ppbox/cdn/HttpFetch.h"
-#include "ppbox/cdn/HttpStatistics.h"
-#include "ppbox/cdn/CdnError.h"
+#include "just/cdn/pptv/PptvMediaInfo.h"
+#include "just/cdn/HttpFetch.h"
+#include "just/cdn/HttpStatistics.h"
+#include "just/cdn/CdnError.h"
 
-#include <ppbox/data/segment/SegmentMedia.h>
+#include <just/data/segment/SegmentMedia.h>
 
 #include <util/event/Event.h>
 #include <util/archive/XmlIArchive.h>
 
 #include <boost/shared_ptr.hpp>
 
-namespace ppbox
+namespace just
 {
     namespace demux
     {
@@ -43,7 +43,7 @@ namespace ppbox
         class P2pSource;
 
         class PptvMedia
-            : public ppbox::data::SegmentMedia
+            : public just::data::SegmentMedia
         {
         public:
             PptvMedia(
@@ -61,11 +61,11 @@ namespace ppbox
 
         public:
             virtual bool get_basic_info(
-                ppbox::data::MediaBasicInfo & info,
+                just::data::MediaBasicInfo & info,
                 boost::system::error_code & ec) const;
 
             virtual bool get_info(
-                ppbox::data::MediaInfo & info,
+                just::data::MediaInfo & info,
                 boost::system::error_code & ec) const;
 
             virtual bool get_url(
@@ -83,16 +83,16 @@ namespace ppbox
         public:
             OnwerTypeEnum owner_type() const { return owner_type_; }
 
-            ppbox::demux::SegmentDemuxer & demuxer() const
+            just::demux::SegmentDemuxer & demuxer() const
             {
                 assert(owner_type_ == ot_demuxer);
-                return *(owner_type_ == ot_demuxer ? (ppbox::demux::SegmentDemuxer *)owner_ : NULL);
+                return *(owner_type_ == ot_demuxer ? (just::demux::SegmentDemuxer *)owner_ : NULL);
             }
 
-            ppbox::merge::Merger & merger() const
+            just::merge::Merger & merger() const
             {
                 assert(owner_type_ == ot_merger);
-                return *(owner_type_ == ot_merger ? (ppbox::merge::Merger *)owner_ : NULL);
+                return *(owner_type_ == ot_merger ? (just::merge::Merger *)owner_ : NULL);
             }
 
         public:
@@ -148,7 +148,7 @@ namespace ppbox
 
         protected:
             void set_basic_info(
-                ppbox::data::MediaBasicInfo const & info);
+                just::data::MediaBasicInfo const & info);
 
             void set_video(
                 Video & video);
@@ -197,8 +197,8 @@ namespace ppbox
                 HttpFetch::response_type const & resp);
 
         protected:
-            ppbox::certify::Certifier & cert_;
-            ppbox::dac::DacModule & dac_;
+            just::certify::Certifier & cert_;
+            just::dac::DacModule & dac_;
 
         protected:
             framework::string::Url url_;
@@ -251,6 +251,6 @@ namespace ppbox
         }
 
     } // namespace cdn
-} // namespace ppbox
+} // namespace just
 
-#endif // _PPBOX_CDN_PPTV_PPTV_MEDIA_H_
+#endif // _JUST_CDN_PPTV_PPTV_MEDIA_H_

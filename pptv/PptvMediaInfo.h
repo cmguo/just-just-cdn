@@ -1,28 +1,28 @@
 // PptvMediaInfo.h
 
-#ifndef _PPBOX_CDN_PPTV_PPTV_MEDIA_INFO_H_
-#define _PPBOX_CDN_PPTV_PPTV_MEDIA_INFO_H_
+#ifndef _JUST_CDN_PPTV_PPTV_MEDIA_INFO_H_
+#define _JUST_CDN_PPTV_PPTV_MEDIA_INFO_H_
 
-#include "ppbox/cdn/UtcTime.h"
-#include "ppbox/cdn/Serialize.h"
+#include "just/cdn/UtcTime.h"
+#include "just/cdn/Serialize.h"
 
-#include <ppbox/data/base/MediaBase.h>
-#include <ppbox/data/segment/SegmentInfo.h>
+#include <just/data/base/MediaBase.h>
+#include <just/data/segment/SegmentInfo.h>
 
 #include <util/serialization/Optional.h>
 
 #include <framework/network/NetName.h>
 
-#ifndef PPBOX_CDN_PARAM_DELIM
-#  define PPBOX_CDN_PARAM_DELIM ","
+#ifndef JUST_CDN_PARAM_DELIM
+#  define JUST_CDN_PARAM_DELIM ","
 #endif
 
-namespace ppbox
+namespace just
 {
     namespace cdn
     {
 
-        using ppbox::data::invalid_size;
+        using just::data::invalid_size;
 
         enum VersionEnum
         {
@@ -35,14 +35,14 @@ namespace ppbox
         };
 
         struct Video
-            : ppbox::data::MediaInfo
+            : just::data::MediaInfo
         {
             std::string rid;
 
             Video()
             {
                 flags |= f_segment;
-                flags |= ppbox::data::SegmentMediaFlags::f_segment_seek;
+                flags |= just::data::SegmentMediaFlags::f_segment_seek;
             }
 
             template <
@@ -149,6 +149,6 @@ namespace ppbox
         };
 
     } // namespace cdn
-} // namespace ppbox
+} // namespace just
 
-#endif // _PPBOX_CDN_PPTV_PPTV_MEDIA_INFO_H_
+#endif // _JUST_CDN_PPTV_PPTV_MEDIA_INFO_H_

@@ -1,10 +1,10 @@
 // PptvLive1.cpp
 
-#include "ppbox/cdn/Common.h"
-#include "ppbox/cdn/CdnError.h"
-#include "ppbox/cdn/pptv/PptvLive1.h"
+#include "just/cdn/Common.h"
+#include "just/cdn/CdnError.h"
+#include "just/cdn/pptv/PptvLive1.h"
 
-#include <ppbox/common/DomainName.h>
+#include <just/common/DomainName.h>
 
 #include <util/protocol/pptv/Base64.h>
 using namespace util::protocol;
@@ -13,18 +13,18 @@ using namespace util::protocol;
 using namespace framework::string;
 #include <framework/logger/StreamRecord.h>
 
-#ifndef PPBOX_DNS_LIVE1_JUMP
-#  define PPBOX_DNS_LIVE1_JUMP "(tcp)(v4)live.dt.synacast.com:80"
+#ifndef JUST_DNS_LIVE1_JUMP
+#  define JUST_DNS_LIVE1_JUMP "(tcp)(v4)live.dt.synacast.com:80"
 #endif
 
-namespace ppbox
+namespace just
 {
     namespace cdn
     {
 
-        FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("ppbox.cdn.PptvLive1", framework::logger::Debug);
+        FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("just.cdn.PptvLive1", framework::logger::Debug);
 
-        DEFINE_DOMAIN_NAME(dns_live1_jump, PPBOX_DNS_LIVE1_JUMP);
+        DEFINE_DOMAIN_NAME(dns_live1_jump, JUST_DNS_LIVE1_JUMP);
 
         PptvLive1::PptvLive1(
             boost::asio::io_service & io_svc,
@@ -32,7 +32,7 @@ namespace ppbox
             : PptvLive(io_svc, url)
             , open_step_(StepType::closed)
         {
-            ppbox::data::MediaBasicInfo info;
+            just::data::MediaBasicInfo info;
             boost::system::error_code ec;
             get_basic_info(info, ec);
             //info.format = "asf"; // unknown
@@ -140,4 +140,4 @@ namespace ppbox
         }
 
     } // namespace cdn
-} // namespace ppbox
+} // namespace just

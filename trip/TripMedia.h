@@ -1,22 +1,22 @@
 // PptvMeidaTypes.h
 
-#ifndef _PPBOX_CDN_TRIP_TRIP_MEDIA_H_
-#define _PPBOX_CDN_TRIP_TRIP_MEDIA_H_
+#ifndef _JUST_CDN_TRIP_TRIP_MEDIA_H_
+#define _JUST_CDN_TRIP_TRIP_MEDIA_H_
 
-#include <ppbox/data/base/MediaBase.h>
+#include <just/data/base/MediaBase.h>
 
-namespace ppbox
+namespace just
 {
     namespace cdn
     {
 
-        ppbox::data::MediaBase * create_trip(
+        just::data::MediaBase * create_trip(
             boost::asio::io_service & io_svc,
             framework::string::Url const & url);
 
-        UTIL_REGISTER_CLASS_FUNC(ppbox::data::MediaProtocolFactory, "trip", create_trip);
+        UTIL_REGISTER_CLASS_FUNC(just::data::MediaProtocolFactory, "trip", create_trip);
 
     } // cdn
-} // ppbox
+} // just
 
-#endif // _PPBOX_CDN_TRIP_TRIP_MEDIA_H_
+#endif // _JUST_CDN_TRIP_TRIP_MEDIA_H_

@@ -1,16 +1,16 @@
 // HttpFetch.cpp
 
-#include "ppbox/cdn/Common.h"
-#include "ppbox/cdn/HttpFetch.h"
+#include "just/cdn/Common.h"
+#include "just/cdn/HttpFetch.h"
 
 #include <util/protocol/http/HttpRequest.h>
 #include <framework/logger/StreamRecord.h>
 #include <framework/logger/StringRecord.h>
 
-FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("ppbox.cdn.HttpFetch", framework::logger::Debug);
+FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("just.cdn.HttpFetch", framework::logger::Debug);
 
 
-namespace ppbox
+namespace just
 {
     namespace cdn
     {
@@ -71,7 +71,7 @@ namespace ppbox
             http_.close(ec);
         }
 
-        ppbox::cdn::HttpStatistics const & HttpFetch::http_stat()
+        just::cdn::HttpStatistics const & HttpFetch::http_stat()
         {
             http_stat_.total_elapse = http_stat_.elapse();
             return http_stat_;
@@ -112,4 +112,4 @@ namespace ppbox
         }
         
     } // namespace cdn
-} // namespace ppbox
+} // namespace just

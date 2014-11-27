@@ -1,9 +1,9 @@
 // HttpFetch.h
 
-#ifndef _PPBOX_VOD_HTTPFETCH_H_
-#define _PPBOX_VOD_HTTPFETCH_H_
+#ifndef _JUST_VOD_HTTPFETCH_H_
+#define _JUST_VOD_HTTPFETCH_H_
 
-#include <ppbox/cdn/HttpStatistics.h>
+#include <just/cdn/HttpStatistics.h>
 
 #include <util/protocol/http/HttpClient.h>
 
@@ -13,7 +13,7 @@
 #include <boost/asio/streambuf.hpp>
 #include <boost/enable_shared_from_this.hpp>
 
-namespace ppbox
+namespace just
 {
     namespace cdn
     {
@@ -50,7 +50,7 @@ namespace ppbox
                 boost::system::error_code & ec);
 
         public:
-            ppbox::cdn::HttpStatistics const & http_stat();
+            just::cdn::HttpStatistics const & http_stat();
 
             util::protocol::HttpRequest const & http_request()
             {
@@ -66,7 +66,7 @@ namespace ppbox
 
         private:
             util::protocol::HttpClient http_;
-            ppbox::cdn::HttpStatistics http_stat_;
+            just::cdn::HttpStatistics http_stat_;
             framework::network::NetName server_host_;
 
             boost::mutex mutex_;
@@ -76,6 +76,6 @@ namespace ppbox
         };
 
     } // namespace cdn
-} // namespace ppbox
+} // namespace just
 
-#endif // _PPBOX_VOD_HTTPFETCH_H_
+#endif // _JUST_VOD_HTTPFETCH_H_

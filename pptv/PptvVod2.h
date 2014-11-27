@@ -1,12 +1,12 @@
 // PptvVod2.h
 
-#ifndef PPBOX_CDN_PPTV_VOD2_H_
-#define PPBOX_CDN_PPTV_VOD2_H_
+#ifndef JUST_CDN_PPTV_VOD2_H_
+#define JUST_CDN_PPTV_VOD2_H_
 
-#include "ppbox/cdn/pptv/PptvVodInfo2.h"
-#include "ppbox/cdn/pptv/PptvVod.h"
+#include "just/cdn/pptv/PptvVodInfo2.h"
+#include "just/cdn/pptv/PptvVod.h"
 
-namespace ppbox
+namespace just
 {
     namespace cdn
     {
@@ -58,9 +58,9 @@ namespace ppbox
             size_t ft_;
         };
 
-        PPBOX_REGISTER_MEDIA_BY_PROTOCOL("ppvod2", PptvVod2);
+        JUST_REGISTER_MEDIA_BY_PROTOCOL("ppvod2", PptvVod2);
 
     } // namespace cdn
-} // namespace ppbox
+} // namespace just
 
-#endif // PPBOX_CDN_PPTV_VOD2_H_
+#endif // JUST_CDN_PPTV_VOD2_H_

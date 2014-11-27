@@ -1,10 +1,10 @@
 // PptvMeidaTypes.h
 
-#ifndef _PPBOX_CDN_PPTV_PPTV_MEDIA_TYPES_H_
-#define _PPBOX_CDN_PPTV_PPTV_MEDIA_TYPES_H_
+#ifndef _JUST_CDN_PPTV_PPTV_MEDIA_TYPES_H_
+#define _JUST_CDN_PPTV_PPTV_MEDIA_TYPES_H_
 
-#include "ppbox/cdn/Common.h"
-#include "ppbox/cdn/pptv/PptvLive1.h"
+#include "just/cdn/Common.h"
+#include "just/cdn/pptv/PptvLive1.h"
 
 #include <util/daemon/Daemon.h>
 #include <util/protocol/pptv/Base64.h>
@@ -13,12 +13,12 @@ using namespace util::protocol;
 #include <framework/string/Parse.h>
 using namespace framework::string;
 
-namespace ppbox
+namespace just
 {
     namespace cdn
     {
 
-        ppbox::data::MediaBase * create_trip(
+        just::data::MediaBase * create_trip(
             boost::asio::io_service & io_svc,
             Url const & url)
         {
@@ -51,9 +51,9 @@ namespace ppbox
             return new PptvLive1(io_svc, url1);
         }
 
-        UTIL_REGISTER_CLASS_FUNC(ppbox::data::MediaProtocolFactory, "trip", create_trip);
+        UTIL_REGISTER_CLASS_FUNC(just::data::MediaProtocolFactory, "trip", create_trip);
 
     } // cdn
-} // ppbox
+} // just
 
-#endif // _PPBOX_CDN_PPTV_PPTV_MEDIA_TYPES_H_
+#endif // _JUST_CDN_PPTV_PPTV_MEDIA_TYPES_H_

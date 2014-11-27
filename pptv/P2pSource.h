@@ -1,9 +1,9 @@
 // P2pSource.h
 
-#ifndef PPBOX_CDN_P2P_SOURCE_H_
-#define PPBOX_CDN_P2P_SOURCE_H_
+#ifndef JUST_CDN_P2P_SOURCE_H_
+#define JUST_CDN_P2P_SOURCE_H_
 
-#include <ppbox/cdn/HttpStatistics.h>
+#include <just/cdn/HttpStatistics.h>
 
 #include <util/stream/url/HttpSource.h>
 
@@ -11,7 +11,7 @@
 
 #include <framework/string/Url.h>
 
-namespace ppbox
+namespace just
 {
     namespace avbase
     {
@@ -54,12 +54,12 @@ namespace ppbox
                 boost::system::error_code & ec);
 
         public:
-            ppbox::cdn::HttpStatistics const & http_stat() const;
+            just::cdn::HttpStatistics const & http_stat() const;
 
             void pptv_media(
                 PptvMedia const & media);
 
-            ppbox::cdn::PptvMedia const & pptv_media()
+            just::cdn::PptvMedia const & pptv_media()
             {
                 return *pptv_media_;
             }
@@ -68,7 +68,7 @@ namespace ppbox
             void open_log(
                 bool end);
 
-            ppbox::data::SegmentSource const & seg_source()
+            just::data::SegmentSource const & seg_source()
             {
                 return *seg_source_;
             }
@@ -79,7 +79,7 @@ namespace ppbox
                 util::event::Event const & event);
 
             virtual void on_stream_status(
-                ppbox::avbase::StreamStatus const & stat)
+                just::avbase::StreamStatus const & stat)
             {
             }
 
@@ -99,17 +99,17 @@ namespace ppbox
             }
 
         private:
-            ppbox::cdn::PptvMedia const * pptv_media_;
-            ppbox::data::SegmentSource const * seg_source_;
-            ppbox::cdn::HttpStatistics http_stat_;
+            just::cdn::PptvMedia const * pptv_media_;
+            just::data::SegmentSource const * seg_source_;
+            just::cdn::HttpStatistics http_stat_;
         };
 
-#ifdef PPBOX_DISABLE_PEER
+#ifdef JUST_DISABLE_PEER
         UTIL_REGISTER_URL_SOURCE("ppvod", P2pSource);
         UTIL_REGISTER_URL_SOURCE("ppvod2", P2pSource);
 #endif
 
     } // namespace peer
-} // namespace ppbox
+} // namespace just
 
-#endif // PPBOX_PEER_PEER_SOURCE_H_
+#endif // JUST_PEER_PEER_SOURCE_H_

@@ -1,11 +1,11 @@
 // PptvVod1.cpp
 
-#include "ppbox/cdn/Common.h"
-#include "ppbox/cdn/CdnError.h"
-#include "ppbox/cdn/pptv/PptvVod1.h"
+#include "just/cdn/Common.h"
+#include "just/cdn/CdnError.h"
+#include "just/cdn/pptv/PptvVod1.h"
 
-#include <ppbox/common/DomainName.h>
-#include <ppbox/certify/Certifier.h>
+#include <just/common/DomainName.h>
+#include <just/certify/Certifier.h>
 
 #include <util/protocol/pptv/Url.h>
 using namespace util::protocol;
@@ -14,23 +14,23 @@ using namespace util::protocol;
 using namespace framework::string;
 #include <framework/logger/StreamRecord.h>
 
-FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("ppbox.cdn.PptvVod1", framework::logger::Debug);
+FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("just.cdn.PptvVod1", framework::logger::Debug);
 
-#ifndef PPBOX_DNS_VOD_JUMP
-#  define PPBOX_DNS_VOD_JUMP "(tcp)(v4)jump.synacast.com:80"
+#ifndef JUST_DNS_VOD_JUMP
+#  define JUST_DNS_VOD_JUMP "(tcp)(v4)jump.synacast.com:80"
 #endif
 
-#ifndef PPBOX_DNS_VOD_DRAG
-#  define PPBOX_DNS_VOD_DRAG "(tcp)(v4)drag.synacast.com:80"
+#ifndef JUST_DNS_VOD_DRAG
+#  define JUST_DNS_VOD_DRAG "(tcp)(v4)drag.synacast.com:80"
 #endif
 
-namespace ppbox
+namespace just
 {
     namespace cdn
     {
 
-        DEFINE_DOMAIN_NAME(dns_vod_jump, PPBOX_DNS_VOD_JUMP);
-        DEFINE_DOMAIN_NAME(dns_vod_drag, PPBOX_DNS_VOD_DRAG);
+        DEFINE_DOMAIN_NAME(dns_vod_jump, JUST_DNS_VOD_JUMP);
+        DEFINE_DOMAIN_NAME(dns_vod_drag, JUST_DNS_VOD_DRAG);
 
         PptvVod1::PptvVod1(
             boost::asio::io_service & io_svc,
@@ -58,7 +58,7 @@ namespace ppbox
                 }
             } else {
                 std::string key = url_.param_or("cdn.key", "kioe257ds");
-#ifndef PPBOX_DISABLE_CERTIFY
+#ifndef JUST_DISABLE_CERTIFY
                 cert_.certify_url(url_, key, ec);
 #endif
                 if (!ec) {
@@ -164,4 +164,4 @@ namespace ppbox
         }
 
     } // cdn
-} // ppbox
+} // just

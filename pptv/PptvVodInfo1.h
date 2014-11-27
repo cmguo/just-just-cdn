@@ -1,13 +1,13 @@
 // PptvVodInfo1.h
 
-#ifndef _PPBOX_CDN_PPTV_PPTV_VOD_INFO1_H_
-#define _PPBOX_CDN_PPTV_PPTV_VOD_INFO1_H_
+#ifndef _JUST_CDN_PPTV_PPTV_VOD_INFO1_H_
+#define _JUST_CDN_PPTV_PPTV_VOD_INFO1_H_
 
-#include "ppbox/cdn/pptv/PptvVodInfo.h"
+#include "just/cdn/pptv/PptvVodInfo.h"
 
 #include <util/serialization/stl/vector.h>
 
-namespace ppbox
+namespace just
 {
     namespace cdn
     {
@@ -62,6 +62,6 @@ namespace ppbox
         };
 
     } // namespace cdn
-} // namespace ppbox
+} // namespace just
 
-#endif // _PPBOX_CDN_PPTV_PPTV_VOD_INFO1_H_
+#endif // _JUST_CDN_PPTV_PPTV_VOD_INFO1_H_

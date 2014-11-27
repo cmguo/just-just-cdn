@@ -1,8 +1,8 @@
 // PptvVod.cpp
 
-#include "ppbox/cdn/Common.h"
-#include "ppbox/cdn/CdnError.h"
-#include "ppbox/cdn/pptv/PptvVod.h"
+#include "just/cdn/Common.h"
+#include "just/cdn/CdnError.h"
+#include "just/cdn/pptv/PptvVod.h"
 
 #include <framework/string/Url.h>
 #include <framework/string/Format.h>
@@ -11,9 +11,9 @@
 using namespace framework::string;
 using namespace framework::system;
 
-FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("ppbox.cdn.PptvVod", framework::logger::Debug);
+FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("just.cdn.PptvVod", framework::logger::Debug);
 
-namespace ppbox
+namespace just
 {
     namespace cdn
     {
@@ -24,9 +24,9 @@ namespace ppbox
             : PptvMedia(io_svc, url)
             , segments_(NULL)
         {
-            ppbox::data::MediaBasicInfo info;
-            info.flags = ppbox::data::MediaBasicInfo::f_segment;
-            info.flags |= ppbox::data::SegmentMediaFlags::f_segment_seek;
+            just::data::MediaBasicInfo info;
+            info.flags = just::data::MediaBasicInfo::f_segment;
+            info.flags |= just::data::SegmentMediaFlags::f_segment_seek;
             // info.format = "mp4"; // auto detect
             set_basic_info(info);
         }
@@ -75,7 +75,7 @@ namespace ppbox
 
         bool PptvVod::segment_info(
             size_t segment,
-            ppbox::data::SegmentInfo & info,
+            just::data::SegmentInfo & info,
             boost::system::error_code & ec) const
         {
             ec.clear();
@@ -103,4 +103,4 @@ namespace ppbox
         }
 
     } //cdn
-} //ppbox
+} //just

@@ -1,7 +1,7 @@
 // Serialize.h
 
-#ifndef _PPBOX_CDN_SERIALIZE_H_
-#define _PPBOX_CDN_SERIALIZE_H_
+#ifndef _JUST_CDN_SERIALIZE_H_
+#define _JUST_CDN_SERIALIZE_H_
 
 #include <util/serialization/Serialization.h>
 
@@ -24,4 +24,4 @@ namespace util
     }
 }
 
-#endif // _PPBOX_CDN_SERIALIZE_H_
+#endif // _JUST_CDN_SERIALIZE_H_

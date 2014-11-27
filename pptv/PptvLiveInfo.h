@@ -1,11 +1,11 @@
 // PptvLiveInfo.h
 
-#ifndef _PPBOX_CDN_PPTV_PPTV_LIVE_INFO_H_
-#define _PPBOX_CDN_PPTV_PPTV_LIVE_INFO_H_
+#ifndef _JUST_CDN_PPTV_PPTV_LIVE_INFO_H_
+#define _JUST_CDN_PPTV_PPTV_LIVE_INFO_H_
 
-#include "ppbox/cdn/pptv/PptvMediaInfo.h"
+#include "just/cdn/pptv/PptvMediaInfo.h"
 
-namespace ppbox
+namespace just
 {
     namespace cdn
     {
@@ -15,8 +15,8 @@ namespace ppbox
         {
             LiveVideo()
             {
-                flags |= ppbox::data::SegmentMediaFlags::f_time_smoth;
-                flags |= ppbox::data::SegmentMediaFlags::f_fix_duration;
+                flags |= just::data::SegmentMediaFlags::f_time_smoth;
+                flags |= just::data::SegmentMediaFlags::f_fix_duration;
             }
         };
 
@@ -41,6 +41,6 @@ namespace ppbox
         };
 
     } // namespace cdn
-} // namespace ppbox
+} // namespace just
 
-#endif//_PPBOX_CDN_PPTV_PPTV_LIVE_INFO_H_
+#endif//_JUST_CDN_PPTV_PPTV_LIVE_INFO_H_

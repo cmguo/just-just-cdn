@@ -1,12 +1,12 @@
 // PptvVod.h
 
-#ifndef _PPBOX_CDN_PPTV_PPTV_VOD_H_
-#define _PPBOX_CDN_PPTV_PPTV_VOD_H_
+#ifndef _JUST_CDN_PPTV_PPTV_VOD_H_
+#define _JUST_CDN_PPTV_PPTV_VOD_H_
 
-#include "ppbox/cdn/pptv/PptvVodInfo.h"
-#include "ppbox/cdn/pptv/PptvMedia.h"
+#include "just/cdn/pptv/PptvVodInfo.h"
+#include "just/cdn/pptv/PptvMedia.h"
 
-namespace ppbox
+namespace just
 {
     namespace cdn
     {
@@ -36,7 +36,7 @@ namespace ppbox
 
             virtual bool segment_info(
                 size_t segment, 
-                ppbox::data::SegmentInfo & info,
+                just::data::SegmentInfo & info,
                 boost::system::error_code & ec) const;
 
         protected:
@@ -48,6 +48,6 @@ namespace ppbox
         };
 
     } // namespace cdn
-} // namespace ppbox
+} // namespace just
 
-#endif //_PPBOX_CDN_PPTV_PPTV_VOD_H_
+#endif //_JUST_CDN_PPTV_PPTV_VOD_H_

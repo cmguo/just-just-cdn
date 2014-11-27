@@ -1,12 +1,12 @@
 // PptvVod1.h
 
-#ifndef _PPBOX_CDN_PPTV_PPTV_VOD1_H_
-#define _PPBOX_CDN_PPTV_PPTV_VOD1_H_
+#ifndef _JUST_CDN_PPTV_PPTV_VOD1_H_
+#define _JUST_CDN_PPTV_PPTV_VOD1_H_
 
-#include "ppbox/cdn/pptv/PptvVodInfo1.h"
-#include "ppbox/cdn/pptv/PptvVod.h"
+#include "just/cdn/pptv/PptvVodInfo1.h"
+#include "just/cdn/pptv/PptvVod.h"
 
-namespace ppbox
+namespace just
 {
     namespace cdn
     {
@@ -62,9 +62,9 @@ namespace ppbox
 
         };//VodSegmemt
 
-        PPBOX_REGISTER_MEDIA_BY_PROTOCOL("ppvod", PptvVod1);
+        JUST_REGISTER_MEDIA_BY_PROTOCOL("ppvod", PptvVod1);
 
     } // namespace cdn
-} // namespace ppbox
+} // namespace just
 
-#endif // _PPBOX_CDN_PPTV_PPTV_VOD1_H_
+#endif // _JUST_CDN_PPTV_PPTV_VOD1_H_

@@ -1,17 +1,17 @@
 // CdnModule.h
 
-#ifndef _PPBOX_CDN_CDN_MODULE_H_
-#define _PPBOX_CDN_CDN_MODULE_H_
+#ifndef _JUST_CDN_CDN_MODULE_H_
+#define _JUST_CDN_CDN_MODULE_H_
 
-#include <ppbox/common/CommonModuleBase.h>
+#include <just/common/CommonModuleBase.h>
 
-namespace ppbox
+namespace just
 {
     namespace cdn
     {
 
         class CdnModule
-            : public ppbox::common::CommonModuleBase<CdnModule>
+            : public just::common::CommonModuleBase<CdnModule>
         {
         public:
             CdnModule(
@@ -26,6 +26,6 @@ namespace ppbox
         };
 
     } // namespace cdn
-} // namespace ppbox
+} // namespace just
 
-#endif // _PPBOX_CDN_CDN_MODULE_H_
+#endif // _JUST_CDN_CDN_MODULE_H_
