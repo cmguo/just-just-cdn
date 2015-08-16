@@ -29,7 +29,7 @@ namespace just
                         register_category(*this);
                     }
 
-                    const char* name() const
+                    const char* name() const BOOST_SYSTEM_NOEXCEPT
                     {
                         return "cdn";
                     }
