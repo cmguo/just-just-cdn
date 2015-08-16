@@ -32,6 +32,7 @@
 #include <framework/string/Uuid.h>
 #include <framework/string/StringToken.h>
 using namespace framework::string;
+using namespace framework::timer;
 #include <framework/logger/StreamRecord.h>
 
 #include <boost/bind.hpp>

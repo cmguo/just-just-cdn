@@ -31,14 +31,16 @@ namespace just
         {
         }
 
-        boost::system::error_code CdnModule::startup()
+        bool CdnModule::startup(
+            boost::system::error_code & ec)
         {
-            boost::system::error_code ec;
-            return ec;
+            return true;
         }
 
-        void CdnModule::shutdown()
+        bool CdnModule::shutdown(
+            boost::system::error_code & ec)
         {
+            return true;
         }
 
     } // namespace cdn
