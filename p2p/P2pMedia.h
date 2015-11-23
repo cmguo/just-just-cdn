@@ -1,9 +1,9 @@
-// PptvMedia.h
+// P2pMedia.h
 
-#ifndef _JUST_CDN_PPTV_PPTV_MEDIA_H_
-#define _JUST_CDN_PPTV_PPTV_MEDIA_H_
+#ifndef _JUST_CDN_P2P_P2P_MEDIA_H_
+#define _JUST_CDN_P2P_P2P_MEDIA_H_
 
-#include "just/cdn/pptv/PptvMediaInfo.h"
+#include "just/cdn/p2p/P2pMediaInfo.h"
 #include "just/cdn/HttpFetch.h"
 #include "just/cdn/HttpStatistics.h"
 #include "just/cdn/CdnError.h"
@@ -27,30 +27,20 @@ namespace just
         class Merger;
     }
 
-    namespace certify
-    {
-        class Certifier;
-    }
-
-    namespace dac
-    {
-        class DacModule;
-    }
-
     namespace cdn
     {
 
-        class PptvP2pSource;
+        class P2pSource;
 
-        class PptvMedia
+        class P2pMedia
             : public just::data::SegmentMedia
         {
         public:
-            PptvMedia(
+            P2pMedia(
                 boost::asio::io_service & io_svc,
                 framework::string::Url const & url);
 
-            ~PptvMedia();
+            ~P2pMedia();
 
         public:
             virtual void cancel(
@@ -96,12 +86,12 @@ namespace just
             }
 
         public:
-            Video const & video() const
+            P2pVideo const & video() const
             {
                 return *video_;
             }
 
-            Jump const & jump() const
+            P2pJump const & jump() const
             {
                 return *jump_;
             }
@@ -151,10 +141,10 @@ namespace just
                 just::data::MediaBasicInfo const & info);
 
             void set_video(
-                Video & video);
+                P2pVideo & video);
 
             void set_jump(
-                Jump & jump);
+                P2pJump & jump);
 
             void set_user_host(
                 std::string const & user_host);
@@ -168,12 +158,12 @@ namespace just
             void parse_url();
 
             static bool parse_jump_param(
-                Jump & jump, 
+                P2pJump & jump, 
                 std::string const & param, 
                 bool force = false);
 
             static bool parse_video_param(
-                Video & video, 
+                P2pVideo & video, 
                 std::string const & param, 
                 bool force = false);
 
@@ -197,26 +187,22 @@ namespace just
                 HttpFetch::response_type const & resp);
 
         protected:
-            just::certify::Certifier & cert_;
-            just::dac::DacModule & dac_;
-
-        protected:
             framework::string::Url url_;
 
-            Video * video_;
-            Jump * jump_;
+            P2pVideo * video_;
+            P2pJump * jump_;
 
         private:
             OnwerTypeEnum owner_type_;
             void * owner_;
-            PptvP2pSource * source_;
+            P2pSource * source_;
 
         private:
             MediaBase::response_type resp_;
 
             std::string p2p_params_;
-            Jump parsed_jump_;
-            Video parsed_video_;
+            P2pJump parsed_jump_;
+            P2pVideo parsed_video_;
             std::string user_host_;
             framework::timer::Time local_time_; // 用于计算key值
 
@@ -226,7 +212,7 @@ namespace just
         };
 
         template <typename T>
-        void PptvMedia::async_fetch(
+        void P2pMedia::async_fetch(
             framework::string::Url const & url, 
             framework::network::NetName const & server_host, 
             T & t, 
@@ -236,7 +222,7 @@ namespace just
         }
 
         template <typename T>
-        void PptvMedia::parse(
+        void P2pMedia::parse(
             HttpFetch & fetch, 
             void * t, 
             boost::system::error_code & ec)
@@ -253,4 +239,4 @@ namespace just
     } // namespace cdn
 } // namespace just
 
-#endif // _JUST_CDN_PPTV_PPTV_MEDIA_H_
+#endif // _JUST_CDN_P2P_P2P_MEDIA_H_

@@ -1,7 +1,7 @@
 // P2pSource.h
 
-#ifndef JUST_CDN_P2P_SOURCE_H_
-#define JUST_CDN_P2P_SOURCE_H_
+#ifndef JUST_CDN_P2P_P2P_SOURCE_H_
+#define JUST_CDN_P2P_P2P_SOURCE_H_
 
 #include <just/cdn/HttpStatistics.h>
 
@@ -26,7 +26,7 @@ namespace just
     namespace cdn
     {
 
-        class PptvMedia;
+        class P2pMedia;
 
         class P2pSource
             : public  util::stream::HttpSource
@@ -56,12 +56,12 @@ namespace just
         public:
             just::cdn::HttpStatistics const & http_stat() const;
 
-            void pptv_media(
-                PptvMedia const & media);
+            void p2p_media(
+                P2pMedia const & media);
 
-            just::cdn::PptvMedia const & pptv_media()
+            just::cdn::P2pMedia const & p2p_media()
             {
-                return *pptv_media_;
+                return *p2p_media_;
             }
 
         protected:
@@ -99,15 +99,10 @@ namespace just
             }
 
         private:
-            just::cdn::PptvMedia const * pptv_media_;
+            just::cdn::P2pMedia const * p2p_media_;
             just::data::SegmentSource const * seg_source_;
             just::cdn::HttpStatistics http_stat_;
         };
-
-#ifdef JUST_DISABLE_PEER
-        UTIL_REGISTER_URL_SOURCE("ppvod", P2pSource);
-        UTIL_REGISTER_URL_SOURCE("ppvod2", P2pSource);
-#endif
 
     } // namespace peer
 } // namespace just

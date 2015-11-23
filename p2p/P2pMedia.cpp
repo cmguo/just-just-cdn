@@ -1,17 +1,12 @@
-// PptvMedia.cpp
+// P2pMedia.cpp
 
 #include "just/cdn/Common.h"
-#include "just/cdn/pptv/PptvMedia.h"
+#include "just/cdn/p2p/P2pMedia.h"
 #include "just/cdn/CdnError.h"
-#include "just/cdn/pptv/PptvP2pSource.h"
+#include "just/cdn/p2p/P2pSource.h"
 
 #ifndef JUST_DISABLE_CERTIFY
 #  include <just/certify/Certifier.h>
-#endif
-#ifndef JUST_DISABLE_DAC
-#  include <just/dac/DacModule.h>
-#  include <just/dac/DacInfoPlayOpen.h>
-#  include <just/dac/DacInfoPlayClose.h>
 #endif
 
 #include <just/demux/DemuxModule.h>
@@ -25,8 +20,6 @@
 #include <just/data/segment/SegmentBuffer.h>
 
 #include <just/common/DynamicString.h>
-
-#include <util/protocol/pptv/TimeKey.h> // for gen_key_from_time
 
 #include <framework/string/Format.h>
 #include <framework/string/Uuid.h>
@@ -51,26 +44,16 @@ namespace just
     namespace cdn
     {
 
-        FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("just.cdn.PptvMedia", framework::logger::Debug);
+        FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("just.cdn.P2pMedia", framework::logger::Debug);
 
         DEFINE_DYNAMIC_STRING(str_cdn_type, STR_CDN_TYPE);
 
         DEFINE_DYNAMIC_STRING(str_cdn_platform, STR_CDN_PLATFORM);
 
-        PptvMedia::PptvMedia(
+        P2pMedia::P2pMedia(
             boost::asio::io_service & io_svc,
             framework::string::Url const & url)
             : just::data::SegmentMedia(io_svc, url)
-#ifndef JUST_DISABLE_CERTIFY
-            , cert_(util::daemon::use_module<just::certify::Certifier>(io_svc))
-#else
-            , cert_(*(just::certify::Certifier *)NULL)
-#endif
-#ifndef JUST_DISABLE_DAC
-            , dac_(util::daemon::use_module<just::dac::DacModule>(io_svc))
-#else
-            , dac_(*(just::dac::DacModule *)NULL)
-#endif
             , url_(url)
             , video_(NULL)
             , jump_(NULL)
@@ -82,21 +65,13 @@ namespace just
             parse_url();
         }
 
-        PptvMedia::~PptvMedia()
+        P2pMedia::~P2pMedia()
         {
             fetch_->detach();
         }
 
-        void PptvMedia::parse_url()
+        void P2pMedia::parse_url()
         {
-            /*
-            * 补充vvid、type、platform
-            * cdn.jump.bwtype也在PptvMedia统一处理
-            * cdn.jump.server_host 也在PptvMedia统一处理
-            * cdn.drag.* 由派生类处理
-            * cdn.* 
-            * p2p.* 
-            */
             url_.protocol("http");
 
             if (parse_video_param(parsed_video_, url_.param("cdn.video"))) {
@@ -111,35 +86,20 @@ namespace just
 
             p2p_params_ = url_.param("p2p");
             url_.param("p2p", "");
-
-            if (url_.param("type").empty()) {
-                url_.param("type", str_cdn_type);
-            }
-            if (url_.param("platform").empty()) {
-                url_.param("platform", str_cdn_platform);
-            }
-            if (url_.param("auth").empty()) {
-                url_.param("auth", "55b7c50dc1adfc3bcabe2d9b2015e35c");
-            }
-            if (url_.param("vvid").empty()) {
-                framework::string::Uuid vvid;
-                vvid.generate();
-                url_.param("vvid", vvid.to_string());
-            }
         }
 
-        void PptvMedia::cancel(
+        void P2pMedia::cancel(
             boost::system::error_code & ec)
         {
             fetch_->cancel(ec);
         }
 
-        void PptvMedia::close(
+        void P2pMedia::close(
             boost::system::error_code & ec)
         {
             switch (owner_type_) {
             case ot_demuxer:
-                demuxer().status_changed.un(boost::bind(&PptvMedia::on_event, this, _1, _2));
+                demuxer().status_changed.un(boost::bind(&P2pMedia::on_event, this, _1, _2));
                 break;
             default:
                 break;
@@ -147,7 +107,7 @@ namespace just
             owner_type_ = ot_none;
         }
 
-        bool PptvMedia::get_basic_info(
+        bool P2pMedia::get_basic_info(
             just::avbase::MediaBasicInfo & info, 
             boost::system::error_code & ec) const
         {
@@ -156,7 +116,7 @@ namespace just
             return true;
         }
 
-        bool PptvMedia::get_info(
+        bool P2pMedia::get_info(
             just::avbase::MediaInfo & info,
             boost::system::error_code & ec) const
         {
@@ -169,7 +129,7 @@ namespace just
             return true;
         }
 
-        bool PptvMedia::get_url(
+        bool P2pMedia::get_url(
             framework::string::Url & url,
             boost::system::error_code & ec) const
         {
@@ -178,7 +138,7 @@ namespace just
             return true;
         }
 
-        void PptvMedia::set_response(
+        void P2pMedia::set_response(
             MediaBase::response_type const & resp)
         {
             resp_ = resp;
@@ -187,20 +147,20 @@ namespace just
             owner_ = demux.find(*this); // 需要原始的URL
             if (owner_) {
                 owner_type_ = ot_demuxer;
-                demuxer().status_changed.on(boost::bind(&PptvMedia::on_event, this, _1, _2));
+                demuxer().status_changed.on(boost::bind(&P2pMedia::on_event, this, _1, _2));
                 return;
             }
             just::merge::MergeModule & merge = util::daemon::use_module<just::merge::MergeModule>(get_io_service());
             owner_ = merge.find(*this); // 需要原始的URL
             if (owner_) {
                 owner_type_ = ot_merger;
-                merger().status_changed.on(boost::bind(&PptvMedia::on_event, this, _1, _2));
+                merger().status_changed.on(boost::bind(&P2pMedia::on_event, this, _1, _2));
                 return;
             }
             assert(owner_);
         }
 
-        void PptvMedia::response(
+        void P2pMedia::response(
             boost::system::error_code const & ec)
         {
             MediaBase::response_type resp;
@@ -208,17 +168,17 @@ namespace just
             resp(ec);
         }
 
-        void PptvMedia::set_basic_info(
+        void P2pMedia::set_basic_info(
             just::avbase::MediaBasicInfo const & info)
         {
             (just::avbase::MediaBasicInfo &)parsed_video_ = info;
         }
 
-        void PptvMedia::set_video(
-            Video & video)
+        void P2pMedia::set_video(
+            P2pVideo & video)
         {
             (just::avbase::MediaBasicInfo &)video = parsed_video_;
-            if (video.type == Video::live) {
+            if (video.type == P2pVideo::live) {
                 if (video.shift == 0)
                     video.shift = video.delay;
                 if (video.current == 0)
@@ -231,7 +191,7 @@ namespace just
                 LOG_INFO("[set video] file_size: " << video_->file_size);
                 LOG_INFO("[set video] duration: " << video_->duration);
                 LOG_INFO("[set video] bitrate: " << video_->bitrate);
-                if (video_->type == Video::live) {
+                if (video_->type == P2pVideo::live) {
                     LOG_INFO("[set video] delay: " << video_->delay);
                     LOG_INFO("[set video] shift: " << video_->shift);
                 }
@@ -243,33 +203,30 @@ namespace just
             }
         }
 
-        void PptvMedia::set_jump(
-            Jump & jump)
+        void P2pMedia::set_jump(
+            P2pJump & jump)
         {
             if (jump_ == NULL) {
                 jump_ = &jump;
                 parse_jump_param(jump, MediaBase::url_.param("cdn.jump"), true);
-                LOG_INFO("[set jump] server_host: " << jump_->server_host.host_svc());
+                LOG_INFO("[set jump] url: " << jump_->url.host_svc());
                 LOG_INFO("[set jump] server_time: " << jump_->server_time.to_time_t());
                 LOG_INFO("[set jump] bw_type: " << jump_->bw_type);
-                LOG_INFO("[set jump] back_host: " << jump_->back_host.host_svc());
+                LOG_INFO("[set jump] url2: " << jump_->url2.host_svc());
                 local_time_ = local_time_.now();
-
-                url_.host(jump_->server_host.host());
-                url_.svc(jump_->server_host.svc());
             } else {
                 assert(*jump_ == jump);
             }
         }
 
-        void PptvMedia::set_user_host(
+        void P2pMedia::set_user_host(
             std::string const & user_host)
         {
             user_host_ = user_host;
             LOG_INFO("[set user_host] " << user_host_);
         }
 
-        void PptvMedia::on_event(
+        void P2pMedia::on_event(
             util::event::Observable const & sender, 
             util::event::Event const & event)
         {
@@ -279,43 +236,37 @@ namespace just
                 if (owner_type_ == ot_demuxer) {
                     assert(event == demuxer().status_changed);
                     source_ = 
-                        &const_cast<PptvP2pSource &>(static_cast<PptvP2pSource const &>(demuxer().source().source()));
-                    source_->pptv_media(*this);
+                        &const_cast<P2pSource &>(static_cast<P2pSource const &>(demuxer().source().source()));
+                    source_->p2p_media(*this);
                 } else {
                     assert(event == merger().status_changed);
                     source_ = 
-                        &const_cast<PptvP2pSource &>(static_cast<PptvP2pSource const &>(merger().source().source()));
-                    source_->pptv_media(*this);
+                        &const_cast<P2pSource &>(static_cast<P2pSource const &>(merger().source().source()));
+                    source_->p2p_media(*this);
                 }
             } else if (stat.status() == StreamStatistic::opened) {
-#ifndef JUST_DISABLE_DAC
-                dac_.submit(just::dac::DacPlayOpenInfo(*this, source_, stat));
-#endif
                 if (!stat.last_error())
                     async_open2();
             } else if (stat.status() == StreamStatistic::closed) {
-#ifndef JUST_DISABLE_DAC
-                dac_.submit(just::dac::DacPlayCloseInfo(*this, stat, &demuxer().source()));
-#endif
             }
         }
 
-        bool PptvMedia::parse_jump_param(
-            Jump & jump, 
+        bool P2pMedia::parse_jump_param(
+            P2pJump & jump, 
             std::string const & param, 
             bool force)
         {
             boost::system::error_code ec;
             ec 
-                || ((ec = map_find(param, "svrhost", jump.server_host, JUST_CDN_PARAM_DELIM)) && !force)
+                || ((ec = map_find(param, "url", jump.url, JUST_CDN_PARAM_DELIM)) && !force)
+                || ((ec = map_find(param, "url2", jump.url2, JUST_CDN_PARAM_DELIM)) && !force)
                 || ((ec = map_find(param, "svrtime", jump.server_time, JUST_CDN_PARAM_DELIM)) && !force)
-                || ((ec = map_find(param, "bakhost", jump.back_host, JUST_CDN_PARAM_DELIM)) && !force)
                 || (ec = map_find(param, "bwtype", jump.bw_type, JUST_CDN_PARAM_DELIM));
             return !ec;
         }
 
-        bool PptvMedia::parse_video_param(
-            Video & video, 
+        bool P2pMedia::parse_video_param(
+            P2pVideo & video, 
             std::string const & param, 
             bool force)
         {
@@ -327,15 +278,7 @@ namespace just
             return !ec;
         }
 
-        std::string PptvMedia::get_key() const
-        {
-            if (jump_ == NULL)
-                return std::string();
-            return util::protocol::pptv::gen_key_from_time(
-                (boost::uint32_t)(jump_->server_time.to_time_t() + (time_t)(Time::now() - local_time_).total_seconds()));
-        }
-
-        void PptvMedia::async_fetch(
+        void P2pMedia::async_fetch(
             framework::string::Url const & url, 
             framework::network::NetName const & server_host, 
             parser_t parser, 
@@ -345,10 +288,10 @@ namespace just
             LOG_INFO("[async_fetch] start, url: " << url.to_string());
 
             fetch_->async_fetch(url, server_host, 
-                boost::bind(&PptvMedia::handle_fetch, this, _1, parser, t, resp));
+                boost::bind(&P2pMedia::handle_fetch, this, _1, parser, t, resp));
         }
 
-        void PptvMedia::handle_fetch(
+        void P2pMedia::handle_fetch(
             boost::system::error_code const & ecc, 
             parser_t parser, 
             void * t, 

@@ -1,8 +1,8 @@
 // P2pSource.cpp
 
 #include "just/cdn/Common.h"
-#include "just/cdn/pptv/P2pSource.h"
-#include "just/cdn/pptv/PptvMedia.h"
+#include "just/cdn/p2p/P2pSource.h"
+#include "just/cdn/p2p/P2pMedia.h"
 
 #include <just/demux/segment/SegmentDemuxer.h>
 
@@ -25,7 +25,7 @@ namespace just
         P2pSource::P2pSource(
             boost::asio::io_service & io_svc)
             : HttpSource(io_svc)
-            , pptv_media_(NULL)
+            , p2p_media_(NULL)
             , seg_source_(NULL)
         {
         }
@@ -91,26 +91,26 @@ namespace just
             return http_stat_;
         }
 
-        void P2pSource::pptv_media(
-            just::cdn::PptvMedia const & media)
+        void P2pSource::p2p_media(
+            just::cdn::P2pMedia const & media)
         {
-            pptv_media_ = &media;
+            p2p_media_ = &media;
 
-            switch (pptv_media().owner_type()) {
-                case just::cdn::PptvMedia::ot_demuxer:
-                    pptv_media().demuxer().buffer_update.on(boost::bind(&P2pSource::on_event, this, _1, _2));
-                    seg_source_ = &pptv_media().demuxer().source();
+            switch (p2p_media().owner_type()) {
+                case just::cdn::P2pMedia::ot_demuxer:
+                    p2p_media().demuxer().buffer_update.on(boost::bind(&P2pSource::on_event, this, _1, _2));
+                    seg_source_ = &p2p_media().demuxer().source();
                     break;
-                case just::cdn::PptvMedia::ot_merger:
-                     //pptv_media().merger().on<just::demux::BufferingEvent>(boost::bind(&P2pSource::on_event, this, _1));
-                    seg_source_ = &pptv_media().merger().source();
+                case just::cdn::P2pMedia::ot_merger:
+                     //p2p_media().merger().on<just::demux::BufferingEvent>(boost::bind(&P2pSource::on_event, this, _1));
+                    seg_source_ = &p2p_media().merger().source();
                     break;
                 default:
                     assert(0);
                     break;
             }
 
-            parse_param(pptv_media().p2p_params());
+            parse_param(p2p_media().p2p_params());
         }
 
         void P2pSource::on_event(

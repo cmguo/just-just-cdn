@@ -5,7 +5,7 @@
 
 #ifndef JUST_CDN_DISABLE_PPTV
 #  include "just/cdn/pptv/PptvMediaTypes.h"
-#  include "just/cdn/pptv/P2pSource.h"
+#  include "just/cdn/pptv/PptvP2pSource.h"
 #endif
 
 #ifndef JUST_CDN_DISABLE_TRIP
