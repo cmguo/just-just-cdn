@@ -45,7 +45,7 @@ namespace just
         size_t TripMedia::segment_count() const
         {
             size_t ret = size_t(-1);
-            ret = (size_t)meta_info_.segcount;
+            ret = (size_t)info_.meta.segcount;
             return ret;
         }
 
@@ -54,13 +54,12 @@ namespace just
             framework::string::Url & url,
             boost::system::error_code & ec) const
         {
-            if (segment >= meta_info_.segcount) {
+            if (segment >= info_.meta.segcount) {
                 ec = logic_error::item_not_exist;
                 return false;
             }
-            url = url_;
-            url.protocol("http");
-            url.path("/fetch/" + format(segment) + url.path());
+            url = jump_.url;
+            url.path(url.path() + format(segment));
             ec.clear();
             return true;
         }
@@ -71,19 +70,19 @@ namespace just
             boost::system::error_code & ec) const
         {
             ec.clear();
-            if (segment >= meta_info_.segcount) {
+            if (segment >= info_.meta.segcount) {
                 ec = logic_error::item_not_exist;
                 return false;
             }
             info.head_size = boost::uint64_t(-1);
             info.offset = boost::uint64_t(-1);
-            if (index_info_.segments.is_initialized() && segment < index_info_.segments.get().size()) {
-                ::trip::client::SegmentMeta const & seg(index_info_.segments.get().at(segment));
+            if (info_.segments.is_initialized() && segment < info_.segments.get().size()) {
+                ::trip::client::SegmentMeta const & seg(info_.segments.get().at(segment));
                 info.size = seg.bytesize;
                 info.duration = seg.duration;
             } else {
                 info.size = boost::uint64_t(-1);
-                info.duration = boost::uint64_t(-1);
+                info.duration = info_.meta.interval;
             }
             return true;
         }
@@ -96,6 +95,23 @@ namespace just
             boost::system::error_code ec;
             parse_url(ec);
             handle_async_open(ec);
+        }
+
+        static void null_resp() {}
+
+        void TripMedia::close(
+            boost::system::error_code & ec)
+        {
+
+            if (!info_.segments.is_initialized()) {
+                static int n;
+                async_fetch(
+                    jump_.url2, 
+                    framework::network::NetName(), 
+                    n, 
+                    boost::bind(null_resp));
+            }
+            P2pMedia::close(ec);
         }
 
         void TripMedia::handle_async_open(
@@ -117,11 +133,11 @@ namespace just
                     open_step_ = StepType::p2p_meta;
                     LOG_INFO("p2p_meta: start");
                     {
-                        framework::network::NetName dns_vod("127.0.0.1:4444");
+                        framework::network::NetName dns_vod("127.0.0.1:2015");
                         async_fetch(
                             get_p2p_url(url),
                             dns_vod,
-                            meta_info_, 
+                            info_, 
                             boost::bind(&TripMedia::handle_async_open, this, _1));
                     }
 #else
@@ -134,25 +150,20 @@ namespace just
                         async_fetch(
                             get_index_url(url),
                             dns_index,
-                            index_info_, 
+                            info_, 
                             boost::bind(&TripMedia::handle_async_open, this, _1));
-                    } else {
-                        P2pVideo video;
-                        meta_to_video(meta_info_, video);
-                        set_video(video);
-                        open_step_ = StepType::finish;
-                        response(ec);
+                        break;
                     }
-                    break;
+                    // go down
                 case StepType::cdn_index:
                     {
-                        P2pVideo video;
-                        index_to_video(index_info_, video);
-                        set_video(video);
-                        P2pJump jump;
-                        index_to_jump(index_info_, jump);
-                        set_jump(jump);
+                        info_to_video(info_, video_);
+                        set_basic_info(video_);
+                        set_video(video_);
+                        info_to_jump(info_, jump_);
+                        set_jump(jump_);
                         open_step_ = StepType::finish;
+                        LOG_INFO("info: segcount =" << info_.meta.segcount);
                         response(ec);
                     }
                     break;

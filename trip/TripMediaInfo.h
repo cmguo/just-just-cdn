@@ -13,16 +13,12 @@ namespace just
     namespace cdn
     {
 
-        void meta_to_video(
-            ::trip::client::ResourceMeta const & meta, 
+        void info_to_video(
+            ::trip::client::ResourceInfo const & info, 
             P2pVideo & video);
 
-        void index_to_video(
-            ::trip::client::ResourceInfo const & index, 
-            P2pVideo & video);
-
-        void index_to_jump(
-            ::trip::client::ResourceInfo const & index, 
+        void info_to_jump(
+            ::trip::client::ResourceInfo const & info, 
             P2pJump & video);
 
     } // namespace cdn

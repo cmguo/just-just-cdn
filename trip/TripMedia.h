@@ -35,8 +35,11 @@ namespace just
                 boost::system::error_code & ec) const;
 
         public:
-            void async_open(
+            virtual void async_open(
                 response_type const & resp);
+
+            virtual void close(
+                boost::system::error_code & ec);
 
         private:
             void parse_url(
@@ -65,8 +68,9 @@ namespace just
 
         private:
             StepType::Enum open_step_;
-            ::trip::client::ResourceBasicInfo meta_info_;
-            ::trip::client::ResourceInfo index_info_;
+            ::trip::client::ResourceInfo info_;
+            P2pVideo video_;
+            P2pJump jump_;
         };
 
         JUST_REGISTER_MEDIA_BY_PROTOCOL("trip", TripMedia);

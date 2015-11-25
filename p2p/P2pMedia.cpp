@@ -187,6 +187,9 @@ namespace just
             if (video_ == NULL) {
                 video_ = &video;
                 parse_video_param(video, MediaBase::url_.param("cdn.video"), false);
+                LOG_INFO("[set video] type: " << video_->type);
+                LOG_INFO("[set video] flags: " << video_->flags);
+                LOG_INFO("[set video] format_type: " << video_->format_type);
                 LOG_INFO("[set video] name: " << video_->name);
                 LOG_INFO("[set video] file_size: " << video_->file_size);
                 LOG_INFO("[set video] duration: " << video_->duration);
