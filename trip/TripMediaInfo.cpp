@@ -14,6 +14,10 @@ namespace just
         {
             video.duration = info.meta.duration;
             video.file_size = info.meta.bytesize;
+            if (video.duration == 0)
+                video.duration = invalid_size;
+            if (video.file_size == 0)
+                video.file_size = invalid_size;
             video.format_type = info.meta.file_extension.substr(1);
             if (video.format_type == "ts") {
                 video.flags |= just::data::SegmentMediaFlags::f_smoth;
