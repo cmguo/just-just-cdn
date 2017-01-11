@@ -8,7 +8,7 @@ PROJECT_TYPE			:= lib
 
 ## 生成目标名称（完整文件名称要根据类型PROJECT_TYPE、配置LOCAL_CONFIG、版本PROJECT_VERSION增加前缀、后缀）
 
-PROJECT_TARGET			:= just_cdn
+PROJECT_TARGET			:= drm_decrypt
 
 ## 项目版本号（只要前三位，最后一位自动生成）
 
@@ -24,27 +24,31 @@ PROJECT_SOURCE_SUB_DIRECTORYS	:=
 
 ## 指定搜索源码子目录的深度（默认为1）
 
-PROJECT_SOURCE_DEPTH   		:= 2
+PROJECT_SOURCE_DEPTH   		:= 1
 
 ## 指定头文件目录（该项目头文件的总目录，相对于头文件根目录ROOT_HEADER_DIRECTORY，默认为LOCAL_NAME）
 
-PROJECT_HEADER_DIRECTORY	:=
+PROJECT_HEADER_DIRECTORY	:= .
 
 ## 项目预编译头文件
 
-PROJECT_COMMON_HEADERS  	:= just/cdn/Common.h
+PROJECT_COMMON_HEADERS  	:= 
 
 ## 内部包含目录（相对于源文件根目录ROOT_SOURCE_DIRECTORY）
 
-PROJECT_INTERNAL_INCLUDES	:= just just/cdn/pptv/drm_decrypt thirdparty/socketlite
+PROJECT_INTERNAL_INCLUDES	:= just/drm_decrypt thirdparty/socketlite
 
 ## 额外包含目录（多个，相对于包含根目录ROOT_INCLUDE_DIRECTORY）
 
-PROJECT_EXTERNAL_INCLUDES	:= 
+PROJECT_EXTERNAL_INCLUDES	:=
 
 ## 该项目特点的编译选项
 
-PROJECT_COMPILE_FLAGS		:= $(PROJECT_COMPILE_FLAGS)
+ifeq ($(findstring ios,$(PLATFORM_NAME)), ios)
+PROJECT_COMPILE_FLAGS		:= $(PROJECT_COMPILE_FLAGS) -DSECURE_CHANNEL_C_STATIC
+else
+PROJECT_COMPILE_FLAGS		:= $(PROJECT_COMPILE_FLAGS) -DSECURE_CHANNEL_C_STATIC -DSOCKETLITE_NOT_HAVE_HASH_MAP
+endif
 
 ## 该项目特点的链接选项
 
@@ -52,18 +56,8 @@ PROJECT_LINK_FLAGS		:= $(PROJECT_LINK_FLAGS)
 
 ## 该项目依赖的其他项目
 
-PROJECT_DEPENDS			:= \
-				/just/demux \
-				/just/merge \
-				/thirdparty/socketlite \
-				$(PROJECT_DEPENDS) \
+PROJECT_DEPENDS			:= /thirdparty/socketlite $(PROJECT_DEPENDS)
 
 ## 该项目特定的引用库
 
-PROJECT_DEPEND_LIBRARYS		:= 
-
-ifeq ($(findstring ios,$(PLATFORM_NAME)), ios)
-PROJECT_COMPILE_FLAGS		:= $(PROJECT_COMPILE_FLAGS) -DSECURE_CHANNEL_C_STATIC
-else
-PROJECT_COMPILE_FLAGS		:= $(PROJECT_COMPILE_FLAGS) -DSECURE_CHANNEL_C_STATIC -DSOCKETLITE_NOT_HAVE_HASH_MAP
-endif
+PROJECT_DEPEND_LIBRARYS		:= $(PROJECT_DEPEND_LIBRARYS)
