@@ -170,6 +170,7 @@ namespace just
                 ec = error::bad_ft_param;
                 return;
             }
+            failed = true;
             for (size_t i = 0; i < play_info_.drags.size(); ++i) {
                     if (play_info_.drags[i].ft == ft_) {
                     set_segments(play_info_.drags[i].segments);
