@@ -14,7 +14,7 @@ using namespace framework::string;
 #include <framework/logger/StreamRecord.h>
 
 #ifndef JUST_DNS_LIVE1_JUMP
-#  define JUST_DNS_LIVE1_JUMP "(tcp)(v4)live.dt.synacast.com:80"
+#  define JUST_DNS_LIVE1_JUMP "(tcp)(v4)live.dt.com:80"
 #endif
 
 namespace just
@@ -111,12 +111,12 @@ namespace just
                     }
                     open_step_ = StepType::jumping;
                     LOG_INFO("jump: start");
-                    async_fetch(
-                        get_jump_url(url),
-                        dns_live1_jump,
-                        jump_info_, 
-                        boost::bind(&PptvLive1::handle_async_open, this ,_1));
-                    break;
+                    //async_fetch(
+                    //    get_jump_url(url),
+                    //    dns_live1_jump,
+                    //    jump_info_, 
+                    //    boost::bind(&PptvLive1::handle_async_open, this ,_1));
+                    //break;
                 case StepType::jumping:
                     set_jump(jump_info_.jump);
                     set_segment(jump_info_.seg);
