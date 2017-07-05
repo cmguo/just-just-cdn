@@ -5,7 +5,9 @@
 #include "just/cdn/pptv/PptvVod1.h"
 
 #include <just/common/DomainName.h>
+#ifndef JUST_DISABLE_CERTIFY
 #include <just/certify/Certifier.h>
+#endif
 
 #include <util/protocol/pptv/Url.h>
 using namespace util::protocol;

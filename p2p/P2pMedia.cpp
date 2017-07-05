@@ -13,8 +13,10 @@
 #include <just/demux/base/DemuxEvent.h>
 #include <just/demux/segment/SegmentDemuxer.h>
 
+#ifndef JUST_DISABLE_MERGE
 #include <just/merge/MergeModule.h>
 #include <just/merge/Merger.h>
+#endif
 
 #include <just/data/segment/SegmentSource.h>
 #include <just/data/segment/SegmentBuffer.h>
@@ -150,6 +152,7 @@ namespace just
                 demuxer().status_changed.on(boost::bind(&P2pMedia::on_event, this, _1, _2));
                 return;
             }
+#ifndef JUST_DISABLE_MERGE
             just::merge::MergeModule & merge = util::daemon::use_module<just::merge::MergeModule>(get_io_service());
             owner_ = merge.find(*this); // 需要原始的URL
             if (owner_) {
@@ -157,6 +160,7 @@ namespace just
                 merger().status_changed.on(boost::bind(&P2pMedia::on_event, this, _1, _2));
                 return;
             }
+#endif
             assert(owner_);
         }
 
@@ -241,11 +245,13 @@ namespace just
                     source_ = 
                         &const_cast<P2pSource &>(static_cast<P2pSource const &>(demuxer().source().source()));
                     source_->p2p_media(*this);
+#ifndef JUST_DISABLE_MERGE
                 } else {
                     assert(event == merger().status_changed);
                     source_ = 
                         &const_cast<P2pSource &>(static_cast<P2pSource const &>(merger().source().source()));
                     source_->p2p_media(*this);
+#endif
                 }
             } else if (stat.status() == StreamStatistic::opened) {
                 if (!stat.last_error())

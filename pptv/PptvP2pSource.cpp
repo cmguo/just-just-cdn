@@ -6,7 +6,9 @@
 
 #include <just/demux/segment/SegmentDemuxer.h>
 
+#ifndef JUST_DISABLE_MERGE
 #include <just/merge/Merger.h>
+#endif
 
 #include <just/data/segment/SegmentSource.h>
 
@@ -101,10 +103,12 @@ namespace just
                     pptv_media().demuxer().buffer_update.on(boost::bind(&PptvP2pSource::on_event, this, _1, _2));
                     seg_source_ = &pptv_media().demuxer().source();
                     break;
+#ifndef JUST_DISABLE_MERGE
                 case just::cdn::PptvMedia::ot_merger:
                      //pptv_media().merger().on<just::demux::BufferingEvent>(boost::bind(&PptvP2pSource::on_event, this, _1));
                     seg_source_ = &pptv_media().merger().source();
                     break;
+#endif
                 default:
                     assert(0);
                     break;
