@@ -127,6 +127,7 @@ namespace just
             }
             url.path("/boxplay.api");
             url.param("id", url_.path().substr(1));
+            url.param_add("content", "need_drag");
             if (ft_ != (size_t)-1) {
                 url.param("f", format(ft_));
             }
